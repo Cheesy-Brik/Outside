@@ -146,7 +146,7 @@ def user_check(id):
             'recipes' : []
     } 
 
-def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):
+def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
     biomenoise = PerlinNoise(octaves=1, seed=558)
     
@@ -336,8 +336,6 @@ async def on_ready():
 async def surroundings(ctx):
     
     taskid = int(task[ctx.channel.id])
-    
-    #Need to not make terrible
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
