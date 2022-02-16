@@ -785,7 +785,7 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
 
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
-    outside_bot = await client.fetch_member(807757190316163104)
+    outside_bot = await client.fetch_user(807757190316163104)
 
     embed = discord.Embed(title='Help', description='', color=0x00ff00)
     embed.add_field(name='-**surroundings**-', value="Shows the area around you and your current temperature.", inline=False)
