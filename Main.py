@@ -333,7 +333,7 @@ async def on_ready():
             await me.send('🟢 Bot online!')
             print('Boot up complete')
         except:
-            print("Unable to send message to developer:", developer.name)
+            print("Unable to send message to developer:", me.name)
 
 #commands
 
