@@ -369,7 +369,7 @@ async def surroundings(ctx):
             if task[ctx.channel.id] != taskid:return
         await msg.edit(await fetch_area(ctx.author.id))
 
-@client.command()
+@client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -396,7 +396,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
     
-@client.command()
+@client.command(aliases = ['l'])
 async def look(ctx):
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -420,7 +420,7 @@ async def look(ctx):
         readable += f'{items.count(items[len(set(items)) - 1]) if items.count(items[len(set(items)) - 1])>1 else "a"} {items[len(set(items)) - 1]}{"s" if items.count(items[len(set(items)) - 1])>1 else ""} '
     await ctx.reply(f'You see {readable}')
 
-@client.command()
+@client.command(aliases = ['pu', 'p'])
 async def pickup(ctx):
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -438,7 +438,7 @@ async def pickup(ctx):
     save['users'][id]['stats']['int level'] += 1
     await ctx.reply(f'You picked up a {item}')
 
-@client.command()
+@client.command(aliases = ['inventory', 'pocket', 'i'])
 async def inv(ctx, *, txt = 'all'):
     id = ctx.author.id   
     reg1 = 0
@@ -501,7 +501,7 @@ async def inv(ctx, *, txt = 'all'):
     await msg.remove_reaction(emoji= "◀", member = client.user)
     await msg.remove_reaction(emoji= "⏹", member = client.user)          
 
-@client.command(aliases = ['recipes'])
+@client.command(aliases = ['recipes', 'rs'])
 async def _recipes(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      id = ctx.author.id    
      reg1 = 0
@@ -564,7 +564,7 @@ async def _recipes(ctx, *, txt = 'all'):#Gotta merge this and the !recipe comman
          await msg.remove_reaction(emoji= "◀", member = client.user)
          await msg.remove_reaction(emoji= "⏹", member = client.user)                  
 
-@client.command()
+@client.command(aliases = ['brain', 't'])
 async def think(ctx):
     id = ctx.author.id  
     possible = []
@@ -585,7 +585,7 @@ async def think(ctx):
     else:
         await ctx.reply('You were on the verge of thinking of something but failed to!\nKeep trying!')
 
-@client.command()
+@client.command(aliases = ['c'])
 async def craft(ctx, *, item = ''):
     id = ctx.author.id
     unlocked = list(save['users'][id]['recipes'])
@@ -621,7 +621,7 @@ async def craft(ctx, *, item = ''):
         save['users'][id]['stats']['int level'] += 1
         await ctx.reply(f'You crafted {recipe}')
 
-@client.command()
+@client.command(aliases = ['u'])
 async def use(ctx, *, tool = ''):
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -690,7 +690,7 @@ async def use(ctx, *, tool = ''):
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
 
-@client.command()
+@client.command(aliases = ['r'])
 async def recipe(ctx, *, recipe = ''):
     id = ctx.author.id
     unlocked = list(save['users'][id]['recipes'])
@@ -703,7 +703,7 @@ async def recipe(ctx, *, recipe = ''):
         return
     await ctx.reply("\n".join( (x.capitalize() + ': ' + str(recipes[recipe]['recipe'][x])) for x in recipes[recipe]['recipe']))
 
-@client.command()
+@client.command(aliases = ['p'])
 async def place(ctx, *, placement = ''):
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
