@@ -328,8 +328,12 @@ def has(id, item):
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
         me = await client.fetch_user(developer)
-        await me.send('🟢 Bot online!')
-        print('Boot up complete')
+
+        try:
+            await me.send('🟢 Bot online!')
+            print('Boot up complete')
+        except:
+            print("Unable to send message to developer:", developer.name)
 
 #commands
 
