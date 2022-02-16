@@ -821,7 +821,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed.add_field(name='-**think**- (brain, t)', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
     embed.add_field(name='-**craft**- (c)', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
     embed.add_field(name='-**recipes**- (rs)', value="Shows the recipe of a specified item.", inline=False)
-    embed.add_field(name='-**info**- (i)', value="Shows your info.", inline=False)
+    embed.add_field(name='-**info**- (in)', value="Shows your info.", inline=False)
 
     await ctx.reply(embed=embed)
 
