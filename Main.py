@@ -1,3 +1,4 @@
+from ast import alias
 import asyncio
 import os
 import random
@@ -500,6 +501,69 @@ async def inv(ctx, *, txt = 'all'):
     await msg.remove_reaction(emoji= "◀", member = client.user)
     await msg.remove_reaction(emoji= "⏹", member = client.user)          
 
+@client.command(aliases = ['recipes'])
+async def _recipes(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
+     id = ctx.author.id    
+     reg1 = 0
+     inv = []
+     pageinv=[]
+     if txt != 'all':
+         try: 
+             embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
+             embed.set_author(name=" ")
+             embed.set_footer(text=" ")             
+             await ctx.reply(embed = embed)
+         except:
+             if ctx.message.mentions != []:
+                id = ctx.message.mentions[0].id
+                try:save["users"][id]
+                except:
+                    await ctx.reply('That person does not have any recipes')
+                    return
+             else:
+                await ctx.reply("You don't have any of that recipe")
+                return
+     else: 
+         for i in sorted(save["users"][id]['recipes'], reverse = True):             
+             if i != '':
+                inv.append(f'**{i}**')
+                reg1 += 1
+             if reg1 == 30:
+                 pageinv.append('\n'.join(inv))
+                 inv = []
+                 reg1 = 0
+         if reg1 != 30:
+             pageinv.append('\n'.join(inv))            
+         embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
+         embed.set_author(name=" ")
+         embed.set_footer(text=" ")
+         msg = await ctx.reply(embed=embed)
+         num=1
+         await msg.add_reaction("◀")
+         await msg.add_reaction("▶")
+         await msg.add_reaction("⏹")
+         while True:
+             def check(reaction, user):
+                 return user==ctx.message.author and str(reaction.emoji) in ["▶","◀","⏹"]
+             try: reaction, user = await client.wait_for("reaction_add", timeout=300, check = check)
+             except asyncio.TimeoutError: break
+             else:
+                 if not user == client.user:
+                     try: await msg.remove_reaction(emoji=reaction.emoji, member=user)
+                     except: pass
+                     if str(reaction.emoji) == "▶": 
+                         if num < len(pageinv): num += 1
+                     elif str(reaction.emoji) == "◀":
+                         if num > 1: num -= 1
+                     elif str(reaction.emoji) == "⏹": break
+                 embed=discord.Embed(title=f"Recipes(Page {num})", description=pageinv[num - 1])
+                 embed.set_author(name=" ")
+                 embed.set_footer(text=" ")
+                 await msg.edit(content = '', embed = embed)
+         await msg.remove_reaction(emoji= "▶", member = client.user)      
+         await msg.remove_reaction(emoji= "◀", member = client.user)
+         await msg.remove_reaction(emoji= "⏹", member = client.user)                  
+
 @client.command()
 async def think(ctx):
     id = ctx.author.id  
@@ -597,7 +661,7 @@ async def use(ctx, *, tool = ''):
             if mineral in save['users'][id]['inv']:save['users'][id]['inv'][mineral]['amount'] += 1
             else:save['users'][id]['inv'][mineral] = {'amount' : 1}
             minerals.remove(mineral)
-            await ctx.send(f'You mined and got {mineral}')
+            await ctx.reply(f'You mined and got {mineral}')
     if tool in ['crude fishing pole']:
         for i in range(3):
             for j in range(3):
@@ -605,10 +669,10 @@ async def use(ctx, *, tool = ''):
             else:continue#Best not to think about it
             break
         else:
-            await ctx.send('You need to be next to water to use this')
+            await ctx.reply('You need to be next to water to use this')
             return
         fish = 'fish'
-        await ctx.send(f'You got a {fish}')
+        await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
             
