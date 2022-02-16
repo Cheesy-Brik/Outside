@@ -144,7 +144,7 @@ def user_check(id):
             'pos' : pos,
             'inv' : {},
             'recipes' : []
-    } 
+        } 
 
 def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
