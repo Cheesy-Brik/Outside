@@ -789,9 +789,9 @@ async def info(ctx, user:discord.Member=''):
     pos = (f'[{pos[0]}, {pos[1]}]')
 
     embed = discord.Embed(title=f'{user.name}', description=f'{user.id}', color=0x00ff00)
-    embed.add_field(name='Level', value=stats['int level'], inline=True)
-    embed.add_field(name='Intelligence', value=stats['intelligence'], inline=True)
-    embed.add_field(name='Position', value=pos, inline=True)
+    embed.add_field(name='Level', value=stats['int level'], inline=False)
+    embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
+    embed.add_field(name='Position', value=pos.join(", "), inline=False)
 
     await ctx.reply(embed=embed)
 
