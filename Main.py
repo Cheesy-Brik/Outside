@@ -341,6 +341,7 @@ async def on_ready():
 
 @client.command(aliases = ['s'])
 async def surroundings(ctx):
+    "Shows the area around you and your current temperature."
     
     taskid = int(task[ctx.channel.id])
     
@@ -377,6 +378,7 @@ async def surroundings(ctx):
 
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
+    "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     
@@ -404,6 +406,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     
 @client.command(aliases = ['l'])
 async def look(ctx):
+    "Tells you all the current items in the square you're in"
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     items = list(fetch_square(id, x, y)['has'] + fetch_square(id, x, y)['placements'])
@@ -428,6 +431,7 @@ async def look(ctx):
 
 @client.command(aliases = ['pu', 'p'])
 async def pickup(ctx):
+    "Will pickup a random item that's in the square you're in."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     items = list(fetch_square(id, x, y)['has'])
@@ -446,6 +450,7 @@ async def pickup(ctx):
 
 @client.command(aliases = ['inventory', 'pocket', 'i'])
 async def inv(ctx, *, txt = 'all'):
+    "Let's you see your items."
     id = ctx.author.id   
     reg1 = 0
     inv = []
@@ -508,7 +513,8 @@ async def inv(ctx, *, txt = 'all'):
     await msg.remove_reaction(emoji= "⏹", member = client.user)          
 
 @client.command(aliases = ['recipes', 'rs'])
-async def _recipes(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
+async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
+     "Shows what recipes you can craft."
      id = ctx.author.id    
      reg1 = 0
      inv = []
@@ -572,6 +578,7 @@ async def _recipes(ctx, *, txt = 'all'):#Gotta merge this and the !recipe comman
 
 @client.command(aliases = ['brain', 't'])
 async def think(ctx):
+    "Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe."
     id = ctx.author.id  
     possible = []
     for i in recipes:
@@ -593,6 +600,7 @@ async def think(ctx):
 
 @client.command(aliases = ['c'])
 async def craft(ctx, *, item = ''):
+    'Crafts the specified item if you have enough resources in your inv.'
     id = ctx.author.id
     unlocked = list(save['users'][id]['recipes'])
     recipe = item.lower().strip()
@@ -772,6 +780,7 @@ async def on_message(txt):
      
 @client.command(aliases = ['in'])
 async def info(ctx, user:discord.Member=''):
+    "Shows your info."
     if user == '':
         user = ctx.author
 
@@ -809,16 +818,8 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
 
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
     embed.set_thumbnail(url=ctx.me.avatar.url)
-    embed.add_field(name='-**surroundings**- (s)', value="Shows the area around you and your current temperature.", inline=False)
-    embed.add_field(name='-**walk**- (w, move)', value="Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10).", inline=False)
-    embed.add_field(name='-**pickup**- (p, pu)', value="Will pickup a random item that's in the square you're in.", inline=False)
-    embed.add_field(name='-**inv**- (inventory, pocket, i)', value="Let's you see your items.", inline=False)
-    embed.add_field(name='-**look**- (l)', value="Tells you all the current items in the square you're in", inline=False)
-    embed.add_field(name='-**think**- (brain, t)', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
-    embed.add_field(name='-**craft**- (c)', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
-    embed.add_field(name='-**recipes**- (rs)', value="Shows the recipe of a specified item.", inline=False)
-    embed.add_field(name='-**info**- (in)', value="Shows your info.", inline=False)
-
+    for i in client.commands:
+         if i.help:embed.add_field(name = f'-**{i.name}**-' + (f'({aliase})' for aliase in i.aliases) if i.aliases else '', value=i.help,inline=True)
     await ctx.reply(embed=embed)
 
 @client.command()
