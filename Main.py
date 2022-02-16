@@ -797,8 +797,7 @@ async def info(ctx, user:discord.Member=''):
 
 @client.command()
 @commands.has_role("Has touched grass")
-async def map(ctx, x=0, y=0, zoom = 1000, size =10):
-    
+async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
     a=[]
     for i in range(size):
         b=[]
@@ -821,6 +820,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed.add_field(name='-**think**-', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
     embed.add_field(name='-**craft**-', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
     embed.add_field(name='-**recipe**-', value="Shows the recipe of a specified item.", inline=False)
+    embed.add_field(name='-**info**-', value="Shows your info.", inline=False)
 
     await ctx.reply(embed=embed)
 
@@ -828,6 +828,5 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
 async def temp(ctx):
     await pickup(ctx)
     await look(ctx)
-
 
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
