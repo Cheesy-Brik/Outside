@@ -786,12 +786,12 @@ async def info(ctx, user:discord.Member=''):
     pos = (round(pos[0],2), round(pos[1],2))
     pos = (int(pos[0]*1000), int(pos[1]*1000))
     pos = (str(pos[0]), str(pos[1]))
-    pos = (f'[{pos[0]}, {pos[1]}]')
+    pos = (f'{pos[0]}, {pos[1]}')
 
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)
     embed.add_field(name='Level', value=stats['int level'], inline=False)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
-    embed.add_field(name='Position', value=pos.join(", "), inline=False)
+    embed.add_field(name='Position', value=pos, inline=False)
 
     await ctx.reply(embed=embed)
 
