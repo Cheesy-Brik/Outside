@@ -702,7 +702,7 @@ async def recipe(ctx, *, recipe = ''):
         return
     await ctx.reply("\n".join( (x.capitalize() + ': ' + str(recipes[recipe]['recipe'][x])) for x in recipes[recipe]['recipe']))
 
-@client.command(aliases = ['p'])
+@client.command(aliases = ['pl'])
 async def place(ctx, *, placement = ''):
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
