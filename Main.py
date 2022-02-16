@@ -789,8 +789,7 @@ async def info(ctx, user:discord.Member=''):
     pos = (str(pos[0]), str(pos[1]))
     pos = (f'{pos[0]}, {pos[1]}')
 
-    embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)
-    embed.add_field(name='Level', value=stats['int level'], inline=False)
+    embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
 
