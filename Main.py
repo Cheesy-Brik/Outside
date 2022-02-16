@@ -327,7 +327,7 @@ def has(id, item):
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
-        me = client.get_user(developer)
+        me = await client.fetch_user(developer)
         await me.send('🟢 Bot online!')
         print('Boot up complete')
 
