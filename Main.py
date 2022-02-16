@@ -6,14 +6,17 @@ from math import floor, ceil
 from numpy import place, sign, square
 import time
 import re
+import subprocess
 import discord
 from discord.ext import commands
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
 
-#egit commit -m "adding files"
-
+subprocess.run(["git", "add", 'Main.py'])
+subprocess.run(["git", "commit", '-m', '"adding files"'])
+subprocess.run(["git", "pull", 'origin', 'master'])
+subprocess.run(["git", "push", 'origin', 'master'])
 
 task = {}
 
