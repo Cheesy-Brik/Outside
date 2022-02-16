@@ -1,3 +1,4 @@
+from ast import alias
 import asyncio
 import os
 import random
@@ -769,7 +770,7 @@ async def on_message(txt):
                 await user.remove_roles(role)
         except:pass
      
-@client.command()
+@client.command(aliases = ['i'])
 async def info(ctx, user:discord.Member=''):
     if user == '':
         user = ctx.author
@@ -812,15 +813,15 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     outside_bot = await client.fetch_user(807757190316163104)
 
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00, icon_url=outside_bot.avatar_url)
-    embed.add_field(name='-**surroundings**-', value="Shows the area around you and your current temperature.", inline=False)
-    embed.add_field(name='-**walk**-', value="Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10).", inline=False)
-    embed.add_field(name='-**pickup**-', value="Will pickup a random item that's in the square you're in.", inline=False)
-    embed.add_field(name='-**inv**-', value="Let's you see your items.", inline=False)
-    embed.add_field(name='-**look**-', value="Tells you all the current items in the square you're in", inline=False)
-    embed.add_field(name='-**think**-', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
-    embed.add_field(name='-**craft**-', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
-    embed.add_field(name='-**recipe**-', value="Shows the recipe of a specified item.", inline=False)
-    embed.add_field(name='-**info**-', value="Shows your info.", inline=False)
+    embed.add_field(name='-**surroundings**- (s)', value="Shows the area around you and your current temperature.", inline=False)
+    embed.add_field(name='-**walk**- (w, move)', value="Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10).", inline=False)
+    embed.add_field(name='-**pickup**- (p, pu)', value="Will pickup a random item that's in the square you're in.", inline=False)
+    embed.add_field(name='-**inv**- (inventory, pocket, i)', value="Let's you see your items.", inline=False)
+    embed.add_field(name='-**look**- (l)', value="Tells you all the current items in the square you're in", inline=False)
+    embed.add_field(name='-**think**- (brain, t)', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
+    embed.add_field(name='-**craft**- (c)', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
+    embed.add_field(name='-**recipes**- (rs)', value="Shows the recipe of a specified item.", inline=False)
+    embed.add_field(name='-**info**- (i)', value="Shows your info.", inline=False)
 
     await ctx.reply(embed=embed)
 
