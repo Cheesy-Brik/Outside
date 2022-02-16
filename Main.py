@@ -368,11 +368,11 @@ async def surroundings(ctx):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(await fetch_area(ctx.author.id, True))
+        await msg.edit(content=await fetch_area(ctx.author.id, True))
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(await fetch_area(ctx.author.id))
+        await msg.edit(content=await fetch_area(ctx.author.id))
 
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
