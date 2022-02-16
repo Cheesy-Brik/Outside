@@ -787,7 +787,7 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     outside_bot = await client.fetch_user(807757190316163104)
 
-    embed = discord.Embed(title='Help', description='', color=0x00ff00)
+    embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00, icon_url=outside_bot.avatar_url)
     embed.add_field(name='-**surroundings**-', value="Shows the area around you and your current temperature.", inline=False)
     embed.add_field(name='-**walk**-', value="Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10).", inline=False)
     embed.add_field(name='-**pickup**-', value="Will pickup a random item that's in the square you're in.", inline=False)
@@ -796,9 +796,6 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed.add_field(name='-**think**-', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
     embed.add_field(name='-**craft**-', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
     embed.add_field(name='-**recipe**-', value="Shows the recipe of a specified item.", inline=False)
-
-    embed.set_footer(text='*Command prefix is* ``!``')
-    embed.set_author(name='Outside', url='https://discord.gg/CqdY897Qxm', icon_url=outside_bot.avatar_url)
 
     await ctx.reply(embed=embed)
 
