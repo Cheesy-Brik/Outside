@@ -438,7 +438,7 @@ async def pickup(ctx):
     if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
     else:save['users'][id]['inv'][item] = {'amount':1}
     items.remove(item)
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][f'[{x/1000}, {y/1000}]'] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['users'][id]['stats']['int level'] += 1
     await ctx.reply(f'You picked up a {item}')
