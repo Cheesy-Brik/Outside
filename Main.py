@@ -24,7 +24,11 @@ subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
 task = {}
 
 global save
-save = eval(open("save.txt","r",encoding="utf8").read())
+if open("save.txt","r",encoding="utf8").read():
+    save = eval(open("save.txt","r",encoding="utf8").read())
+else:
+    save = {'users' : {}, 'terrain' : {'overide' : {}}}
+
 
 def write():
     File = open("save.txt","w",encoding="utf8")
@@ -819,7 +823,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
     embed.set_thumbnail(url=ctx.me.avatar.url)
     for i in client.commands:
-         if i.help:embed.add_field(name = f'-**{str(i.name)}**-' + '('+ ', '.join(aliase for aliase in i.aliases) +')' if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
+         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + '('+ ', '.join(aliase for aliase in i.aliases) +')' if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
 
 @client.command()
