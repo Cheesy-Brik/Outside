@@ -195,7 +195,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         vis = biomes[biome][vis]
         sqaure = squares[vis]
     
-    if str(pos) in save['terrrain']['overide']:changed = save['terrrain']['overide'][str(pos)]#Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
+    if str(pos) in save['terrrain']['overide']:changed = save['terrrain']['overide'][str(pos)] #Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
     #pre item gen overide does not work because of that
     
     #Top is least important and bottom is most important (aka which is shown on top)
