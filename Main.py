@@ -783,9 +783,6 @@ async def info(ctx, user:discord.Member=''):
 
     stats = save['users'][id]['stats']
     pos = save['users'][id]['pos']
-    pos = (pos[0]/1000, pos[1]/1000)
-    pos = (round(pos[0],2), round(pos[1],2))
-    pos = (int(pos[0]*1000), int(pos[1]*1000))
     pos = (str(pos[0]), str(pos[1]))
     pos = (f'{pos[0]}, {pos[1]}')
 
