@@ -783,7 +783,7 @@ async def info(ctx, user:discord.Member=''):
 
     stats = save['users'][id]['stats']
     pos = save['users'][id]['pos']
-    pos = (str(pos[0]), str(pos[1]))
+    pos = (str(round(pos[0],-3)), str(round(pos[1],-3)))
     pos = (f'{pos[0]}, {pos[1]}')
 
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
