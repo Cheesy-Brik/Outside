@@ -1,10 +1,9 @@
-from ast import alias
 import asyncio
 import os
 import random
 from perlin_noise import PerlinNoise
 from math import floor, ceil
-from numpy import place, sign, square
+from numpy import sign, square
 import time
 import re
 import subprocess
