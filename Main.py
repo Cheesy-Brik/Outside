@@ -820,7 +820,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed.set_thumbnail(url=ctx.me.avatar.url)
     for i in client.commands:
          aliases = lambda : (f'({aliase})' for aliase in i.aliases) if i.aliases else ''
-         if i.help:embed.add_field(name = f'-**{str(i.name)}**-' + aliases, value=i.help,inline=True)#command objects are genrators so you have to parse to str
+         if i.help:embed.add_field(name = f'-**{str(i.name)}**-' + aliases(), value=i.help,inline=True)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
 
 @client.command()
