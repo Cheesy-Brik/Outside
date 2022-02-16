@@ -769,7 +769,33 @@ async def on_message(txt):
                 await user.remove_roles(role)
         except:pass
      
-    
+@client.command()
+async def info(ctx, user:discord.Member=''):
+    if user == '':
+        user = ctx.author
+
+    id = user.id
+
+    if id not in save['users']:
+        await ctx.reply('That user has not played Outside yet')
+        return
+
+    stats = save['users'][id]['stats']
+    pos = save['users'][id]['pos']
+    pos = (pos[0]/1000, pos[1]/1000)
+    pos = (round(pos[0],2), round(pos[1],2))
+    pos = (int(pos[0]*1000), int(pos[1]*1000))
+    pos = (str(pos[0]), str(pos[1]))
+    pos = (f'[{pos[0]}, {pos[1]}]')
+
+    embed = discord.Embed(title=f'{user.name}', description=f'{user.id}', color=0x00ff00)
+    embed.add_field(name='Level', value=stats['int level'], inline=True)
+    embed.add_field(name='Intelligence', value=stats['intelligence'], inline=True)
+    embed.add_field(name='Money', value=stats['money'], inline=True)
+    embed.add_field(name='Position', value=pos, inline=True)
+
+    await ctx.reply(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10):
