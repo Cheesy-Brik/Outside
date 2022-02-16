@@ -791,7 +791,6 @@ async def info(ctx, user:discord.Member=''):
     embed = discord.Embed(title=f'{user.name}', description=f'{user.id}', color=0x00ff00)
     embed.add_field(name='Level', value=stats['int level'], inline=True)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=True)
-    embed.add_field(name='Money', value=stats['money'], inline=True)
     embed.add_field(name='Position', value=pos, inline=True)
 
     await ctx.reply(embed=embed)
