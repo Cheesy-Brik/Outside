@@ -807,7 +807,7 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
 
-    embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00, icon_url=ctx.me.avatar.url)
+    embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00, icon_url=ctx.client.avatar.url)
     embed.add_field(name='-**surroundings**- (s)', value="Shows the area around you and your current temperature.", inline=False)
     embed.add_field(name='-**walk**- (w, move)', value="Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10).", inline=False)
     embed.add_field(name='-**pickup**- (p, pu)', value="Will pickup a random item that's in the square you're in.", inline=False)
