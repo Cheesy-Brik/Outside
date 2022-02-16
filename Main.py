@@ -770,7 +770,7 @@ async def on_message(txt):
                 await user.remove_roles(role)
         except:pass
      
-@client.command(aliases = ['i'])
+@client.command(aliases = ['in'])
 async def info(ctx, user:discord.Member=''):
     if user == '':
         user = ctx.author
