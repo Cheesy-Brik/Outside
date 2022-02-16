@@ -332,7 +332,7 @@ async def on_ready():
 
 #commands
 
-@client.command()
+@client.command(aliases = ['s'])
 async def surroundings(ctx):
     
     taskid = int(task[ctx.channel.id])
