@@ -13,10 +13,12 @@ intents = discord.Intents(messages = True, guilds = True, reactions = True, memb
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
 
-subprocess.run(["git", "add", 'Main.py'])
-subprocess.run(["git", "commit", '-m', '"adding files"'])
-subprocess.run(["git", "pull", 'origin', 'master'])
-subprocess.run(["git", "push", 'origin', 'master'])
+#Auto update git "master" branch when running the file
+
+subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
+subprocess.run(["git", "commit", '-m', '"adding files"'], stdout=subprocess.DEVNULL)
+subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
+subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
 
 task = {}
 
