@@ -16,7 +16,7 @@ client.remove_command('help')
 #Auto update git "master" branch when running the file
 
 subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "commit", '-m', '"adding files"'], stdout=subprocess.DEVNULL)
+subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
 subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
 subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
 
@@ -103,7 +103,7 @@ recipes = {
 #functions
 
 def user_check(id):
-    defaults = {
+    defaults = {#----- NEED to find an effiecient way to check if a user is missing a key present in defaults, this includes nested dicts such as settings and stats(That's the hard part)
             'stats' : {
                 'alive' : True,
                 'intelligence' : 0,
@@ -144,7 +144,7 @@ def user_check(id):
             'pos' : pos,
             'inv' : {},
             'recipes' : []
-    } 
+        } 
 
 def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
@@ -195,7 +195,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         vis = biomes[biome][vis]
         sqaure = squares[vis]
     
-    if str(pos) in save['terrrain']['overide']:changed = save['terrrain']['overide'][str(pos)]#Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
+    if str(pos) in save['terrrain']['overide']:changed = save['terrrain']['overide'][str(pos)] #Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
     #pre item gen overide does not work because of that
     
     #Top is least important and bottom is most important (aka which is shown on top)
@@ -326,8 +326,14 @@ def has(id, item):
 
 @client.event
 async def on_ready():
-    me = client.get_user(666999744572293170)
-    await me.send('ONLINE')
+    for developer in [666999744572293170, 806714339943251999]:
+        me = await client.fetch_user(developer)
+
+        try:
+            await me.send('🟢 Bot online!')
+        except:
+            print("Unable to send message to developer:", me.name)
+
     print('Boot up complete')
 
 #commands
@@ -362,11 +368,11 @@ async def surroundings(ctx):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(await fetch_area(ctx.author.id, True))
+        await msg.edit(content=await fetch_area(ctx.author.id, True))
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(await fetch_area(ctx.author.id))
+        await msg.edit(content=await fetch_area(ctx.author.id))
 
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
@@ -729,7 +735,7 @@ async def place(ctx, *, placement = ''):
 @client.event
 async def on_message(txt):
     user_check(txt.author.id)
-    if txt.author.id != 807757190316163104:#dis da bot id    
+    if txt.author.id not in [807757190316163104, 943456334936936458]: #dis da bot id (including Outside Alpha)
         if not txt.guild:
             await txt.reply('Hey! Outside is currently in beta and to make sure all bugs are squished and found playing outside in the dms is not allowed. Sorry! When the bot goes out of beta this will be allowed!\n if you are somehow playing this bot without being in the official outside server here is the invite link! https://discord.gg/CqdY897Qxm')
             return
@@ -763,11 +769,35 @@ async def on_message(txt):
                 await user.remove_roles(role)
         except:pass
      
-    
+@client.command(aliases = ['in'])
+async def info(ctx, user:discord.Member=''):
+    if user == '':
+        user = ctx.author
+
+    id = user.id
+
+    if id not in save['users']:
+        await ctx.reply('That user has not played Outside yet')
+        return
+
+    stats = save['users'][id]['stats']
+    pos = save['users'][id]['pos']
+    pos = (pos[0]/1000, pos[1]/1000)
+    pos = (round(pos[0],2), round(pos[1],2))
+    pos = (int(pos[0]*1000), int(pos[1]*1000))
+    pos = (str(pos[0]), str(pos[1]))
+    pos = (f'{pos[0]}, {pos[1]}')
+
+    embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)
+    embed.add_field(name='Level', value=stats['int level'], inline=False)
+    embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
+    embed.add_field(name='Position', value=pos, inline=False)
+
+    await ctx.reply(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
-async def map(ctx, x=0, y=0, zoom = 1000, size =10):
-    
+async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
     a=[]
     for i in range(size):
         b=[]
@@ -779,34 +809,24 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
 
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
-    await ctx.reply(r'''***Commands***
--**surroundings**-
- • Shows the area around you and your current temperature
--**walk**-
- • Will randomly walk you one square either up, down, left or right 
- • You can specify which direction and distance to go by doin !walk <direction> <distance>
- • Max distance is 10
--**pickup**-
- • Will pickup a random item that's in the square you're in
--**inv**-
- • Let's you see your items
--**look**-
- • Tells you all the current items in the square you're in
--**think**-
- • Has a chance to unlock new recipes
- • some recipes require items to be crafted before they can be unlocked
- • The higher intelligence you have the more likely you are to unlock a new recipe.
--**craft**-
- • Crafts the specified item if you have enough resources in your inv
--**recipe**-
- • Shows the recipe of a specified item
+    outside_bot = await client.fetch_user(807757190316163104)
 
-*Command prefix is* ``!``''')
+    embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00, icon_url=outside_bot.avatar_url)
+    embed.add_field(name='-**surroundings**- (s)', value="Shows the area around you and your current temperature.", inline=False)
+    embed.add_field(name='-**walk**- (w, move)', value="Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10).", inline=False)
+    embed.add_field(name='-**pickup**- (p, pu)', value="Will pickup a random item that's in the square you're in.", inline=False)
+    embed.add_field(name='-**inv**- (inventory, pocket, i)', value="Let's you see your items.", inline=False)
+    embed.add_field(name='-**look**- (l)', value="Tells you all the current items in the square you're in", inline=False)
+    embed.add_field(name='-**think**- (brain, t)', value="Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe.", inline=False)
+    embed.add_field(name='-**craft**- (c)', value="Crafts the specified item if you have enough resources in your inv.", inline=False)
+    embed.add_field(name='-**recipes**- (rs)', value="Shows the recipe of a specified item.", inline=False)
+    embed.add_field(name='-**info**- (in)', value="Shows your info.", inline=False)
+
+    await ctx.reply(embed=embed)
 
 @client.command()
 async def temp(ctx):
     await pickup(ctx)
     await look(ctx)
-
 
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
