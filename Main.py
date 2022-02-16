@@ -291,6 +291,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):
     #complete overide
     if str(pos) in save['terrrain']['overide']:
         #Tried using exec, but python does not allow it :O
+        #might work if I start storing all function variables in a dict?
         if 'vis' in changed:vis=changed['vis']
         if 'square' in changed:square=changed['square']
         if 'has' in changed:has=changed['has']
