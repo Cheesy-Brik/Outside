@@ -445,8 +445,14 @@ async def surroundings(ctx):
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
                 else:b.append(square['vis'])
             a.append(''.join(b))
-        return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
-    
+
+        embed = discord.Embed(title = f'{temp_scale[temp]}', description = '\n'.join(a), color = 0x00ff00)
+        embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
+        embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
+        embed.add_field(name = 'Coordinates', value = f'{x/1000}, {y/1000}', inline = False)
+
+        return embed
+        # return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
 
     msg = await ctx.reply(await fetch_area(ctx.author.id))
     
