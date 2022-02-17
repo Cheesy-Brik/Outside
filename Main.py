@@ -11,7 +11,6 @@ import re
 import subprocess
 import discord
 from discord.ext import commands
-import atexit
 
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
@@ -1019,17 +1018,5 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
 async def temp(ctx):
     await pickup(ctx)
     await look(ctx)
-
-@atexit.register
-async def goooodbye():
-    for developer in [666999744572293170, 806714339943251999]:
-        me = await client.fetch_user(developer)
-
-        try:
-            await me.send('🔴 Bot down!')
-        except:
-            print("Unable to send message to developer:", me.name)
-
-    print('Boot down complete')
 
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
