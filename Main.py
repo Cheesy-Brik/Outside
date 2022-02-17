@@ -1,10 +1,8 @@
 from ast import alias
 import asyncio
-from datetime import datetime
 from optparse import AmbiguousOptionError
 import os
 import random
-from turtle import pos, position
 from perlin_noise import PerlinNoise
 from math import floor, ceil
 from numpy import sign, square
@@ -110,7 +108,7 @@ recipes = {
             'mud clump' : 2,
         },
          'intel' : 18,
-        'requires' : 'has(id, "stone") or has(id, "crude oak plank")',
+        'requires' : 'has(id, "stone") or has(id, "crude oak planks")',
     },
     'crude furnace' : {
          'recipe' : {
@@ -207,7 +205,6 @@ def user_check(id):
         for i in defaults:
             if i not in save['users'][id]:
                 save['users'][id][i] = defaults[i]
-        if 'health' not in save['users'][id]['stats']:save['users'][id]['stats']['health']=100
     except:
         random.seed()
         pos = [random.randint(0,500)-250, random.randint(0,500)-250]
@@ -378,9 +375,6 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
     
-    if str(pos) in save['terrrain']['overide']:
-        if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else vis
-    
     player = False
     for i in save['users']:#scuff
         x,y = ( -(list(save['users'][i]['pos'])[1]) , (list(save['users'][i]['pos'])[0]) )
@@ -415,18 +409,6 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
 def has(id, item):
     return item in save['users'][id]['inv']
 
-def respawn(id):
-    random.seed()
-    x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-    pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
-    square = fetch_square(id, x, y)
-    while square['square'] in ['ocean', 'deep ocean'] :
-        pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
-        square = fetch_square(id, x, y)
-    
-    save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
-    save['users'][id]['stats']['health'] = 100
-
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
@@ -459,11 +441,9 @@ async def surroundings(ctx):
         for i in range(7):
             b=[]
             for j in range(7):
-                vis='🚫'
                 square =  fetch_square(id, x+i, y+j)
-                vis=square['vis']
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
-                else:b.append(vis)
+                else:b.append(square['vis'])
             a.append(''.join(b))
         return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
     
@@ -501,7 +481,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
             x, y = last
             if has(id, 'boat'):pass
-            await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
+            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
             break
             
     
@@ -519,8 +499,6 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     lefts=['left', 'east']
     rights=['right', 'west']
     
-    damage = 0
-    
     #I don't even fucking know at this point
     for i in range(min(abs(amount), 10)):  
         last = (x,y)
@@ -528,21 +506,12 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         if direction in rights:y+=sign(amount)
         if direction in ups:x-=sign(amount)
         if direction in downs:x+=sign(amount)
-        for i in range(5):
-            for j in range(5):
-                if fetch_square(id, (x-2)+i, (y-2)+j)['square'] not in ['ocean', 'deep ocean']:break
-            else:continue#Best not to think about it
+        if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
+            x, y = last
+            if has(id, 'boat'):pass
+            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
             break
-        else:
-            damage += 1
-    save['users'][id]['stats']['health'] -= damage
-    if save['users'][id]['stats']['health']<=0:
-        dropped = random.choice(list(save['users'][id]['inv'].keys()))
-        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
-        await ctx.reply('You took too much damage and you died')
-        respawn(id)
-        return
-    if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
+            
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
@@ -554,22 +523,25 @@ async def look(ctx):
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     items = list(fetch_square(id, x, y)['has'] + fetch_square(id, x, y)['placements'])
     #Hell Below
+
+    for i in range(len(items)):
+        if type(items[i]) is dict:items[i] = list(items[i].keys())[0]
     
     readable = ''
     if items == []:
         readable = 'that you are standing on '+fetch_square(id, x, y)['square']
-    elif len(items) == 1:#Should make function, will I? Whoooo knows
+    elif len(set(items)) == 1:#Should make function, will I? Whoooo knows
         readable = f'{items.count(items[0]) if items.count(items[0])>1 else "a"} {items[0]}{"s" if items.count(items[0])>1 else ""}'#Need to change whether it's a or an based on vowel first letter
-    elif len(items) == 2:
+    elif len(set(items)) == 2:
         readable = f'{items.count(items[0]) if items.count(items[0])>1 else "a"} {items[0]}{"s" if items.count(items[0])>1 else ""} '
         readable += 'and '
         readable += f'{items.count(items[1]) if items.count(items[1])>1 else "a"} {items[1]}{"s" if items.count(items[1])>1 else ""} '
     else:
-        for i in range(len(items) - 2):
+        for i in range(len(set(items)) - 2):
             readable += f'{items.count(items[i]) if items.count(items[i])>1 else "a"} {items[i]}{"s" if items.count(items[i])>1 else ""}, '
-        readable += f'{items.count(items[len(items) - 2]) if items.count(items[len(items) - 2])>1 else "a"} {items[len(items) - 2]}{"s" if items.count(items[len(items) - 2])>1 else ""}, '
+        readable += f'{items.count(items[len(set(items)) - 2]) if items.count(items[len(set(items)) - 2])>1 else "a"} {items[len(set(items)) - 2]}{"s" if items.count(items[len(set(items)) - 2])>1 else ""}, '
         readable += 'and '
-        readable += f'{items.count(items[len(items) - 1]) if items.count(items[len(items) - 1])>1 else "a"} {items[len(items) - 1]}{"s" if items.count(items[len(items) - 1])>1 else ""} '
+        readable += f'{items.count(items[len(set(items)) - 1]) if items.count(items[len(set(items)) - 1])>1 else "a"} {items[len(set(items)) - 1]}{"s" if items.count(items[len(set(items)) - 1])>1 else ""} '
     await ctx.reply(f'You see {readable}')
 
 @client.command(aliases = ['pu', 'p'])
@@ -597,7 +569,6 @@ async def pickup(ctx):
     items.remove(item)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
@@ -814,7 +785,7 @@ async def use(ctx, *, tool = ''):
     if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
         await ctx.reply('You don\'t have that tool')
         return
-    elif tool in ['crude axe', 'crude wooden axe']:
+    if tool in ['crude axe']:
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
@@ -828,7 +799,7 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You must be standing on a tree to use this')
             return
-    elif tool in ['crude pickaxe', 'crude wooden pickaxe']:
+    if tool in ['crude pickaxe']:
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
             return
@@ -838,7 +809,7 @@ async def use(ctx, *, tool = ''):
             else:save['users'][id]['inv'][mineral] = {'amount' : 1}
             minerals.remove(mineral)
             await ctx.reply(f'You mined and got {mineral}')
-    elif tool in ['crude fishing pole', 'crude wooden fishing pole']:
+    if tool in ['crude fishing pole']:
         for i in range(3):
             for j in range(3):
                 if fetch_square(id, (x-1)+i, (y-1)+j)['square'] in ['ocean', 'deep ocean']:break
@@ -851,19 +822,14 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-    else:
-        await ctx.reply('Not a tool')
-        return        
+            
         
     
-    if 'durability' in save['users'][id]['inv'][tool]:
-        save['users'][id]['inv'][tool]['durability'] -= 1
+    save['users'][id]['inv'][tool]['durability'] -= 1
     
-        if ceil(save['users'][id]['inv'][tool]['durability'] / recipes[tool]['durability']) < save['users'][id]['inv'][tool]['amount']:#Not reliable if a tool doesn't have a recipe, will do for now
-            save['users'][id]['inv'][tool]['amount'] -= 1
-            await ctx.reply(f'Your {tool} broke')
-    else:
+    if ceil(save['users'][id]['inv'][tool]['durability'] / recipes[tool]['durability']) < save['users'][id]['inv'][tool]['amount']:#Not reliable if a tool doesn't have a recipe, will do for now
         save['users'][id]['inv'][tool]['amount'] -= 1
+        await ctx.reply(f'Your {tool} broke')
     
     
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
@@ -921,7 +887,7 @@ async def drop(ctx, amount = 1, *, item = ''):
     items = list(fetch_square(id, x, y)['has'])
     'Lets you drop an item on the ground that can be picked up with !pickup'
     if item == '':
-        await ctx.reply('You must specify the amount before the item (EX. !drop 1 rock)')
+        await ctx.send('You must specify the amount before the item (EX. !drop 1 rock)')
     if item not in save['users'][id]['inv']:
         await ctx.reply('You don\'t have that')
         return
@@ -944,8 +910,7 @@ async def drop(ctx, amount = 1, *, item = ''):
     items.append(dropped)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
-    await ctx.reply(f'Your dropped a {item}, {amount} times')
+    await ctx.send(f'Your dropped a {item}, {amount} times')
     
 #other
 
