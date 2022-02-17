@@ -11,6 +11,7 @@ import re
 import subprocess
 import discord
 from discord.ext import commands
+
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
@@ -445,20 +446,34 @@ async def surroundings(ctx):
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
                 else:b.append(square['vis'])
             a.append(''.join(b))
-        return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
-    
 
-    msg = await ctx.reply(await fetch_area(ctx.author.id))
+        h = round(save['users'][id]['stats']['health']/10)*10
+        h_bar = ''
+
+        for i in range(1, 10):
+            if h-i*10 <= 0:h_bar += '⬛'
+            else:h_bar += '🟥'
+
+        embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
+        embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
+        embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
+        embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
+        embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
+
+        return embed
+        # return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
+
+    msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
     
     for _ in range(60):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(content=await fetch_area(ctx.author.id, True))
+        await msg.edit(embed=await fetch_area(ctx.author.id, True))
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(content=await fetch_area(ctx.author.id))
+        await msg.edit(embed=await fetch_area(ctx.author.id))
 
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
@@ -970,9 +985,17 @@ async def info(ctx, user:discord.Member=''):
     pos = (str(round(pos[0],-1)), str(round(pos[1],-1)))
     pos = (f'{pos[0]}, {pos[1]}')
 
+    h = round(stats['health']/10)*10
+    h_bar = ''
+
+    for i in range(1, 10):
+        if h-i*10 <= 0:h_bar += '⬛'
+        else:h_bar += '🟥'
+
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
+    embed.add_field(name='Health', value=f'{h_bar}', inline=False)
 
     await ctx.reply(embed=embed)
 
@@ -992,7 +1015,10 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
 
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
-    embed.set_thumbnail(url=ctx.me.avatar.url)
+
+    user = await client.fetch_user(807757190316163104)
+    embed.set_thumbnail(url=user.avatar.url)
+
     for i in client.commands:
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
