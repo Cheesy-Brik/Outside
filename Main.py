@@ -1,8 +1,10 @@
 from ast import alias
 import asyncio
+from datetime import datetime
 from optparse import AmbiguousOptionError
 import os
 import random
+from turtle import pos, position
 from perlin_noise import PerlinNoise
 from math import floor, ceil
 from numpy import sign, square
@@ -205,6 +207,7 @@ def user_check(id):
         for i in defaults:
             if i not in save['users'][id]:
                 save['users'][id][i] = defaults[i]
+        if 'health' not in save['users'][id]['stats']:save['users'][id]['stats']['health']=100
     except:
         random.seed()
         pos = [random.randint(0,500)-250, random.randint(0,500)-250]
@@ -409,6 +412,19 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
 def has(id, item):
     return item in save['users'][id]['inv']
 
+def respawn(id):
+    random.seed()
+    x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+    pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+    square = fetch_square(id, x, y)
+    while square['square'] in ['ocean', 'deep ocean'] :
+        pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+        x,y = ( -(list(pos)[1]) , (list(pos)[0]) )
+        square = fetch_square(id, x, y)
+    
+    save['users'][id]['pos'] = [y,-x]
+    save['users'][id]['stats']['health'] = 100
+
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
@@ -481,7 +497,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
             x, y = last
             if has(id, 'boat'):pass
-            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
+            await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
             break
             
     
@@ -499,6 +515,8 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     lefts=['left', 'east']
     rights=['right', 'west']
     
+    damage = 0
+    
     #I don't even fucking know at this point
     for i in range(min(abs(amount), 10)):  
         last = (x,y)
@@ -506,12 +524,21 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         if direction in rights:y+=sign(amount)
         if direction in ups:x-=sign(amount)
         if direction in downs:x+=sign(amount)
-        if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
-            x, y = last
-            if has(id, 'boat'):pass
-            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
+        for i in range(5):
+            for j in range(5):
+                if fetch_square(id, (x-2)+i, (y-2)+j)['square'] not in ['ocean', 'deep ocean']:break
+            else:continue#Best not to think about it
             break
-            
+        else:
+            damage += 1
+    save['users'][id]['stats']['health'] -= damage
+    if damage:await ctx.send(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
+    
+    if save['users'][id]['stats']['health']<=0:
+        item = random.choice(list(save['users'][id]['inv'].keys()))
+        await drop(ctx, save['users'][id]['inv'][item]['amount']//2,item)
+        await ctx.send('You took too much damage and you died')
+        respawn(id)
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
@@ -782,7 +809,7 @@ async def use(ctx, *, tool = ''):
     if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
         await ctx.reply('You don\'t have that tool')
         return
-    if tool in ['crude axe']:
+    if tool in ['crude axe', 'crude wooden axe']:
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
@@ -796,7 +823,7 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You must be standing on a tree to use this')
             return
-    if tool in ['crude pickaxe']:
+    if tool in ['crude pickaxe', 'crude wooden pickaxe']:
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
             return
@@ -806,7 +833,7 @@ async def use(ctx, *, tool = ''):
             else:save['users'][id]['inv'][mineral] = {'amount' : 1}
             minerals.remove(mineral)
             await ctx.reply(f'You mined and got {mineral}')
-    if tool in ['crude fishing pole']:
+    if tool in ['crude fishing pole', 'crude wooden fishing pole']:
         for i in range(3):
             for j in range(3):
                 if fetch_square(id, (x-1)+i, (y-1)+j)['square'] in ['ocean', 'deep ocean']:break
