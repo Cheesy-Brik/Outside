@@ -474,8 +474,7 @@ async def pickup(ctx):
         if list(item.keys())[0] in save['users'][id]['inv']:
             for i in item[list(item.keys())[0]]:
                 if type(item[list(item.keys())[0]][i]) == int:
-                    print(save['users'][id]['inv'][item][i])
-                    save['users'][id]['inv'][item][i] += item[list(item.keys())[0]][i]
+                    save['users'][id]['inv'][list(item.keys())[0]][i] += item[list(item.keys())[0]][i]
         else:
             save['users'][id]['inv'][list(item.keys()[0])] = dict(item[list(item.keys())[0]])
     else:
