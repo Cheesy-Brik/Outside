@@ -419,10 +419,9 @@ def respawn(id):
     square = fetch_square(id, x, y)
     while square['square'] in ['ocean', 'deep ocean'] :
         pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
-        x,y = ( -(list(pos)[1]) , (list(pos)[0]) )
         square = fetch_square(id, x, y)
     
-    save['users'][id]['pos'] = [y,-x]
+    save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
     save['users'][id]['stats']['health'] = 100
 
 @client.event
