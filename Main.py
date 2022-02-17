@@ -627,7 +627,7 @@ async def think(ctx):
     id = ctx.author.id  
     possible = []
     for i in recipes:
-        print(recipes[i]['requires'])
+        print(recipes[i])
         if eval(recipes[i]['requires']) and i not in save['users'][id]['recipes']:
             possible.append(i)
     random.shuffle(possible)
