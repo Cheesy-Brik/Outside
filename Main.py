@@ -636,7 +636,6 @@ async def think(ctx):
     id = ctx.author.id  
     possible = []
     for i in recipes:
-        print(recipes[i])
         if eval(recipes[i]['requires']) and i not in save['users'][id]['recipes']:
             possible.append(i)
     random.shuffle(possible)
@@ -690,7 +689,7 @@ async def craft(ctx, *, item = ''):
             if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
             else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
         save['users'][id]['stats']['int level'] += 1
-        await ctx.reply(f'You crafted {recipe}')
+        await ctx.reply(f'You crafted {amount if amount != 1 else ""}{recipe}')
 
 @client.command(aliases = ['u'])
 async def use(ctx, *, tool = ''):
