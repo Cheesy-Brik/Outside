@@ -488,8 +488,8 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
 
-@client.command(aliases = ['move', 'w'])
-async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
+@client.command(aliases = ['sw'])
+async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
