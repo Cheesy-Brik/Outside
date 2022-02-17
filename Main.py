@@ -486,10 +486,10 @@ async def pickup(ctx):
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
-        if item.keys()[0]['amount'] == 1:    
+        if list(item.keys())[0]['amount'] == 1:    
             await ctx.reply(f'You picked up a {item}')
         else:
-            await ctx.reply(f'You picked up a little bag with {item.keys()[0]["amount"]} {item}')
+            await ctx.reply(f'You picked up a little bag with {list(item.keys())[0]} {item}')
     else:
         await ctx.reply(f'You picked up a {item}')
         
