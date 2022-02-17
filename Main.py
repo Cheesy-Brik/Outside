@@ -110,7 +110,7 @@ recipes = {
             'mud clump' : 2,
         },
          'intel' : 18,
-        'requires' : 'has(id, "stone") or has(id, "crude oak planks")',
+        'requires' : 'has(id, "stone") or has(id, "crude oak plank")',
     },
     'crude furnace' : {
          'recipe' : {
