@@ -1030,6 +1030,6 @@ async def goooodbye():
         except:
             print("Unable to send message to developer:", me.name)
 
-    print('Boot up complete')
+    print('Boot down complete')
 
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
