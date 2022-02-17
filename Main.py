@@ -1,5 +1,6 @@
 from ast import alias
 import asyncio
+from optparse import AmbiguousOptionError
 import os
 import random
 from perlin_noise import PerlinNoise
@@ -28,7 +29,6 @@ if open("save.txt","r",encoding="utf8").read():
     save = eval(open("save.txt","r",encoding="utf8").read())
 else:
     save = {'users' : {}, 'terrain' : {'overide' : {}}}
-
 
 def write():
     File = open("save.txt","w",encoding="utf8")
@@ -102,7 +102,32 @@ recipes = {
         'intel':10,
         'durability': 10
     },
-    
+    'stone' : {
+         'recipe' : {
+            'rock' : 10,
+            'mud clump' : 2,
+        },
+         'intel' : 20,
+        'requires' : 'has(id, "stone")',
+    },
+    'crude furnace' : {
+         'recipe' : {
+            'stone' : 10,
+            'rock' : 10,
+            'mud clump' : 5
+        },
+         'intel' : 25,
+        'requires' : 'has(id, "stone")',
+    },
+    'iron' : {
+         'recipe' : {
+            'coal' : 1,
+            'raw iron' : 2
+        },
+         'intel' : 30,
+        'requires' : 'has(id, "crude furnace")',
+    },
+    'station' : 'crude furnace'
 }
 
 #functions
@@ -294,6 +319,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'boulder' in placements:vis = '🪨'#ROCK, THIS IS ROCK
     
     if 'crude wooden wall' in placements:vis='🌰'
+    if 'curde furnace' in placements:vis='🪔'
     
     player = False
     for i in save['users']:#scuff
@@ -444,14 +470,30 @@ async def pickup(ctx):
         await ctx.reply('You see nothing to pickup')
         return
     item =  random.choice(items)
-    if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
-    else:save['users'][id]['inv'][item] = {'amount':1}
+    if type(item) is dict:
+        if item in save['users'][id]['inv']:
+            for i in item[item.keys()[0]]:
+                if type(i) == int:
+                    save['users'][id]['inv'][item][i] += i
+        else:
+            save['users'][id]['inv'][item.keys()[0]] = dict(item[item.keys()[0]])
+        item
+    else:
+        if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
+        else:save['users'][id]['inv'][item] = {'amount':1}
+    
     items.remove(item)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['users'][id]['stats']['int level'] += 1
-    await ctx.reply(f'You picked up a {item}')
-
+    if type(item) is dict:    
+        if item.keys()[0]['amount'] == 1:    
+            await ctx.reply(f'You picked up a {item}')
+        else:
+            await ctx.reply(f'You picked up a little bag with {item.keys()[0]["amount"]} {item}')
+    else:
+        await ctx.reply(f'You picked up a {item}')
+        
 @client.command(aliases = ['inventory', 'pocket', 'i'])
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
@@ -602,9 +644,9 @@ async def think(ctx):
     else:
         await ctx.reply('You were on the verge of thinking of something but failed to!\nKeep trying!')
 
-@client.command(aliases = ['c'])
+@client.command(aliases = ['c', 'make'])
 async def craft(ctx, *, item = ''):
-    'Crafts the specified item if you have enough resources in your inv.'
+    'Crafts the specified item if you have enough resources in your inventory.'
     id = ctx.author.id
     unlocked = list(save['users'][id]['recipes'])
     recipe = item.lower().strip()
@@ -619,7 +661,7 @@ async def craft(ctx, *, item = ''):
         return
     if 'station' in recipes[recipe]:
         if not recipes[recipe]['station'] in placements:
-            await ctx.reply(f'You need to be on a {recipes[recipe]["station"]}')
+            await ctx.reply(f'You need to be on a {recipes[recipe]["station"]} to craft this')
             return
     for i in recipes[recipe]['recipe']:
         if i not in save['users'][id]['inv']:
@@ -631,8 +673,10 @@ async def craft(ctx, *, item = ''):
     else:
         for i in recipes[recipe]['recipe']:
             save['users'][id]['inv'][i]['amount'] -= recipes[recipe]['recipe'][i]
-        if recipe in save['users'][id]['inv']:save['users'][id]['inv'][recipe]['amount'] += 1
-        else:save['users'][id]['inv'][recipe] = {'amount' : 1}
+        amount = 1
+        if 'amount' in recipes[recipe]: amount =  recipes[recipe] 
+        if recipe in save['users'][id]['inv']:save['users'][id]['inv'][recipe]['amount'] += amount
+        else:save['users'][id]['inv'][recipe] = {'amount' : amount}
         if 'durability' in recipes[recipe]:
             if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
             else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
@@ -641,6 +685,7 @@ async def craft(ctx, *, item = ''):
 
 @client.command(aliases = ['u'])
 async def use(ctx, *, tool = ''):
+    'Uses the specified tool'
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     items = list(fetch_square(id, x, y)['has'])
@@ -710,6 +755,7 @@ async def use(ctx, *, tool = ''):
 
 @client.command(aliases = ['r'])
 async def recipe(ctx, *, recipe = ''):
+    'Gets the recipe of a specified item'
     id = ctx.author.id
     unlocked = list(save['users'][id]['recipes'])
     recipe = recipe.lower().strip()
@@ -723,17 +769,22 @@ async def recipe(ctx, *, recipe = ''):
 
 @client.command(aliases = ['pl'])
 async def place(ctx, *, placement = ''):
+    'Places down the specified item'
+    placeables = ['crude furnace', 'crude wooden wall']
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     placements = list(fetch_square(id, x, y)['placements'])
     if placement == '':
-        await ctx.reply('You need to specify which tool to use')
+        await ctx.reply('You need to specify what to place down')
         return
     if placement not in save['users'][id]['inv']:
         await ctx.reply('You don\'t have that')
         return
     if save['users'][id]['inv'][placement]['amount']<=0:
         await ctx.reply('You don\'t have that')
+        return
+    if placement not in placeables:
+        await ctx.reply(f'That item is not placable')
         return
     if placements:
         await ctx.reply(f'You can\'t place that there, there is a {placements[0]} already there')
@@ -743,6 +794,39 @@ async def place(ctx, *, placement = ''):
     
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
+
+@client.command(aliases = ['d'])
+async def drop(ctx, amount = 1, *, item = ''):
+    id = ctx.author.id
+    x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+    items = list(fetch_square(id, x, y)['has'])
+    'Lets you drop an item on the ground that can be picked up with !pickup'
+    if item == '':
+        await ctx.send('You must specify the amount before the item (EX. !drop 1 rock)')
+    if item not in save['users'][id]['inv']:
+        await ctx.reply('You don\'t have that')
+        return
+    if save['users'][id]['inv'][item]['amount']<=0:
+        await ctx.reply('You don\'t have that')
+        return
+    if save['users'][id]['inv'][item]['amount']<amount:
+        await ctx.reply('You don\'t have enough of that item')
+        return
+    dropped = {item : {'amount' : amount}}
+    save['users'][id]['inv'][item]['amount'] -= amount
+    if 'durability' in save['users'][id]['inv'][item]:
+        if amount == save['users'][id]['inv'][item]['amount']:
+            dropped[item]['durability'] = save['users'][id]['inv'][item]['durability']
+            save['users'][id]['inv'][item]['durability'] = 0
+        else:
+            dropped[item]['durability'] = amount*recipes[item]['durability']
+            save['users'][id]['inv'][item]['durability'] -= amount*recipes[item]['durability']
+    
+    items.append(dropped)
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    await ctx.send(f'Your dropped a {item}, {amount} times')
+    
 #other
 
 @client.event
@@ -823,7 +907,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
     embed.set_thumbnail(url=ctx.me.avatar.url)
     for i in client.commands:
-         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + '('+ ', '.join(aliase for aliase in i.aliases) +')' if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
+         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
 
 @client.command()
