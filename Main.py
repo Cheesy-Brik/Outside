@@ -473,8 +473,7 @@ async def pickup(ctx):
     if type(item) is dict:
         if list(item.keys())[0] in save['users'][id]['inv']:
             for i in item[list(item.keys())[0]]:
-                print(i)
-                if type(i) == int:
+                if type(item[list(item.keys())[0]][i]) == int:
                     save['users'][id]['inv'][item][i] += i
         else:
             save['users'][id]['inv'][list(item.keys()[0])] = dict(item[list(item.keys())[0]])
