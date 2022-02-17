@@ -378,7 +378,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
     
-    if changed: 
+    if str(pos) in save['terrrain']['overide']:
         if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else ''
     
     player = False
