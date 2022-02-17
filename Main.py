@@ -459,9 +459,11 @@ async def surroundings(ctx):
         for i in range(7):
             b=[]
             for j in range(7):
+                vis='🚫'
                 square =  fetch_square(id, x+i, y+j)
+                vis=square['vis']
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
-                else:b.append(square['vis'])
+                else:b.append(vis)
             a.append(''.join(b))
         return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
     
