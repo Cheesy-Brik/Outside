@@ -128,7 +128,7 @@ recipes = {
         'requires' : 'has(id, "crude furnace")',
         'station' : 'crude furnace'
     },
-    'nail' : {
+    'nails' : {
          'recipe' : {
             'iron' : 1
         },
