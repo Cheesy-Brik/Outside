@@ -459,6 +459,7 @@ async def surroundings(ctx):
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
         embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
         embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
+        embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
 
         return embed
         # return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
