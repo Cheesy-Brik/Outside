@@ -471,13 +471,12 @@ async def pickup(ctx):
         return
     item =  random.choice(items)
     if type(item) is dict:
-        if item in save['users'][id]['inv']:
+        if item[item.keys()[0]] in save['users'][id]['inv']:
             for i in item[item.keys()[0]]:
                 if type(i) == int:
                     save['users'][id]['inv'][item][i] += i
         else:
             save['users'][id]['inv'][item.keys()[0]] = dict(item[item.keys()[0]])
-        item
     else:
         if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
         else:save['users'][id]['inv'][item] = {'amount':1}
