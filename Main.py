@@ -454,17 +454,17 @@ async def surroundings(ctx):
         return embed
         # return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
 
-    msg = await ctx.reply(await fetch_area(ctx.author.id))
+    msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
     
     for _ in range(60):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(content=await fetch_area(ctx.author.id, True))
+        await msg.edit(embed=await fetch_area(ctx.author.id, True))
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(content=await fetch_area(ctx.author.id))
+        await msg.edit(embed=await fetch_area(ctx.author.id))
 
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
