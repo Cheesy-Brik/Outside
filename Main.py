@@ -108,7 +108,7 @@ recipes = {
             'mud clump' : 2,
         },
          'intel' : 20,
-        'requires' : 'has(id, "stone")',
+        'requires' : 'has(id, "stone") or has(id, "crude oak planks")',
     },
     'crude furnace' : {
          'recipe' : {
@@ -128,7 +128,7 @@ recipes = {
         'requires' : 'has(id, "crude furnace")',
         'station' : 'crude furnace'
     },
-    'nails' : {
+    'nail' : {
          'recipe' : {
             'iron' : 1
         },
@@ -136,7 +136,48 @@ recipes = {
         'requires' : 'has(id, "iron")',
         'station' : 'crude furnace',
         'amount' : 5
-    }
+    },
+    'crude oak planks' : {
+        'recipe' : {
+            'rock' : 2,
+            'oak log' : 1
+        },
+        'intel' : 15,
+        'requires' : 'has(id, "crude axe")',
+    },
+    'crude wooden axe' : {
+        'recipe' : {
+            'rope' : 2,
+            'stick' : 2,
+            'mud clump' : 1,
+            'rock' : 3
+        },
+        'requires' : 'has(id, "crude oak planks") and has(id, "nails")',
+        'intel':10,
+        'durability': 10
+    },
+    'crude wooden pickaxe' : {
+        'recipe' : {
+            'rope' : 2,
+            'stick' : 1,
+            'mud clump' : 1,
+            'rock' : 4
+        },
+        'requires' : 'has(id, "rope") and has(id, "rock")',
+        'intel':10,
+        'durability': 10
+    },
+    'crude wooden fishing pole' : {
+        'recipe' : {
+            'rope' : 3,
+            'stick' : 2,
+            'mud clump' : 1,
+            'rock' : 1
+        },
+        'requires' : 'has(id, "rope") and has(id, "rock")',
+        'intel':10,
+        'durability': 10
+    },
 }
 
 #functions
@@ -689,7 +730,7 @@ async def craft(ctx, *, item = ''):
             if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
             else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
         save['users'][id]['stats']['int level'] += 1
-        await ctx.reply(f'You crafted {amount if amount != 1 else ""}{recipe}')
+        await ctx.reply(f'You crafted {amount if amount != 1 else ""} {recipe}')
 
 @client.command(aliases = ['u'])
 async def use(ctx, *, tool = ''):
