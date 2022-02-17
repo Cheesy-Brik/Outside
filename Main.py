@@ -453,7 +453,7 @@ async def surroundings(ctx):
             print(h-i*10)
 
             if h-i*10 <= 0:
-                h_bar += '⬛️'
+                h_bar += '⬛'
             else:
                 h_bar += '🟥'
 
