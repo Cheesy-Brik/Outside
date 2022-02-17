@@ -554,7 +554,10 @@ async def look(ctx):
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     items = list(fetch_square(id, x, y)['has'] + fetch_square(id, x, y)['placements'])
     #Hell Below
-    
+    for i in range(len(items)):
+        if type(items[i]) is dict:
+            item_dict = items[i]#cus of dicts and lists not meshing
+            for i in range(item_dict[list(item_dict.keys())[0]]['amount']):items.append(item_dict[list(item_dict.keys())[0]]) 
     readable = ''
     if items == []:
         readable = 'that you are standing on '+fetch_square(id, x, y)['square']
