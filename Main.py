@@ -126,8 +126,8 @@ recipes = {
         },
          'intel' : 30,
         'requires' : 'has(id, "crude furnace")',
+        'station' : 'crude furnace'
     },
-    'station' : 'crude furnace'
 }
 
 #functions
