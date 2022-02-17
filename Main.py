@@ -489,7 +489,7 @@ async def pickup(ctx):
         if item[list(item.keys())[0]]['amount'] == 1:    
             await ctx.reply(f'You picked up a {list(item.keys())[0]}')
         else:
-            await ctx.reply(f'You picked up a little bag with {list(item.keys())[0]} {item}')
+            await ctx.reply(f'You picked up a little bag with {item[list(item.keys())[0]]["amount"]} {list(item.keys())[0]}')
     else:
         await ctx.reply(f'You picked up a {item}')
         
