@@ -1,8 +1,10 @@
 from ast import alias
 import asyncio
+from datetime import datetime
 from optparse import AmbiguousOptionError
 import os
 import random
+from turtle import pos, position
 from perlin_noise import PerlinNoise
 from math import floor, ceil
 from numpy import sign, square
@@ -11,31 +13,24 @@ import re
 import subprocess
 import discord
 from discord.ext import commands
-
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
-
 #Auto update git "master" branch when running the file
-
 subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
 subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
 subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
 subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
-
 task = {}
-
 global save
 if open("save.txt","r",encoding="utf8").read():
     save = eval(open("save.txt","r",encoding="utf8").read())
 else:
     save = {'users' : {}, 'terrain' : {'overide' : {}}}
-
 def write():
     File = open("save.txt","w",encoding="utf8")
     File.write(str(save))
     File.close()
-
 tools = {'hands' : {'outputs' : ['stick', 'rock', 'dirt', ], 'amount' : 1}}
 items = {}
 recipes = {
@@ -109,7 +104,7 @@ recipes = {
             'mud clump' : 2,
         },
          'intel' : 18,
-        'requires' : 'has(id, "stone") or has(id, "crude oak planks")',
+        'requires' : 'has(id, "stone") or has(id, "crude oak plank")',
     },
     'crude furnace' : {
          'recipe' : {
@@ -184,9 +179,7 @@ recipes = {
         'intel':12,
     }
 }
-
 #functions
-
 def user_check(id):
     defaults = {#----- NEED to find an effiecient way to check if a user is missing a key present in defaults, this includes nested dicts such as settings and stats(That's the hard part)
             'stats' : {
@@ -206,6 +199,7 @@ def user_check(id):
         for i in defaults:
             if i not in save['users'][id]:
                 save['users'][id][i] = defaults[i]
+        if 'health' not in save['users'][id]['stats']:save['users'][id]['stats']['health']=100
     except:
         random.seed()
         pos = [random.randint(0,500)-250, random.randint(0,500)-250]
@@ -230,7 +224,6 @@ def user_check(id):
             'inv' : {},
             'recipes' : []
         } 
-
 def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
     biomenoise = PerlinNoise(octaves=1, seed=558)
@@ -375,7 +368,10 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
-    
+
+    if str(pos) in save['terrrain']['overide']:
+        if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else vis
+
     player = False
     for i in save['users']:#scuff
         x,y = ( -(list(save['users'][i]['pos'])[1]) , (list(save['users'][i]['pos'])[0]) )
@@ -406,24 +402,29 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         'minerals' : minerals,
         'placements' : placements
     }    
-
 def has(id, item):
     return item in save['users'][id]['inv']
-
+def respawn(id):
+    random.seed()
+    x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+    pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+    square = fetch_square(id, x, y)
+    while square['square'] in ['ocean', 'deep ocean'] :
+        pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+        square = fetch_square(id, x, y)
+    
+    save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
+    save['users'][id]['stats']['health'] = 100
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
         me = await client.fetch_user(developer)
-
         try:
             await me.send('🟢 Bot online!')
         except:
             print("Unable to send message to developer:", me.name)
-
     print('Boot up complete')
-
 #commands
-
 @client.command(aliases = ['s'])
 async def surroundings(ctx):
     "Shows the area around you and your current temperature."
@@ -442,39 +443,25 @@ async def surroundings(ctx):
         for i in range(7):
             b=[]
             for j in range(7):
+                vis='🚫'
                 square =  fetch_square(id, x+i, y+j)
+                vis=square['vis']
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
-                else:b.append(square['vis'])
+                else:b.append(vis)
             a.append(''.join(b))
-
-        h = round(save['users'][id]['stats']['health']/10)*10
-        h_bar = ''
-
-        for i in range(1, 10):
-            if h-i*10 <= 0:h_bar += '⬛'
-            else:h_bar += '🟥'
-
-        embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
-        embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
-        embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
-        embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
-        embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
-
-        return embed
-        # return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
-
-    msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
+        return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
+    
+    msg = await ctx.reply(await fetch_area(ctx.author.id))
     
     for _ in range(60):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(embed=await fetch_area(ctx.author.id, True))
+        await msg.edit(content=await fetch_area(ctx.author.id, True))
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(embed=await fetch_area(ctx.author.id))
-
+        await msg.edit(content=await fetch_area(ctx.author.id))
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
@@ -496,13 +483,12 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
             x, y = last
             if has(id, 'boat'):pass
-            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
+            await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
             break
             
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
-
 @client.command(aliases = ['sw'])
 async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
@@ -514,6 +500,8 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     lefts=['left', 'east']
     rights=['right', 'west']
     
+    damage = 0
+    
     #I don't even fucking know at this point
     for i in range(min(abs(amount), 10)):  
         last = (x,y)
@@ -521,16 +509,24 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         if direction in rights:y+=sign(amount)
         if direction in ups:x-=sign(amount)
         if direction in downs:x+=sign(amount)
-        if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
-            x, y = last
-            if has(id, 'boat'):pass
-            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
+        for i in range(5):
+            for j in range(5):
+                if fetch_square(id, (x-2)+i, (y-2)+j)['square'] not in ['ocean', 'deep ocean']:break
+            else:continue#Best not to think about it
             break
-            
+        else:
+            damage += 1
+    save['users'][id]['stats']['health'] -= damage
+    if save['users'][id]['stats']['health']<=0:
+        dropped = random.choice(list(save['users'][id]['inv'].keys()))
+        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
+        await ctx.reply('You took too much damage and you died')
+        respawn(id)
+        return
+    if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
-
 @client.command(aliases = ['l'])
 async def look(ctx):
     "Tells you all the current items in the square you're in"
@@ -538,12 +534,7 @@ async def look(ctx):
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     items = list(fetch_square(id, x, y)['has'] + fetch_square(id, x, y)['placements'])
     #Hell Below
-    for i in range(len(items)):
-        if type(items[i]) is dict:
-            item_dict = items[i]#cus of dicts and lists not meshing
-            for i in range(item_dict[list(item_dict.keys())[0]]['amount']):
-                items.append(list(item_dict.keys())[0]) 
-    items=[i for i in items if type(i) is not dict]
+    
     readable = ''
     if items == []:
         readable = 'that you are standing on '+fetch_square(id, x, y)['square']
@@ -560,7 +551,6 @@ async def look(ctx):
         readable += 'and '
         readable += f'{items.count(items[len(set(items)) - 1]) if items.count(items[len(set(items)) - 1])>1 else "a"} {items[len(set(items)) - 1]}{"s" if items.count(items[len(set(items)) - 1])>1 else ""} '
     await ctx.reply(f'You see {readable}')
-
 @client.command(aliases = ['pu', 'p'])
 async def pickup(ctx):
     "Will pickup a random item that's in the square you're in."
@@ -586,6 +576,7 @@ async def pickup(ctx):
     items.remove(item)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
@@ -658,7 +649,6 @@ async def inv(ctx, *, txt = 'all'):
     await msg.remove_reaction(emoji= "▶", member = client.user)      
     await msg.remove_reaction(emoji= "◀", member = client.user)
     await msg.remove_reaction(emoji= "⏹", member = client.user)          
-
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
@@ -722,7 +712,6 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
          await msg.remove_reaction(emoji= "▶", member = client.user)      
          await msg.remove_reaction(emoji= "◀", member = client.user)
          await msg.remove_reaction(emoji= "⏹", member = client.user)                  
-
 @client.command(aliases = ['brain', 't'])
 async def think(ctx):
     "Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe."
@@ -744,7 +733,6 @@ async def think(ctx):
             break
     else:
         await ctx.reply('You were on the verge of thinking of something but failed to!\nKeep trying!')
-
 @client.command(aliases = ['c', 'make'])
 async def craft(ctx, *, item = ''):
     'Crafts the specified item if you have enough resources in your inventory.'
@@ -783,7 +771,6 @@ async def craft(ctx, *, item = ''):
             else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
         save['users'][id]['stats']['int level'] += 1
         await ctx.reply(f'You crafted {amount if amount != 1 else ""} {recipe}')
-
 @client.command(aliases = ['u'])
 async def use(ctx, *, tool = ''):
     'Uses the specified tool'
@@ -802,7 +789,7 @@ async def use(ctx, *, tool = ''):
     if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
         await ctx.reply('You don\'t have that tool')
         return
-    if tool in ['crude axe']:
+    elif tool in ['crude axe', 'crude wooden axe']:
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
@@ -816,7 +803,7 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You must be standing on a tree to use this')
             return
-    if tool in ['crude pickaxe']:
+    elif tool in ['crude pickaxe', 'crude wooden pickaxe']:
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
             return
@@ -826,7 +813,7 @@ async def use(ctx, *, tool = ''):
             else:save['users'][id]['inv'][mineral] = {'amount' : 1}
             minerals.remove(mineral)
             await ctx.reply(f'You mined and got {mineral}')
-    if tool in ['crude fishing pole']:
+    elif tool in ['crude fishing pole', 'crude wooden fishing pole']:
         for i in range(3):
             for j in range(3):
                 if fetch_square(id, (x-1)+i, (y-1)+j)['square'] in ['ocean', 'deep ocean']:break
@@ -839,21 +826,25 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-            
+    else:
+        await ctx.reply('Not a tool')
+        return        
         
     
-    save['users'][id]['inv'][tool]['durability'] -= 1
+    if 'durability' in save['users'][id]['inv'][tool]:
+        save['users'][id]['inv'][tool]['durability'] -= 1
     
-    if ceil(save['users'][id]['inv'][tool]['durability'] / recipes[tool]['durability']) < save['users'][id]['inv'][tool]['amount']:#Not reliable if a tool doesn't have a recipe, will do for now
+        if ceil(save['users'][id]['inv'][tool]['durability'] / recipes[tool]['durability']) < save['users'][id]['inv'][tool]['amount']:#Not reliable if a tool doesn't have a recipe, will do for now
+            save['users'][id]['inv'][tool]['amount'] -= 1
+            await ctx.reply(f'Your {tool} broke')
+    else:
         save['users'][id]['inv'][tool]['amount'] -= 1
-        await ctx.reply(f'Your {tool} broke')
     
     
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['minerals'] = list(minerals)
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-
 @client.command(aliases = ['r'])
 async def recipe(ctx, *, recipe = ''):
     'Gets the recipe of a specified item'
@@ -867,7 +858,6 @@ async def recipe(ctx, *, recipe = ''):
         await ctx.reply('You don\'t know that recipe')
         return
     await ctx.reply("\n".join( (x.capitalize() + ': ' + str(recipes[recipe]['recipe'][x])) for x in recipes[recipe]['recipe']))
-
 @client.command(aliases = ['pl'])
 async def place(ctx, *, placement = ''):
     'Places down the specified item'
@@ -896,7 +886,6 @@ async def place(ctx, *, placement = ''):
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
     await ctx.reply(f'You placed down a {placements}')
-
 @client.command(aliases = ['d'])
 async def drop(ctx, amount = 1, *, item = ''):
     id = ctx.author.id
@@ -904,7 +893,7 @@ async def drop(ctx, amount = 1, *, item = ''):
     items = list(fetch_square(id, x, y)['has'])
     'Lets you drop an item on the ground that can be picked up with !pickup'
     if item == '':
-        await ctx.send('You must specify the amount before the item (EX. !drop 1 rock)')
+        await ctx.reply('You must specify the amount before the item (EX. !drop 1 rock)')
     if item not in save['users'][id]['inv']:
         await ctx.reply('You don\'t have that')
         return
@@ -927,10 +916,10 @@ async def drop(ctx, amount = 1, *, item = ''):
     items.append(dropped)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    await ctx.send(f'Your dropped a {item}, {amount} times')
+    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
+    await ctx.reply(f'Your dropped a {item}, {amount} times')
     
 #other
-
 @client.event
 async def on_message(txt):
     user_check(txt.author.id)
@@ -973,32 +962,18 @@ async def info(ctx, user:discord.Member=''):
     "Shows your info."
     if user == '':
         user = ctx.author
-
     id = user.id
-
     if id not in save['users']:
         await ctx.reply('That user has not played Outside yet')
         return
-
     stats = save['users'][id]['stats']
     pos = save['users'][id]['pos']
     pos = (str(round(pos[0],-1)), str(round(pos[1],-1)))
     pos = (f'{pos[0]}, {pos[1]}')
-
-    h = round(stats['health']/10)*10
-    h_bar = ''
-
-    for i in range(1, 10):
-        if h-i*10 <= 0:h_bar += '⬛'
-        else:h_bar += '🟥'
-
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
-    embed.add_field(name='Health', value=f'{h_bar}', inline=False)
-
     await ctx.reply(embed=embed)
-
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
@@ -1010,22 +985,15 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
             b.append(square['vis'] if not square['player'] else '🙂')
         a.append(''.join(b))
     await ctx.reply('\n'.join(a))
-
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
-
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
-
-    user = await client.fetch_user(807757190316163104)
-    embed.set_thumbnail(url=user.avatar.url)
-
+    embed.set_thumbnail(url=ctx.me.avatar.url)
     for i in client.commands:
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
-
 @client.command()
 async def temp(ctx):
     await pickup(ctx)
     await look(ctx)
-
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
