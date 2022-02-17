@@ -527,6 +527,7 @@ async def look(ctx):
         if type(items[i]) is dict:
             item_dict = items[i]#cus of dicts and lists not meshing
             for i in range(item_dict[list(item_dict.keys())[0]]['amount']):items.append(item_dict[list(item_dict.keys())[0]]) 
+    items=[i for i in items if type(i) is not dict]
     readable = ''
     if items == []:
         readable = 'that you are standing on '+fetch_square(id, x, y)['square']
