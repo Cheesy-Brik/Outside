@@ -537,10 +537,10 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     if save['users'][id]['stats']['health']<=0:
         dropped = random.choice(list(save['users'][id]['inv'].keys()))
         await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
-        await ctx.send('You took too much damage and you died')
+        await ctx.reply('You took too much damage and you died')
         respawn(id)
         return
-    if damage:await ctx.send(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
+    if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
@@ -812,7 +812,7 @@ async def use(ctx, *, tool = ''):
     if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
         await ctx.reply('You don\'t have that tool')
         return
-    if tool in ['crude axe', 'crude wooden axe']:
+    elif tool in ['crude axe', 'crude wooden axe']:
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
@@ -826,7 +826,7 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You must be standing on a tree to use this')
             return
-    if tool in ['crude pickaxe', 'crude wooden pickaxe']:
+    elif tool in ['crude pickaxe', 'crude wooden pickaxe']:
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
             return
@@ -836,7 +836,7 @@ async def use(ctx, *, tool = ''):
             else:save['users'][id]['inv'][mineral] = {'amount' : 1}
             minerals.remove(mineral)
             await ctx.reply(f'You mined and got {mineral}')
-    if tool in ['crude fishing pole', 'crude wooden fishing pole']:
+    elif tool in ['crude fishing pole', 'crude wooden fishing pole']:
         for i in range(3):
             for j in range(3):
                 if fetch_square(id, (x-1)+i, (y-1)+j)['square'] in ['ocean', 'deep ocean']:break
@@ -849,14 +849,19 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-            
+    else:
+        await ctx.reply('Not a tool')
+        return        
         
     
-    save['users'][id]['inv'][tool]['durability'] -= 1
+    if 'durability' in save['users'][id]['inv'][tool]:
+        save['users'][id]['inv'][tool]['durability'] -= 1
     
-    if ceil(save['users'][id]['inv'][tool]['durability'] / recipes[tool]['durability']) < save['users'][id]['inv'][tool]['amount']:#Not reliable if a tool doesn't have a recipe, will do for now
+        if ceil(save['users'][id]['inv'][tool]['durability'] / recipes[tool]['durability']) < save['users'][id]['inv'][tool]['amount']:#Not reliable if a tool doesn't have a recipe, will do for now
+            save['users'][id]['inv'][tool]['amount'] -= 1
+            await ctx.reply(f'Your {tool} broke')
+    else:
         save['users'][id]['inv'][tool]['amount'] -= 1
-        await ctx.reply(f'Your {tool} broke')
     
     
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
@@ -914,7 +919,7 @@ async def drop(ctx, amount = 1, *, item = ''):
     items = list(fetch_square(id, x, y)['has'])
     'Lets you drop an item on the ground that can be picked up with !pickup'
     if item == '':
-        await ctx.send('You must specify the amount before the item (EX. !drop 1 rock)')
+        await ctx.reply('You must specify the amount before the item (EX. !drop 1 rock)')
     if item not in save['users'][id]['inv']:
         await ctx.reply('You don\'t have that')
         return
@@ -938,7 +943,7 @@ async def drop(ctx, amount = 1, *, item = ''):
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
-    await ctx.send(f'Your dropped a {item}, {amount} times')
+    await ctx.reply(f'Your dropped a {item}, {amount} times')
     
 #other
 
