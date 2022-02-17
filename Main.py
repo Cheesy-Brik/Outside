@@ -451,10 +451,8 @@ async def surroundings(ctx):
         h_bar = ''
 
         for i in range(1, 10):
-            if h-i*10 <= 0:
-                h_bar += '⬛'
-            else:
-                h_bar += '🟥'
+            if h-i*10 <= 0:h_bar += '⬛'
+            else:h_bar += '🟥'
 
         embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
@@ -991,10 +989,8 @@ async def info(ctx, user:discord.Member=''):
     h_bar = ''
 
     for i in range(1, 10):
-        if h-i*10 <= 0:
-            h_bar += '⬛'
-        else:
-            h_bar += '🟥'
+        if h-i*10 <= 0:h_bar += '⬛'
+        else:h_bar += '🟥'
 
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
