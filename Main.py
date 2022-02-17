@@ -446,7 +446,7 @@ async def surroundings(ctx):
                 else:b.append(square['vis'])
             a.append(''.join(b))
 
-        h = round(save['users'][id]['health']/10)*10
+        h = round(save['users'][id]['stats']['health']/10)*10
         h_bar = ''
 
         for i in range(0, 9):
