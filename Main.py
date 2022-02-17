@@ -446,7 +446,7 @@ async def surroundings(ctx):
                 else:b.append(square['vis'])
             a.append(''.join(b))
 
-        embed = discord.Embed(title = f'{temp_scale[temp]}', description = '\n'.join(a), color = 0x00ff00)
+        embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
         embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
         embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
