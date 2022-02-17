@@ -547,7 +547,7 @@ async def pickup(ctx):
     else:
         await ctx.reply(f'You picked up a {item}')
         
-@client.command(aliases = ['inventory', 'pocket', 'i'])
+@client.command(aliases = ['inventory', 'pocket', 'i', 'items'])
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
     id = ctx.author.id   
