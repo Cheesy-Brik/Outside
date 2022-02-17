@@ -379,7 +379,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'crude furnace' in placements:vis='🪔'
     
     if str(pos) in save['terrrain']['overide']:
-        if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else ''
+        if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else vis
     
     player = False
     for i in save['users']:#scuff
