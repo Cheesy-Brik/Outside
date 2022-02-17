@@ -487,7 +487,35 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
+
+@client.command(aliases = ['move', 'w'])
+async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
+    "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
+    id = ctx.author.id
+    x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     
+    ups=['up', 'north']
+    downs=['down', 'south']
+    lefts=['left', 'east']
+    rights=['right', 'west']
+    
+    #I don't even fucking know at this point
+    for i in range(min(abs(amount), 10)):  
+        last = (x,y)
+        if direction in lefts:y-=sign(amount)
+        if direction in rights:y+=sign(amount)
+        if direction in ups:x-=sign(amount)
+        if direction in downs:x+=sign(amount)
+        if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
+            x, y = last
+            if has(id, 'boat'):pass
+            await ctx.reply('You have seem to hit water, you can\'t swim what do you do?')#Can't swim dipshit
+            break
+            
+    
+    save['users'][id]['pos'] = [y,-x]#WHYYYYYY
+    await surroundings(ctx)
+
 @client.command(aliases = ['l'])
 async def look(ctx):
     "Tells you all the current items in the square you're in"
