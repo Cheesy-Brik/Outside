@@ -537,6 +537,7 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
         await ctx.send('You took too much damage and you died')
         respawn(id)
+        return
     if damage:await ctx.send(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
