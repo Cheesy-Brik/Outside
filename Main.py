@@ -473,6 +473,7 @@ async def pickup(ctx):
     if type(item) is dict:
         if list(item.keys())[0] in save['users'][id]['inv']:
             for i in item[list(item.keys())[0]]:
+                print(i)
                 if type(i) == int:
                     save['users'][id]['inv'][item][i] += i
         else:
@@ -487,7 +488,7 @@ async def pickup(ctx):
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
-            await ctx.reply(f'You picked up a {item}')
+            await ctx.reply(f'You picked up a {list(item.keys())[0]}')
         else:
             await ctx.reply(f'You picked up a little bag with {list(item.keys())[0]} {item}')
     else:
