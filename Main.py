@@ -128,6 +128,15 @@ recipes = {
         'requires' : 'has(id, "crude furnace")',
         'station' : 'crude furnace'
     },
+    'nail' : {
+         'recipe' : {
+            'iron' : 1
+        },
+        'intel' : 15,
+        'requires' : 'has(id, "iron")',
+        'station' : 'crude furnace',
+        'amount' : 5
+    }
 }
 
 #functions
@@ -674,7 +683,7 @@ async def craft(ctx, *, item = ''):
         for i in recipes[recipe]['recipe']:
             save['users'][id]['inv'][i]['amount'] -= recipes[recipe]['recipe'][i]
         amount = 1
-        if 'amount' in recipes[recipe]: amount =  recipes[recipe] 
+        if 'amount' in recipes[recipe]: amount =  recipes[recipe]['amount']
         if recipe in save['users'][id]['inv']:save['users'][id]['inv'][recipe]['amount'] += amount
         else:save['users'][id]['inv'][recipe] = {'amount' : amount}
         if 'durability' in recipes[recipe]:
