@@ -319,7 +319,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'boulder' in placements:vis = '🪨'#ROCK, THIS IS ROCK
     
     if 'crude wooden wall' in placements:vis='🌰'
-    if 'curde furnace' in placements:vis='🪔'
+    if 'crude furnace' in placements:vis='🪔'
     
     player = False
     for i in save['users']:#scuff
@@ -793,6 +793,7 @@ async def place(ctx, *, placement = ''):
     
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
+    await ctx.reply(f'You placed down a {placements}')
 
 @client.command(aliases = ['d'])
 async def drop(ctx, amount = 1, *, item = ''):
