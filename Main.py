@@ -987,9 +987,19 @@ async def info(ctx, user:discord.Member=''):
     pos = (str(round(pos[0],-1)), str(round(pos[1],-1)))
     pos = (f'{pos[0]}, {pos[1]}')
 
+    h = round(stats['health']/10)*10
+    h_bar = ''
+
+    for i in range(1, 10):
+        if h-i*10 <= 0:
+            h_bar += '⬛'
+        else:
+            h_bar += '🟥'
+
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
+    embed.add_field(name='Health', value=f'{h_bar}', inline=False)
 
     await ctx.reply(embed=embed)
 
@@ -1012,7 +1022,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
 
     user = await client.fetch_user(807757190316163104)
     embed.set_thumbnail(url=user.avatar.url)
-    
+
     for i in client.commands:
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
