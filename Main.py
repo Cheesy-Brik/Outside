@@ -558,7 +558,7 @@ async def look(ctx):
     readable = ''
     if items == []:
         readable = 'that you are standing on '+fetch_square(id, x, y)['square']
-    elif len(frozenset(items)) == 1:#Should make function, will I? Whoooo knows
+    elif len(items) == 1:#Should make function, will I? Whoooo knows
         readable = f'{items.count(items[0]) if items.count(items[0])>1 else "a"} {items[0]}{"s" if items.count(items[0])>1 else ""}'#Need to change whether it's a or an based on vowel first letter
     elif len(frozenset(items)) == 2:
         readable = f'{items.count(items[0]) if items.count(items[0])>1 else "a"} {items[0]}{"s" if items.count(items[0])>1 else ""} '
