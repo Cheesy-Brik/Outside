@@ -447,6 +447,7 @@ async def surroundings(ctx):
             a.append(''.join(b))
 
         h = round(save['users'][id]['stats']['health']/10)*10
+        console.log(f'{h}')
         h_bar = ''
 
         for i in range(0, 9):
