@@ -107,7 +107,7 @@ recipes = {
             'rock' : 10,
             'mud clump' : 2,
         },
-         'intel' : 20,
+         'intel' : 18,
         'requires' : 'has(id, "stone") or has(id, "crude oak planks")',
     },
     'crude furnace' : {
@@ -124,7 +124,7 @@ recipes = {
             'coal' : 1,
             'raw iron' : 2
         },
-         'intel' : 30,
+         'intel' : 20,
         'requires' : 'has(id, "crude furnace")',
         'station' : 'crude furnace'
     },
@@ -137,7 +137,7 @@ recipes = {
         'station' : 'crude furnace',
         'amount' : 5
     },
-    'crude oak planks' : {
+    'crude oak plank' : {
         'recipe' : {
             'rock' : 2,
             'oak log' : 1
@@ -147,37 +147,41 @@ recipes = {
     },
     'crude wooden axe' : {
         'recipe' : {
-            'rope' : 2,
-            'stick' : 2,
-            'mud clump' : 1,
-            'rock' : 3
+            'rope' : 1,
+            'crude oak plank' : 3,
+            'nail' : 2
         },
-        'requires' : 'has(id, "crude oak planks") and has(id, "nails")',
-        'intel':10,
-        'durability': 10
+        'requires' : 'has(id, "crude oak plank") and has(id, "nail")',
+        'intel':16,
+        'durability': 35
     },
     'crude wooden pickaxe' : {
         'recipe' : {
-            'rope' : 2,
-            'stick' : 1,
-            'mud clump' : 1,
-            'rock' : 4
+            'rope' : 1,
+            'crude oak plank' : 4,
+            'nail' : 3
         },
-        'requires' : 'has(id, "rope") and has(id, "rock")',
-        'intel':10,
-        'durability': 10
+        'requires' : 'has(id, "crude oak plank") and has(id, "nail")',
+        'intel':16,
+        'durability': 30
     },
     'crude wooden fishing pole' : {
         'recipe' : {
             'rope' : 3,
-            'stick' : 2,
-            'mud clump' : 1,
-            'rock' : 1
+            'crude oak plank' : 2,
+            'nail' : 2
         },
-        'requires' : 'has(id, "rope") and has(id, "rock")',
-        'intel':10,
-        'durability': 10
+        'requires' : 'has(id, "crude oak plank") and has(id, "nail")',
+        'intel':16,
+        'durability': 40
     },
+    'thatch fabric' : {
+        'recipe' : {
+            'thatch' : 5
+        },
+        'requires' : 'has(id, "thatch")',
+        'intel':12,
+    }
 }
 
 #functions
@@ -552,7 +556,7 @@ async def inv(ctx, *, txt = 'all'):
     pageinv=[]
     if txt != 'all':
         try: 
-            embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["inv"][txt.lower()]})')
+            embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
             await ctx.reply(embed = embed)
