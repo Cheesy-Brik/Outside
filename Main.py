@@ -378,6 +378,8 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
     
+    if changed['vis']['dropped_items']:vis='🧺'
+    
     player = False
     for i in save['users']:#scuff
         x,y = ( -(list(save['users'][i]['pos'])[1]) , (list(save['users'][i]['pos'])[0]) )
@@ -592,6 +594,7 @@ async def pickup(ctx):
     items.remove(item)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
@@ -933,6 +936,7 @@ async def drop(ctx, amount = 1, *, item = ''):
     items.append(dropped)
     if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
     await ctx.send(f'Your dropped a {item}, {amount} times')
     
 #other
