@@ -449,9 +449,9 @@ async def surroundings(ctx):
         h = round(save['users'][id]['stats']['health']/10)*10
         h_bar = ''
 
-        for i in range(0, 9):
+        for i in range(1, 10):
             print(h-i*10)
-            
+
             if h-i*10 <= 0:
                 h_bar += '⬛️'
             else:
