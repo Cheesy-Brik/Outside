@@ -506,7 +506,7 @@ async def surroundings(ctx, buttons=False):
             if task[ctx.channel.id] != taskid:return
         await msg.edit(embed=await fetch_area(ctx.author.id), view=view)
 @client.command(aliases = ['move', 'w'])
-async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1, buttons=True):
+async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -531,8 +531,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
 
-    if not buttons:
-        await surroundings(ctx, True)
+    await surroundings(ctx, True)
 @client.command(aliases = ['sw'])
 async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
