@@ -848,15 +848,15 @@ async def use(ctx, *, tool = ''):
         await ctx.reply('You don\'t have that tool')
         return
     if 'durability' in save['users'][id]['inv'][tool]:
-        await ctx.reply('You don\'t have that tool')
-        return
+        if save['users'][id]['inv'][tool]['durability'] <= 0:
+            await ctx.reply('You don\'t have that tool')
+            return
+    else:
+        if save['users'][id]['inv'][tool]['amount'] <= 0:
+            await ctx.reply('You don\'t have that tool')
+            return
 
-    print('durability' in save['users'][id]['inv'][tool])
-
-    if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
-        await ctx.reply('You don\'t have that tool')
-        return
-    elif tool in ['crude axe', 'crude wooden axe']:
+    if tool in ['crude axe', 'crude wooden axe']:
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
