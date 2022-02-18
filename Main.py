@@ -470,9 +470,9 @@ async def surroundings(ctx, buttons=True):
         def __init__(self):
             super().__init__(timeout=None)
 
-        @button(style=discord.ButtonStyle.blurple, label='Click Me')
+        @button(style=discord.ButtonStyle.blurple, label='Move Up')
         async def click_me_button(self, button: Button, interaction: Interaction):
-            print("Button was clicked!")
+            await walk(ctx.author.id, 'up')
 
     if buttons == True:view = ViewWithButton()
     else:view = View()
