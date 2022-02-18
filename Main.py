@@ -906,7 +906,7 @@ async def use(ctx, *, tool = ''):
         if save['users'][id]['stats']['health'] > 100:
             save['users'][id]['stats']['health'] = 100
 
-        ctx.reply('You ate the mushroom stew and gained 10 HP')
+        await ctx.reply('You ate the mushroom stew and gained 10 HP')
     else:
         await ctx.reply('Not a tool')
         return        
