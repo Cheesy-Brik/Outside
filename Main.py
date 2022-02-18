@@ -893,7 +893,7 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-    elif tool == ['mushroom stew']:
+    elif tool in ['mushroom stew']:
         if save['users'][id]['stats']['health'] == 100:
             await ctx.reply('You don\'t need to eat that')
             return
