@@ -850,6 +850,9 @@ async def use(ctx, *, tool = ''):
     if 'durability' in save['users'][id]['inv'][tool]:
         await ctx.reply('You don\'t have that tool')
         return
+
+    print('durability' in save['users'][id]['inv'][tool])
+
     if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
         await ctx.reply('You don\'t have that tool')
         return
