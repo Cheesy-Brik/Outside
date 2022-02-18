@@ -552,7 +552,8 @@ async def look(ctx):
             item_dict = items[i]#cus of dicts and lists not meshing
             for i in range(item_dict[list(item_dict.keys())[0]]['amount']):
                 items.append(list(item_dict.keys())[0]) 
-        items=[i for i in items if type(i) is not dict]
+
+    items=[i for i in items if type(i) is not dict]
     
     readable = ''
     if items == []:
