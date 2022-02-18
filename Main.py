@@ -1,4 +1,4 @@
-from ast import alias
+from ast import Await, alias
 import asyncio
 from datetime import datetime
 from optparse import AmbiguousOptionError
@@ -473,8 +473,8 @@ async def surroundings(ctx, buttons=True):
 
         @button(style=discord.ButtonStyle.blurple, label='Move Up')
         async def click_me_button(self, button: Button, interaction: Interaction):
-            await msg.delete()
             walk(ctx, 'up')
+            await msg.delete()
 
     if buttons == True:view = ViewWithButton()
     else:view = View()
