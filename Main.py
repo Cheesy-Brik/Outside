@@ -984,11 +984,11 @@ async def info(ctx, user:discord.Member=''):
     pos = (f'{pos[0]}, {pos[1]}')
     
     hb = ''
-    h = save['users'][id]['stats']['health']
+    h = stats['health']
         
     for x in range(1, 10):
         if h-(x*10) <= 0: hb += '⬛'
-        else: hb += '🟩'
+        else: hb += '🟥'
                 
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
