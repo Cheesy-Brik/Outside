@@ -426,7 +426,7 @@ async def on_ready():
     print('Boot up complete')
 #commands
 @client.command(aliases = ['s'])
-async def surroundings(ctx):
+async def surroundings(ctx, buttons=False):
     "Shows the area around you and your current temperature."
     
     taskid = int(task[ctx.channel.id])
@@ -463,17 +463,25 @@ async def surroundings(ctx):
 
         return embed
     
-    msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
+    class ViewWithButton(discord.ui.View):
+        @discord.ui.button(style=discord.ButtonStyle.blurple, label='Click Me')
+        async def click_me_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+            print("Button was clicked!")
+
+    if buttons == True:view = ViewWithButton()
+    else:view = discord.ui.View()
+
+    msg = await ctx.reply(embed=await fetch_area(ctx.author.id), view=view)
     
     for _ in range(60):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(embed=await fetch_area(ctx.author.id, True))
+        await msg.edit(embed=await fetch_area(ctx.author.id, True), view=view)
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(embed=await fetch_area(ctx.author.id))
+        await msg.edit(embed=await fetch_area(ctx.author.id), view=view)
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
@@ -497,7 +505,6 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
             if has(id, 'boat'):pass
             await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
             break
-            
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     await surroundings(ctx)
