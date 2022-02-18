@@ -181,14 +181,22 @@ recipes = {
         'requires' : 'has(id, "thatch")',
         'intel':12,
     },
-    "mushroom stew" : {
+    "mushroom soup" : {
         'recipe' : {
-            'mushroom' : 1,
+            'mushroom' : 3,
             'thatch fabric' : 1,
         },
-        'requires' : 'has(id, "thatch fabric") and has(id, "mushroom")',
+        'requires' : 'has(id, "thatch fabric")',
         'intel':12,
     },
+    'crude medicine' : {
+        'recipe' : {
+            'mushroom' : 1,
+            'herb' : 5,
+        },
+        'requires' : 'has(id, "thatch fabric")',
+        'intel':12,
+    }
 }
 #functions
 def user_check(id):
@@ -856,7 +864,7 @@ async def use(ctx, *, tool = ''):
             await ctx.reply('You don\'t have that tool')
             return
 
-    if tool in ['crude axe', 'crude wooden axe']:
+    if tool in ['crude axe', 'crude wooden axe']:#Axes
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
@@ -870,7 +878,7 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You must be standing on a tree to use this')
             return
-    elif tool in ['crude pickaxe', 'crude wooden pickaxe']:
+    elif tool in ['crude pickaxe', 'crude wooden pickaxe']:#Pickaxes
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
             return
@@ -880,7 +888,7 @@ async def use(ctx, *, tool = ''):
             else:save['users'][id]['inv'][mineral] = {'amount' : 1}
             minerals.remove(mineral)
             await ctx.reply(f'You mined and got {mineral}')
-    elif tool in ['crude fishing pole', 'crude wooden fishing pole']:
+    elif tool in ['crude fishing pole', 'crude wooden fishing pole']:#Fishing Poles
         for i in range(3):
             for j in range(3):
                 if fetch_square(id, (x-1)+i, (y-1)+j)['square'] in ['ocean', 'deep ocean']:break
@@ -893,20 +901,25 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-    elif tool in ['mushroom stew']:
-        if save['users'][id]['stats']['health'] == 100:
-            await ctx.reply('You don\'t need to eat that')
-            return
+    elif tool in ['mushroom soup']:#Healing Items
+            heal = 0
+            if tool in ['mushroom soup']:#Food items    
+                if tool == 'mushroom soup':heal=random.randint(8,15)
+                if save['users'][id]['stats']['health'] == 100:
+                    await ctx.reply('You can\'t eat that')
+                    return
 
-        if save['users'][id]['inv']['mushroom stew']['amount'] <= 0:
-            await ctx.reply('You don\'t have any mushroom stew')
-            return
+                save['users'][id]['stats']['health'] += 10
+                if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+            if tool in ['crude medicine']:#Medicines
+                if tool == 'crude medicine':heal=12
+                if save['users'][id]['stats']['health'] == 100:
+                    await ctx.reply('You can\'t eat that')
+                    return
 
-        save['users'][id]['stats']['health'] += 10
-        if save['users'][id]['stats']['health'] > 100:
-            save['users'][id]['stats']['health'] = 100
-
-        await ctx.reply('You ate the mushroom stew and gained 10 HP')
+                save['users'][id]['stats']['health'] += 10
+                if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+            await ctx.reply(f"You gained {heal} HP and you now have {save['users'][id]['stats']['health']} HP")
     else:
         await ctx.reply('Not a tool')
         return        
