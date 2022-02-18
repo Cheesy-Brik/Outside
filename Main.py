@@ -472,7 +472,7 @@ async def surroundings(ctx, buttons=True):
             super().__init__(timeout=None)
 
         @button(style=discord.ButtonStyle.blurple, label='Move Up')
-        async def click_me_button(self):
+        async def click_me_button(self, button: Button, interaction: Interaction):
             await walk(ctx, 'up')
             await msg.delete()
 
