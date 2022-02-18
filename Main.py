@@ -472,7 +472,7 @@ async def surroundings(ctx, buttons=True):
 
         @button(style=discord.ButtonStyle.blurple, label='Move Up')
         async def click_me_button(self, button: Button, interaction: Interaction):
-            await walk(ctx.author.id, 'up')
+            await walk(ctx, 'up')
 
     if buttons == True:view = ViewWithButton()
     else:view = View()
