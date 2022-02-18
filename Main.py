@@ -487,33 +487,33 @@ async def surroundings(ctx, buttons=True):
         def __init__(self):
             super().__init__(timeout=120)
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🔼', column = 1, row = 0)
+        @button(style=discord.ButtonStyle.blurple, emoji='🔼')
         async def up(self, button: Button, interaction: Interaction):
             await walk(ctx, 'up', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🔽', column = 1, row = 2)
+        @button(style=discord.ButtonStyle.blurple, emoji='🔽')
         async def down(self, button: Button, interaction: Interaction):
             await walk(ctx, 'down', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
-        @button(style=discord.ButtonStyle.blurple, emoji='◀️', column = 0, row = 1)
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def left(self, button: Button, interaction: Interaction):
             await walk(ctx, 'left', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️', column = 2, row = 1)
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def right(self, button: Button, interaction: Interaction):
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='👁️', column = 0, row = 0)
-        async def right(self, button: Button, interaction: Interaction):
+        @button(style=discord.ButtonStyle.blurple, emoji='👁️')
+        async def look(self, button: Button, interaction: Interaction):
             await look(ctx)
             await surroundings(ctx, buttons)
         
-        @button(style=discord.ButtonStyle.blurple, emoji='📤', column = 2, row = 0)
-        async def right(self, button: Button, interaction: Interaction):
+        @button(style=discord.ButtonStyle.blurple, emoji='📤')
+        async def pickup(self, button: Button, interaction: Interaction):
             await pickup(ctx)
             await surroundings(ctx, buttons)  
 
