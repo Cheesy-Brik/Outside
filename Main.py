@@ -443,26 +443,25 @@ async def surroundings(ctx):
         for i in range(7):
             b=[]
             for j in range(7):
-                vis='🚫'
                 square =  fetch_square(id, x+i, y+j)
-                vis=square['vis']
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
-                else:b.append(vis)
+                else:b.append(square['vis'])
             a.append(''.join(b))
-            
-        hb = ''
-        h = save['users'][id]['stats']['health']
-        
-        for x in range(1, 10):
-            if h-(x*10) <= 0: hb += '⬛'
-            else: hb += '🟩'
-                
-        embed = discord.Embed(title="Map", description="\n".join(a), color=0x00ff00)
-        embed.add_field(name="Temprature", value=f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}', inline=False)
-        embed.add_field(name="Cords", value=f'cords: {y+3}, {-x-3}', inline=False)
-        embed.add_field(name="Biome", value=f'{player_square["biome"]}', inline=False)
-        embed.add_field(name="Health", value=f'{hb}', inline=False)
-        return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
+
+        h = round(save['users'][id]['stats']['health']/10)*10
+        h_bar = ''
+
+        for i in range(1, 10):
+            if h-i*10 <= 0:h_bar += '⬛'
+            else:h_bar += '🟥'
+
+        embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
+        embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
+        embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
+        embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
+        embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
+
+        return embed
     
     msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
     
