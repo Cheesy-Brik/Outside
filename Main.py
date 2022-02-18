@@ -485,8 +485,8 @@ async def surroundings(ctx, buttons=True):
     
     class ViewWithButton(View):
         def __init__(self):
-            super().__init__(timeout=None)
-
+            super().__init__(timeout=120)
+        
         @button(style=discord.ButtonStyle.blurple, emoji='🔼')
         async def up(self, button: Button, interaction: Interaction):
             await walk(ctx, 'up', 1, True)
@@ -506,6 +506,16 @@ async def surroundings(ctx, buttons=True):
         async def right(self, button: Button, interaction: Interaction):
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='👁️')
+        async def right(self, button: Button, interaction: Interaction):
+            await look(ctx)
+            msg = await msg.send(embed=await fetch_area(ctx.author.id), view=view)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='📤')
+        async def right(self, button: Button, interaction: Interaction):
+            await pickup(ctx)
+            msg = await msg.send(embed=await fetch_area(ctx.author.id), view=view)    
 
     if buttons:view = ViewWithButton()
     else:view = View()
