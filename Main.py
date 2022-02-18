@@ -433,6 +433,7 @@ async def surroundings(ctx, buttons=True):
     "Shows the area around you and your current temperature."
     
     taskid = int(task[ctx.channel.id])
+    msg = await ctx.reply("Generating...")
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
@@ -473,7 +474,7 @@ async def surroundings(ctx, buttons=True):
         @button(style=discord.ButtonStyle.blurple, label='Move Up')
         async def click_me_button(self, button: Button, interaction: Interaction):
             await walk(ctx, 'up')
-            await interaction.delete()
+            await msg.delete()
 
     if buttons == True:view = ViewWithButton()
     else:view = View()
