@@ -449,19 +449,32 @@ async def surroundings(ctx):
                 if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
                 else:b.append(vis)
             a.append(''.join(b))
+            
+        hb = ''
+        h = save['users'][id]['stats']['health']
+        
+        for x in range(1, 10):
+            if h-(x*10) <= 0: hb += '⬛'
+            else: hb += '🟩'
+                
+        embed = discord.Embed(title="Map", description="\n".join(a), color=0x00ff00)
+        embed.add_field(name="Temprature", value=f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}', inline=False)
+        embed.add_field(name="Cords", value=f'cords: {y+3}, {-x-3}', inline=False)
+        embed.add_field(name="Biome", value=f'{player_square["biome"]}', inline=False)
+        embed.add_field(name="Health", value=f'{hb}', inline=False)
         return f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n'+f'cords: {y+3}, {-x-3}\n'+f'biome: {player_square["biome"]}\n'+'\n'.join(a)
     
-    msg = await ctx.reply(await fetch_area(ctx.author.id))
+    msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
     
     for _ in range(60):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(content=await fetch_area(ctx.author.id, True))
+        await msg.edit(embed=await fetch_area(ctx.author.id, True))
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(content=await fetch_area(ctx.author.id))
+        await msg.edit(embed=await fetch_area(ctx.author.id))
 @client.command(aliases = ['move', 'w'])
 async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
@@ -970,9 +983,19 @@ async def info(ctx, user:discord.Member=''):
     pos = save['users'][id]['pos']
     pos = (str(round(pos[0],-1)), str(round(pos[1],-1)))
     pos = (f'{pos[0]}, {pos[1]}')
+    
+    hb = ''
+    h = save['users'][id]['stats']['health']
+        
+    for x in range(1, 10):
+        if h-(x*10) <= 0: hb += '⬛'
+        else: hb += '🟩'
+                
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
+    embed.add_field(name='Health', value=hb, inline=False)
+    
     await ctx.reply(embed=embed)
 @client.command()
 @commands.has_role("Has touched grass")
