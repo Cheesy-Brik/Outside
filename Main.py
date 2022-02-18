@@ -464,7 +464,7 @@ async def surroundings(ctx, buttons=True):
             b=[]
             for j in range(7):
                 square =  fetch_square(id, x+i, y+j)
-                if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on how hungery?
+                if (square['player'] or (i == 3 and j == 3)) and player:b.append('🙂')#Maybe add emotions depending on health?
                 else:b.append(square['vis'])
             a.append(''.join(b))
 
@@ -492,17 +492,17 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'up', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, label='⬇️')
+        @button(style=discord.ButtonStyle.blurple, emoji='🔽')
         async def down(self, button: Button, interaction: Interaction):
             await walk(ctx, 'down', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
-        @button(style=discord.ButtonStyle.blurple, label='⬅️')
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def left(self, button: Button, interaction: Interaction):
             await walk(ctx, 'left', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
-        @button(style=discord.ButtonStyle.blurple, label='➡️')
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def right(self, button: Button, interaction: Interaction):
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
