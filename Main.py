@@ -180,7 +180,15 @@ recipes = {
         },
         'requires' : 'has(id, "thatch")',
         'intel':12,
-    }
+    },
+    "mushroom stew" : {
+        'recipe' : {
+            'mushroom' : 1,
+            'thatch fabric' : 1,
+        },
+        'requires' : 'has(id, "thatch fabric") and has(id, "mushroom")',
+        'intel':12,
+    },
 }
 #functions
 def user_check(id):
@@ -878,6 +886,20 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
+    elif tool == ['mushroom stew']:
+        if save['users'][id]['stats']['health'] == 100:
+            await ctx.reply('You don\'t need to eat that')
+            return
+
+        if save['users'][id]['inv']['mushroom stew']['amount'] <= 0:
+            await ctx.reply('You don\'t have any mushroom stew')
+            return
+
+        save['users'][id]['stats']['health'] += 10
+        if save['users'][id]['stats']['health'] > 100:
+            save['users'][id]['stats']['health'] = 100
+
+        ctx.reply('You ate the mushroom stew and gained 10 HP')
     else:
         await ctx.reply('Not a tool')
         return        
