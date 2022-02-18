@@ -487,12 +487,12 @@ async def surroundings(ctx, buttons=True):
         def __init__(self):
             super().__init__(timeout=None)
 
-        @button(style=discord.ButtonStyle.blurple, label='⬆️')
+        @button(style=discord.ButtonStyle.blurple, label='', emoji='')
         async def up(self, button: Button, interaction: Interaction):
             await walk(ctx, 'up', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, label='⬇️')
+        @button(style=discord.ButtonStyle.blurple, emoji='🔼')
         async def down(self, button: Button, interaction: Interaction):
             await walk(ctx, 'down', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
