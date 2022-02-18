@@ -473,13 +473,13 @@ async def surroundings(ctx, buttons=True):
 
         @button(style=discord.ButtonStyle.blurple, label='Move Up')
         async def click_me_button(self, button: Button, interaction: Interaction):
-            await walk(ctx, 'up')
-            await msg.delete()
+            await walk(ctx, 'up', True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
 
-    if buttons == True:view = ViewWithButton()
+    if buttons:view = ViewWithButton()
     else:view = View()
 
-    msg = await msg.edit(embed=await fetch_area(ctx.author.id), view=view)
+    msg = await msg.edit(content='', embed=await fetch_area(ctx.author.id), view=view)
     
     for _ in range(60):
         for _ in range(25):
@@ -491,7 +491,7 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:return
         await msg.edit(embed=await fetch_area(ctx.author.id), view=view)
 @client.command(aliases = ['move', 'w'])
-async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
+async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1, buttons=True):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -515,7 +515,9 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
             break
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
-    await surroundings(ctx)
+
+    if not buttons:
+        await surroundings(ctx)
 @client.command(aliases = ['sw'])
 async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
