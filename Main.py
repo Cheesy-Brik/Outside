@@ -473,7 +473,7 @@ async def surroundings(ctx, buttons=True):
 
         @button(style=discord.ButtonStyle.blurple, label='Move Up')
         async def click_me_button(self, button: Button, interaction: Interaction):
-            await walk(ctx, 'up', True)
+            await walk(ctx, 'up', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
     if buttons:view = ViewWithButton()
