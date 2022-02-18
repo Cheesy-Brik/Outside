@@ -511,11 +511,13 @@ async def surroundings(ctx, buttons=True):
         async def look(self, button: Button, interaction: Interaction):
             await look(ctx)
             await surroundings(ctx, buttons)
+            return 
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
             await pickup(ctx)
             await surroundings(ctx, buttons)  
+            return
 
     if buttons:view = ViewWithButton()
     else:view = View()
