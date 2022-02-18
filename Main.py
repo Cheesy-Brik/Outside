@@ -545,7 +545,7 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
-    await surroundings(ctx)
+    await surroundings(ctx, True)
 @client.command(aliases = ['l'])
 async def look(ctx):
     "Tells you all the current items in the square you're in"
