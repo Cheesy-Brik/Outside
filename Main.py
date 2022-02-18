@@ -429,7 +429,7 @@ async def on_ready():
     print('Boot up complete')
 #commands
 @client.command(aliases = ['s'])
-async def surroundings(ctx, buttons=False):
+async def surroundings(ctx, buttons=True):
     "Shows the area around you and your current temperature."
     
     taskid = int(task[ctx.channel.id])
