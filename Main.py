@@ -511,12 +511,14 @@ async def surroundings(ctx, buttons=True):
         async def look(self, button: Button, interaction: Interaction):
             await look(ctx)
             await surroundings(ctx, buttons)
+            task[ctx.channel.id] +=1
             return False
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
             await pickup(ctx)
             await surroundings(ctx, buttons)  
+            task[ctx.channel.id] +=1
             return False
 
     if buttons:view = ViewWithButton()
