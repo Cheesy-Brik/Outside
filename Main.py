@@ -429,7 +429,7 @@ async def on_ready():
     print('Boot up complete')
 #commands
 @client.command(aliases = ['s'])
-async def surroundings(ctx, buttons=True):
+async def surroundings(ctx, buttons=False):
     "Shows the area around you and your current temperature."
     
     taskid = int(task[ctx.channel.id])
@@ -471,9 +471,24 @@ async def surroundings(ctx, buttons=True):
         def __init__(self):
             super().__init__(timeout=None)
 
-        @button(style=discord.ButtonStyle.blurple, label='Move Up')
-        async def click_me_button(self, button: Button, interaction: Interaction):
+        @button(style=discord.ButtonStyle.blurple, label='⬆️')
+        async def up(self, button: Button, interaction: Interaction):
             await walk(ctx, 'up', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+        
+        @button(style=discord.ButtonStyle.blurple, label='⬇️')
+        async def down(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'down', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+        @button(style=discord.ButtonStyle.blurple, label='⬅️')
+        async def left(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'left', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+        @button(style=discord.ButtonStyle.blurple, label='➡️')
+        async def right(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
     if buttons:view = ViewWithButton()
@@ -517,7 +532,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
 
     if not buttons:
-        await surroundings(ctx)
+        await surroundings(ctx, True)
 @client.command(aliases = ['sw'])
 async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
