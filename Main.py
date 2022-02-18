@@ -13,6 +13,9 @@ import re
 import subprocess
 import discord
 from discord.ext import commands
+from discord.ui import button, View, Button
+from discord.interactions import Interaction
+
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
@@ -463,13 +466,16 @@ async def surroundings(ctx, buttons=False):
 
         return embed
     
-    class ViewWithButton(discord.ui.View):
-        @discord.ui.button(style=discord.ButtonStyle.blurple, label='Click Me')
-        async def click_me_button(self, button: discord.ui.Button, interaction: discord.Interaction):
+    class ViewWithButton(View):
+        def __init__(self, ctx, buttons):
+            super().__init__(timeout=None)
+
+        @button(style=discord.ButtonStyle.blurple, label='Click Me')
+        async def click_me_button(self, button: Button, interaction: Interaction):
             print("Button was clicked!")
 
     if buttons == True:view = ViewWithButton()
-    else:view = discord.ui.View()
+    else:view = View()
 
     msg = await ctx.reply(embed=await fetch_area(ctx.author.id), view=view)
     
