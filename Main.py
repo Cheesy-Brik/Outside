@@ -467,7 +467,7 @@ async def surroundings(ctx, buttons=True):
         return embed
     
     class ViewWithButton(View):
-        def __init__(self, ctx, buttons):
+        def __init__(self):
             super().__init__(timeout=None)
 
         @button(style=discord.ButtonStyle.blurple, label='Click Me')
