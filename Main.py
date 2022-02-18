@@ -1,4 +1,4 @@
-from ast import alias
+from ast import Await, alias
 import asyncio
 from datetime import datetime
 from optparse import AmbiguousOptionError
@@ -13,6 +13,9 @@ import re
 import subprocess
 import discord
 from discord.ext import commands
+from discord.ui import button, View, Button
+from discord.interactions import Interaction
+
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
@@ -177,7 +180,15 @@ recipes = {
         },
         'requires' : 'has(id, "thatch")',
         'intel':12,
-    }
+    },
+    "mushroom stew" : {
+        'recipe' : {
+            'mushroom' : 1,
+            'thatch fabric' : 1,
+        },
+        'requires' : 'has(id, "thatch fabric") and has(id, "mushroom")',
+        'intel':12,
+    },
 }
 #functions
 def user_check(id):
@@ -426,10 +437,11 @@ async def on_ready():
     print('Boot up complete')
 #commands
 @client.command(aliases = ['s'])
-async def surroundings(ctx):
+async def surroundings(ctx, buttons=False):
     "Shows the area around you and your current temperature."
     
     taskid = int(task[ctx.channel.id])
+    msg = await ctx.reply("Generating...")
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
@@ -463,19 +475,46 @@ async def surroundings(ctx):
 
         return embed
     
-    msg = await ctx.reply(embed=await fetch_area(ctx.author.id))
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=None)
+
+        @button(style=discord.ButtonStyle.blurple, label='⬆️')
+        async def up(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'up', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+        
+        @button(style=discord.ButtonStyle.blurple, label='⬇️')
+        async def down(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'down', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+        @button(style=discord.ButtonStyle.blurple, label='⬅️')
+        async def left(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'left', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+        @button(style=discord.ButtonStyle.blurple, label='➡️')
+        async def right(self, button: Button, interaction: Interaction):
+            await walk(ctx, 'right', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+    if buttons:view = ViewWithButton()
+    else:view = View()
+
+    msg = await msg.edit(content='', embed=await fetch_area(ctx.author.id), view=view)
     
     for _ in range(60):
         for _ in range(25):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(embed=await fetch_area(ctx.author.id, True))
+        await msg.edit(embed=await fetch_area(ctx.author.id, True), view=view)
         for _ in range(75):
             time.sleep(0.01)
             if task[ctx.channel.id] != taskid:return
-        await msg.edit(embed=await fetch_area(ctx.author.id))
+        await msg.edit(embed=await fetch_area(ctx.author.id), view=view)
 @client.command(aliases = ['move', 'w'])
-async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
+async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1, buttons = False):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -497,10 +536,11 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
             if has(id, 'boat'):pass
             await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
             break
-            
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
-    await surroundings(ctx)
+
+    if not buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS.
+        await surroundings(ctx, True)
 @client.command(aliases = ['sw'])
 async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
@@ -538,7 +578,7 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
-    await surroundings(ctx)
+    await surroundings(ctx, True)
 @client.command(aliases = ['l'])
 async def look(ctx):
     "Tells you all the current items in the square you're in"
@@ -804,12 +844,19 @@ async def use(ctx, *, tool = ''):
         await ctx.reply('You need to specify which tool to use')
         return
     if tool not in save['users'][id]['inv']:
+        print(save['users'][id]['inv'])
         await ctx.reply('You don\'t have that tool')
         return
-    if save['users'][id]['inv'][tool]['durability'] <= 0 or save['users'][id]['inv'][tool]['amount']<=0:
-        await ctx.reply('You don\'t have that tool')
-        return
-    elif tool in ['crude axe', 'crude wooden axe']:
+    if 'durability' in save['users'][id]['inv'][tool]:
+        if save['users'][id]['inv'][tool]['durability'] <= 0:
+            await ctx.reply('You don\'t have that tool')
+            return
+    else:
+        if save['users'][id]['inv'][tool]['amount'] <= 0:
+            await ctx.reply('You don\'t have that tool')
+            return
+
+    if tool in ['crude axe', 'crude wooden axe']:
         if 'oak tree' in placements:#Must find better way to do this
             placements.remove('oak tree')
             if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
@@ -846,6 +893,20 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
+    elif tool in ['mushroom stew']:
+        if save['users'][id]['stats']['health'] == 100:
+            await ctx.reply('You don\'t need to eat that')
+            return
+
+        if save['users'][id]['inv']['mushroom stew']['amount'] <= 0:
+            await ctx.reply('You don\'t have any mushroom stew')
+            return
+
+        save['users'][id]['stats']['health'] += 10
+        if save['users'][id]['stats']['health'] > 100:
+            save['users'][id]['stats']['health'] = 100
+
+        await ctx.reply('You ate the mushroom stew and gained 10 HP')
     else:
         await ctx.reply('Not a tool')
         return        
