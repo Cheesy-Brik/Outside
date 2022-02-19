@@ -688,7 +688,16 @@ async def pickup(ctx):
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
 
+    global num
     num=1
+
+    def n(num):
+        if num < len(pageinv): num += 1 
+        return num
+
+    def b(num):
+        if num > 1: num -= 1 
+        return num
 
     class ViewWithButton(View):
         def __init__(self):
@@ -696,7 +705,7 @@ async def inv(ctx, *, txt = 'all'):
         
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def next(self, button: Button, interaction: Interaction):
-            if num < len(pageinv): num += 1 
+            num = n(num)
 
             embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
@@ -705,7 +714,7 @@ async def inv(ctx, *, txt = 'all'):
         
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
-            if num > 1: num -= 1
+            num = b(num)
 
             embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
