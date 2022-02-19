@@ -534,7 +534,7 @@ async def surroundings(ctx, buttons=True):
                 await msg.edit(view=View())
             except:
                 pass
-            
+
             await surroundings(ctx, buttons)
 
     if buttons:view = ViewWithButton()
@@ -723,30 +723,32 @@ async def inv(ctx, *, txt = 'all'):
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed)
     num=1
-    await msg.add_reaction("◀")
-    await msg.add_reaction("▶")
-    await msg.add_reaction("⏹")
-    while True:
-        def check(reaction, user):
-            return user==ctx.message.author and str(reaction.emoji) in ["▶","◀","⏹"]
-        try: reaction, user = await client.wait_for("reaction_add", timeout=300, check = check)
-        except asyncio.TimeoutError: break
-        else:
-            if not user == client.user:
-                try: await msg.remove_reaction(emoji=reaction.emoji, member=user)
-                except: pass
-                if str(reaction.emoji) == "▶": 
-                    if num < len(pageinv): num += 1
-                elif str(reaction.emoji) == "◀":
-                    if num > 1: num -= 1
-                elif str(reaction.emoji) == "⏹": break
+
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if num < len(pageinv): num += 1 
+
             embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
-    await msg.remove_reaction(emoji= "▶", member = client.user)      
-    await msg.remove_reaction(emoji= "◀", member = client.user)
-    await msg.remove_reaction(emoji= "⏹", member = client.user)          
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if num > 1: num -= 1
+
+            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(content = '', embed = embed)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            return         
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
