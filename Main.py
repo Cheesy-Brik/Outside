@@ -755,6 +755,7 @@ async def inv(ctx, *, txt = 'all'):
         txt = txt.split(' ')
 
         for x in txt:
+            print(x[0:2] == "<@!" and x[-1] == ">")
             if x[0:2] == "<@!" and x[-1] == ">":
                 txt.remove(x)
 
