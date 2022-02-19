@@ -17,14 +17,17 @@ from discord.ext import commands
 from discord.ui import button, View, Button
 from discord.interactions import Interaction
 
+test = False
+
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
 #Auto update git "master" branch when running the file
-subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
+if not test:    
+    subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
 task = {}
 global save
 if open("save.txt","r",encoding="utf8").read():
