@@ -4,6 +4,7 @@ from datetime import datetime
 from optparse import AmbiguousOptionError
 import os
 import random
+from tkinter import DISABLED
 from turtle import pos, position
 from perlin_noise import PerlinNoise
 from math import floor, ceil
@@ -29,7 +30,8 @@ global save
 if open("save.txt","r",encoding="utf8").read():
     save = eval(open("save.txt","r",encoding="utf8").read())
 else:
-    save = {'users' : {}, 'terrain' : {'overide' : {}}}
+    save = {'users' : {}, 'terrain' : {'overide' : {}, 'time' : {}}}
+    
 def write():
     File = open("save.txt","w",encoding="utf8")
     File.write(str(save))
@@ -510,12 +512,18 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
-        
+
         @button(style=discord.ButtonStyle.blurple, emoji='👁️')
         async def look(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await look(ctx)
             task[ctx.channel.id] +=1
+
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
             await surroundings(ctx, buttons)
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
@@ -523,6 +531,12 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
             task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
             await surroundings(ctx, buttons)
 
     if buttons:view = ViewWithButton()
@@ -675,13 +689,59 @@ async def pickup(ctx):
 @client.command(aliases = ['inventory', 'pocket', 'i', 'items'])
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
-    id = ctx.author.id   
+
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.num = 1
+            self.disabled = False
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                if self.num < len(pageinv): self.num += 1 
+                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+                if id == ctx.author.id:embed.set_footer(text=ctx.author)
+                else:embed.set_footer(text=ctx.message.mentions[0])
+                await msg.edit(content = '', embed = embed)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+                if id == ctx.author.id:embed.set_footer(text=ctx.author)
+                else:embed.set_footer(text=ctx.message.mentions[0])
+                await msg.edit(content = '', embed = embed)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                self.disabled = True
+
+    if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have a pocket')
+            return
+    else:
+        id = ctx.author.id
+        try:save["users"][id]
+        except:
+            await ctx.reply('You do not have a pocket')
+            return
+
     reg1 = 0
     inv = []
     pageinv=[]
+    num = 1
+
     if txt != 'all':
+        txt = ' '.join(txt.split('_'))
+
         try: 
-            embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
+            print(id)
+            embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
             await ctx.reply(embed = embed)
@@ -696,45 +756,22 @@ async def inv(ctx, *, txt = 'all'):
             else:
                 await ctx.reply("You don't have any of that item")
                 return
-    for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
-        if save["users"][id]['inv'][i]['amount'] > 0: 
-            inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
-            reg1 += 1
-        if reg1 == 30:
-            pageinv.append('\n'.join(inv))
-            inv = []
-            reg1 = 0
+    else:
+        for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
+            if save["users"][id]['inv'][i]['amount'] > 0: 
+                inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
+                reg1 += 1
+            if reg1 == 30:
+                pageinv.append('\n'.join(inv))
+                inv = []
+                reg1 = 0
+
     if reg1 != 30:
         pageinv.append('\n'.join(inv))            
     embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
-    msg = await ctx.reply(embed=embed)
-    num=1
-    await msg.add_reaction("◀")
-    await msg.add_reaction("▶")
-    await msg.add_reaction("⏹")
-    while True:
-        def check(reaction, user):
-            return user==ctx.message.author and str(reaction.emoji) in ["▶","◀","⏹"]
-        try: reaction, user = await client.wait_for("reaction_add", timeout=300, check = check)
-        except asyncio.TimeoutError: break
-        else:
-            if not user == client.user:
-                try: await msg.remove_reaction(emoji=reaction.emoji, member=user)
-                except: pass
-                if str(reaction.emoji) == "▶": 
-                    if num < len(pageinv): num += 1
-                elif str(reaction.emoji) == "◀":
-                    if num > 1: num -= 1
-                elif str(reaction.emoji) == "⏹": break
-            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
-            if id == ctx.author.id:embed.set_footer(text=ctx.author)
-            else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
-    await msg.remove_reaction(emoji= "▶", member = client.user)      
-    await msg.remove_reaction(emoji= "◀", member = client.user)
-    await msg.remove_reaction(emoji= "⏹", member = client.user)          
+    msg = await ctx.reply(embed=embed, view=ViewWithButton())
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
