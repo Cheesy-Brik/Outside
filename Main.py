@@ -795,11 +795,20 @@ async def inv(ctx, *, txt = 'all'):
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
-    
+
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
 
+     if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have any recipes')
+            return
+     else:
+        id = ctx.author.id
+    
      reg1 = 0
      inv = []
      pageinv=[]
