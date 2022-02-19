@@ -688,47 +688,36 @@ async def pickup(ctx):
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
 
-    global num
-    num=1
-
-    def n(num):
-        if num < len(pageinv): num += 1 
-        return num
-
-    def b(num):
-        if num > 1: num -= 1 
-        return num
-
     class ViewWithButton(View):
         def __init__(self):
             super().__init__(timeout=120)
+            self.num = 1
         
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def next(self, button: Button, interaction: Interaction):
-            num = n(num)
-
-            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
+            if self.num < len(pageinv): self.num += 1 
+            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
         
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
-            num = b(num)
-
-            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
+            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
 
         @button(style=discord.ButtonStyle.blurple, emoji='⏹')
         async def stop(self, button: Button, interaction: Interaction):
-            return         
+            return       
 
     id = ctx.author.id   
     reg1 = 0
     inv = []
     pageinv=[]
+    num = 1
+
     if txt != 'all':
         try: 
             embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
