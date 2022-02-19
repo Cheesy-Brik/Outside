@@ -823,6 +823,10 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def next(self, button: Button, interaction: Interaction):
             if not self.disabled:
+                reg1 = 0
+                inv = []
+                pageinv=[]
+
                 if self.num < len(pageinv): self.num += 1 
                 for i in sorted(save["users"][id]['recipes'], reverse = True):             
                     if i != '':
@@ -841,6 +845,10 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if not self.disabled:
+                reg1 = 0
+                inv = []
+                pageinv=[]
+
                 if self.num > 1: self.num -= 1
                 for i in sorted(save["users"][id]['recipes'], reverse = True):             
                     if i != '':
