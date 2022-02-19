@@ -509,7 +509,6 @@ async def surroundings(ctx, buttons=True):
         async def right(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'right', 1, True)
-            #await msg.edit(embed=await fetch_area(ctx.author.id))
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
         @button(style=discord.ButtonStyle.blurple, emoji='👁️')
@@ -517,7 +516,7 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await look(ctx)
             task[ctx.channel.id] +=1
-            await interaction.delete_original_message()
+            await msg.delete()
             await surroundings(ctx, buttons)
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
@@ -525,7 +524,7 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
             task[ctx.channel.id] +=1
-            await interaction.delete_original_message()
+            await msg.delete()
             await surroundings(ctx, buttons)
 
     if buttons:view = ViewWithButton()
