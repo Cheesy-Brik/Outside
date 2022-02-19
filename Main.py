@@ -4,6 +4,7 @@ from datetime import datetime
 from optparse import AmbiguousOptionError
 import os
 import random
+from tkinter import DISABLED
 from turtle import pos, position
 from perlin_noise import PerlinNoise
 from math import floor, ceil
@@ -693,8 +694,11 @@ async def inv(ctx, *, txt = 'all'):
             super().__init__(timeout=120)
             self.num = 1
             self.disabled = False
+
+        def isdisabled(self):
+            return self.disabled
         
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️', disabled=lambda self: self.disabled)
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️', disabled=isdisabled())
         async def next(self, button: Button, interaction: Interaction):
             if self.num < len(pageinv): self.num += 1 
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
@@ -702,14 +706,14 @@ async def inv(ctx, *, txt = 'all'):
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
         
-        @button(style=discord.ButtonStyle.blurple, emoji='◀️', disabled=lambda self: self.disabled)
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️', disabled=isdisabled())
         async def back(self, button: Button, interaction: Interaction):
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
 
-        @button(style=discord.ButtonStyle.blurple, emoji='⏹', disabled=lambda self: self.disabled)
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹', disabled=isdisabled())
         async def stop(self, button: Button, interaction: Interaction):
             self.disabled = True
 
