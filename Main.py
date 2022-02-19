@@ -737,6 +737,7 @@ async def inv(ctx, *, txt = 'all'):
 
     if txt != 'all':
         try: 
+            print(id)
             embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
