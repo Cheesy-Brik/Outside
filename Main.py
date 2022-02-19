@@ -740,7 +740,7 @@ async def inv(ctx, *, txt = 'all'):
 
         try: 
             print(id)
-            embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
+            embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
             await ctx.reply(embed = embed)
@@ -764,7 +764,7 @@ async def inv(ctx, *, txt = 'all'):
                 pageinv.append('\n'.join(inv))
                 inv = []
                 reg1 = 0
-                
+
     if reg1 != 30:
         pageinv.append('\n'.join(inv))            
     embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
