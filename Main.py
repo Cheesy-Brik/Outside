@@ -517,15 +517,13 @@ async def surroundings(ctx, buttons=True):
             await look(ctx)
             task[ctx.channel.id] +=1
             await surroundings(ctx, buttons)
-            return False
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
             task[ctx.channel.id] +=1
-            await surroundings(ctx, buttons)  
-            return False
+            await surroundings(ctx, buttons)
 
     if buttons:view = ViewWithButton()
     else:view = View()
