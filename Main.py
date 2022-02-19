@@ -489,26 +489,31 @@ async def surroundings(ctx, buttons=True):
         
         @button(style=discord.ButtonStyle.blurple, emoji='🔼')
         async def up(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'up', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
         @button(style=discord.ButtonStyle.blurple, emoji='🔽')
         async def down(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'down', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def left(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'left', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def right(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
         @button(style=discord.ButtonStyle.blurple, emoji='👁️')
         async def look(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
             await look(ctx)
             task[ctx.channel.id] +=1
             await surroundings(ctx, buttons)
@@ -516,6 +521,7 @@ async def surroundings(ctx, buttons=True):
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
             task[ctx.channel.id] +=1
             await surroundings(ctx, buttons)  
