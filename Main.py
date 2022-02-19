@@ -687,6 +687,33 @@ async def pickup(ctx):
 @client.command(aliases = ['inventory', 'pocket', 'i', 'items'])
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
+
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if num < len(pageinv): num += 1 
+
+            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(content = '', embed = embed)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if num > 1: num -= 1
+
+            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(content = '', embed = embed)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            return         
+
     id = ctx.author.id   
     reg1 = 0
     inv = []
@@ -721,34 +748,8 @@ async def inv(ctx, *, txt = 'all'):
     embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
-    msg = await ctx.reply(embed=embed)
+    msg = await ctx.reply(embed=embed, view=ViewWithButton())
     num=1
-
-    class ViewWithButton(View):
-        def __init__(self):
-            super().__init__(timeout=120)
-        
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
-        async def next(self, button: Button, interaction: Interaction):
-            if num < len(pageinv): num += 1 
-
-            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
-            if id == ctx.author.id:embed.set_footer(text=ctx.author)
-            else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
-        
-        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
-        async def back(self, button: Button, interaction: Interaction):
-            if num > 1: num -= 1
-
-            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
-            if id == ctx.author.id:embed.set_footer(text=ctx.author)
-            else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
-
-        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
-        async def stop(self, button: Button, interaction: Interaction):
-            return         
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
