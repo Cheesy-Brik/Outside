@@ -758,7 +758,7 @@ async def inv(ctx, *, txt = 'all'):
             if x[2] == "<@!" and x[-1] == ">":
                 txt.remove(x)
 
-        txt.join(' ')
+        txt = ' '.join(txt)
 
         try: 
             embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
