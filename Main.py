@@ -492,6 +492,16 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'up', 1, True)
             await interaction.response.edit_message(embed=await fetch_area(ctx.author.id))
+
+            for _ in range(60):
+                for _ in range(25):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id, True), view=view)
+                for _ in range(75):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id), view=view)
         
         @button(style=discord.ButtonStyle.blurple, emoji='🔽')
         async def down(self, button: Button, interaction: Interaction):
@@ -499,11 +509,31 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'down', 1, True)
             await interaction.response.edit_message(embed=await fetch_area(ctx.author.id))
 
+            for _ in range(60):
+                for _ in range(25):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id, True), view=view)
+                for _ in range(75):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id), view=view)
+
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def left(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'left', 1, True)
             await interaction.response.edit_message(embed=await fetch_area(ctx.author.id))
+
+            for _ in range(60):
+                for _ in range(25):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id, True), view=view)
+                for _ in range(75):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id), view=view)
 
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def right(self, button: Button, interaction: Interaction):
@@ -511,6 +541,16 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'right', 1, True)
             #await msg.edit(embed=await fetch_area(ctx.author.id))
             await interaction.response.edit_message(embed=await fetch_area(ctx.author.id))
+
+            for _ in range(60):
+                for _ in range(25):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id, True), view=view)
+                for _ in range(75):
+                    time.sleep(0.01)
+                    if task[ctx.channel.id] != taskid:return
+                await interaction.response.edit_message(embed=await fetch_area(ctx.author.id), view=view)
         
         @button(style=discord.ButtonStyle.blurple, emoji='👁️')
         async def look(self, button: Button, interaction: Interaction):
