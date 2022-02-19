@@ -867,6 +867,10 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
                  reg1 = 0
          if reg1 != 30:
              pageinv.append('\n'.join(inv))            
+         embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
+         embed.set_author(name=" ")
+         embed.set_footer(text=" ")
+         msg = await ctx.reply(embed=embed, view=ViewWithButton())      
                 
 @client.command(aliases = ['brain', 't'])
 async def think(ctx):
