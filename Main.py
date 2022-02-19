@@ -711,15 +711,6 @@ async def inv(ctx, *, txt = 'all'):
             self.num = 1
             self.disabled = False
         
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
-        async def next(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                if self.num < len(pageinv): self.num += 1 
-                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
-                if id == ctx.author.id:embed.set_footer(text=ctx.author)
-                else:embed.set_footer(text=ctx.message.mentions[0])
-                await msg.edit(content = '', embed = embed)
-        
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if not self.disabled:
@@ -733,6 +724,15 @@ async def inv(ctx, *, txt = 'all'):
         async def stop(self, button: Button, interaction: Interaction):
             if not self.disabled:
                 self.disabled = True
+
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                if self.num < len(pageinv): self.num += 1 
+                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+                if id == ctx.author.id:embed.set_footer(text=ctx.author)
+                else:embed.set_footer(text=ctx.message.mentions[0])
+                await msg.edit(content = '', embed = embed)
 
     if ctx.message.mentions != []:
         id = ctx.message.mentions[0].id
@@ -841,7 +841,12 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
                 embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
                 embed.set_author(name=" ")
                 embed.set_footer(text=" ")
-        
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                self.disabled = True
+
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if not self.disabled:
@@ -863,11 +868,6 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
                 embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
                 embed.set_author(name=" ")
                 embed.set_footer(text=" ")
-
-        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
-        async def stop(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                self.disabled = True
 
      if txt != 'all':
          try: 
