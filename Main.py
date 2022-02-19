@@ -565,7 +565,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
 
-    if not buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS.
+    if buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS., Cheesy here, idk if you meant for this but now walking by default doesn't spawn buttons for efficiencys sake
         await surroundings(ctx, True)
 @client.command(aliases = ['sw'])
 async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
