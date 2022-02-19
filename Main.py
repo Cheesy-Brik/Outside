@@ -688,6 +688,8 @@ async def pickup(ctx):
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
 
+    num=1
+
     class ViewWithButton(View):
         def __init__(self):
             super().__init__(timeout=120)
@@ -749,7 +751,6 @@ async def inv(ctx, *, txt = 'all'):
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
-    num=1
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
