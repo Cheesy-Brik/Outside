@@ -295,7 +295,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     temp = 101-round((elevation+0.5)*101,2)
     
     wheatnoise = PerlinNoise(octaves=15, seed=558)
-    chickennoise =  PerlinNoise(octaves=300, seed=929)
+    chickennoise =  PerlinNoise(octaves=700, seed=929)
     
     if vis in biomes[biome]:
         vis = biomes[biome][vis]
