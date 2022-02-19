@@ -752,11 +752,15 @@ async def inv(ctx, *, txt = 'all'):
     num = 1
 
     if txt != 'all':
-        txt = ' '.join(txt.split('_'))
-        print(txt)
+        txt = txt.split(' ')
+
+        for x in txt:
+            if x[2] == "<@!" and x[-1] == ">":
+                txt.remove(x)
+
+        txt.join(' ')
 
         try: 
-            print(id + ' ' + txt)
             embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
