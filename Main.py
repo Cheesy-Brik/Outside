@@ -33,7 +33,8 @@ global save
 if open("save.txt","r",encoding="utf8").read():
     save = eval(open("save.txt","r",encoding="utf8").read())
 else:
-    save = {'users' : {}, 'terrain' : {'overide' : {}, 'time' : {}}}
+    print(open("save.txt","r",encoding="utf8").read())
+    save = {'users' : {}, 'terrain' : {'overide' : {}, 'start_time' :round(time.time())}}
     
 def write():
     File = open("save.txt","w",encoding="utf8")
@@ -251,6 +252,7 @@ def user_check(id):
 def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
     biomenoise = PerlinNoise(octaves=1, seed=558)
+    time_tick = (round(time.time()) - save['terrain']['start_time'])//5
     
     elevation_scale = '🟪🟪🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟨🟫🟫🟫🟫🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬜⬜'
     squares ={
@@ -275,6 +277,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     
     has = []
     minerals = []
+    animals = []
     
     pos =[(x)/zoom,(y)/zoom]
     elevation=noise(pos)
@@ -292,12 +295,13 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     temp = 101-round((elevation+0.5)*101,2)
     
     wheatnoise = PerlinNoise(octaves=15, seed=558)
+    chickennoise =  PerlinNoise(octaves=500, seed=929)
     
     if vis in biomes[biome]:
         vis = biomes[biome][vis]
         sqaure = squares[vis]
     
-    if str(pos) in save['terrrain']['overide']:changed = save['terrrain']['overide'][str(pos)] #Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
+    if str(pos) in save['terrain']['overide']:changed = save['terrain']['overide'][str(pos)] #Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
     #pre item gen overide does not work because of that
     
     #Top is least important and bottom is most important (aka which is shown on top)
@@ -353,6 +357,12 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
             placements.append('pine tree')
         elif random.randint(0,10 if biome == 'rocky' else 15) == 0:
             placements.append('boulder')
+    #Animals
+    random.seed(str(pos) + str(time_tick))
+    if square in ['grass'] and chickennoise(pos + [time_tick/10**5]) >= 0.35:
+        if random.randint(0,2) == 0:animals.append('chicken')
+    random.seed(str(pos))
+    
     
     if square == 'stone':
         mineral_chances = {
@@ -368,7 +378,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
                 for _ in range (random.randint(1,2)):minerals.append(i)
     
     #post item gen overide pre extra visuals
-    if str(pos) in save['terrrain']['overide']:
+    if str(pos) in save['terrain']['overide']:
         #Tried using exec, but python does not allow it :O
         if 'vis' in changed:vis=changed['vis']
         if 'square' in changed:square=changed['square']
@@ -390,10 +400,12 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'pine tree' in placements:vis = '🎄' if random.randint(0,500) == 0 else '🌲'
     if 'boulder' in placements:vis = '🪨'#ROCK, THIS IS ROCK
     
+    if 'chicken' in animals:vis = '🐔'
+    
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
 
-    if str(pos) in save['terrrain']['overide']:
+    if str(pos) in save['terrain']['overide']:
         if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else vis
 
     player = False
@@ -403,7 +415,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         if str(f'[{x/1000}, {y/1000}]') == str(pos):player = True
     
     #complete overide
-    if str(pos) in save['terrrain']['overide']:
+    if str(pos) in save['terrain']['overide']:
         #Tried using exec, but python does not allow it :O
         if 'vis' in changed:vis=changed['vis']
         if 'square' in changed:square=changed['square']
@@ -677,9 +689,9 @@ async def pickup(ctx):
         else:save['users'][id]['inv'][item] = {'amount':1}
     
     items.remove(item)
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
@@ -993,10 +1005,10 @@ async def use(ctx, *, tool = ''):
         save['users'][id]['inv'][tool]['amount'] -= 1
     
     
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['minerals'] = list(minerals)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['minerals'] = list(minerals)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
 @client.command(aliases = ['r'])
 async def recipe(ctx, *, recipe = ''):
     'Gets the recipe of a specified item'
@@ -1035,8 +1047,8 @@ async def place(ctx, *, placement = ''):
     placements.append(placement)
     save['users'][id]['inv'][placement]['amount']-=1
     
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
     await ctx.reply(f'You placed down a {placements}')
 @client.command(aliases = ['d'])
 async def drop(ctx, amount = 1, *, item = ''):
@@ -1066,9 +1078,9 @@ async def drop(ctx, amount = 1, *, item = ''):
             save['users'][id]['inv'][item]['durability'] -= amount*recipes[item]['durability']
     
     items.append(dropped)
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
     await ctx.reply(f'Your dropped a {item}, {amount} times')
     
 #other
