@@ -760,6 +760,8 @@ async def inv(ctx, *, txt = 'all'):
 
         txt = ' '.join(txt)
 
+        print(txt)
+
         try: 
             embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
