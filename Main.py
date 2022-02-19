@@ -755,14 +755,16 @@ async def inv(ctx, *, txt = 'all'):
             else:
                 await ctx.reply("You don't have any of that item")
                 return
-    for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
-        if save["users"][id]['inv'][i]['amount'] > 0: 
-            inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
-            reg1 += 1
-        if reg1 == 30:
-            pageinv.append('\n'.join(inv))
-            inv = []
-            reg1 = 0
+    else:
+        for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
+            if save["users"][id]['inv'][i]['amount'] > 0: 
+                inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
+                reg1 += 1
+            if reg1 == 30:
+                pageinv.append('\n'.join(inv))
+                inv = []
+                reg1 = 0
+                
     if reg1 != 30:
         pageinv.append('\n'.join(inv))            
     embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
