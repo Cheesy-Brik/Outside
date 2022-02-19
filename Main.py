@@ -723,6 +723,7 @@ async def inv(ctx, *, txt = 'all'):
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if not self.disabled:
+                if self.num > 1: self.num -= 1
                 embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
                 if id == ctx.author.id:embed.set_footer(text=ctx.author)
                 else:embed.set_footer(text=ctx.message.mentions[0])
@@ -823,15 +824,35 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
         async def next(self, button: Button, interaction: Interaction):
             if not self.disabled:
                 if self.num < len(pageinv): self.num += 1 
-                embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
+                for i in sorted(save["users"][id]['recipes'], reverse = True):             
+                    if i != '':
+                        inv.append(f'**{i}**')
+                        reg1 += 1
+                    if reg1 == 30:
+                        pageinv.append('\n'.join(inv))
+                        inv = []
+                        reg1 = 0
+                if reg1 != 30:
+                    pageinv.append('\n'.join(inv))            
+                embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
                 embed.set_author(name=" ")
-                embed.set_footer(text=" ")  
+                embed.set_footer(text=" ")
         
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if not self.disabled:
-                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
-                embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
+                if self.num > 1: self.num -= 1
+                for i in sorted(save["users"][id]['recipes'], reverse = True):             
+                    if i != '':
+                        inv.append(f'**{i}**')
+                        reg1 += 1
+                    if reg1 == 30:
+                        pageinv.append('\n'.join(inv))
+                        inv = []
+                        reg1 = 0
+                if reg1 != 30:
+                    pageinv.append('\n'.join(inv))            
+                embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
                 embed.set_author(name=" ")
                 embed.set_footer(text=" ")
 
