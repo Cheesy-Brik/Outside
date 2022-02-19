@@ -692,8 +692,9 @@ async def inv(ctx, *, txt = 'all'):
         def __init__(self):
             super().__init__(timeout=120)
             self.num = 1
+            self.disabled = False
         
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️', disabled=lambda self: self.disabled)
         async def next(self, button: Button, interaction: Interaction):
             if self.num < len(pageinv): self.num += 1 
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
@@ -701,16 +702,16 @@ async def inv(ctx, *, txt = 'all'):
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
         
-        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️', disabled=lambda self: self.disabled)
         async def back(self, button: Button, interaction: Interaction):
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(content = '', embed = embed)
 
-        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹', disabled=lambda self: self.disabled)
         async def stop(self, button: Button, interaction: Interaction):
-            return       
+            self.disabled = True
 
     id = ctx.author.id   
     reg1 = 0
