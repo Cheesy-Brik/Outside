@@ -736,8 +736,8 @@ async def inv(ctx, *, txt = 'all'):
     num = 1
 
     if txt != 'all':
-        txt = txt.split('_').join(' ')
-        
+        txt = ' '.join(txt.split('_'))
+
         try: 
             print(id)
             embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
