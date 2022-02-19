@@ -517,6 +517,7 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await look(ctx)
             task[ctx.channel.id] +=1
+            await interaction.delete_original_message()
             await surroundings(ctx, buttons)
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
@@ -524,6 +525,7 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
             task[ctx.channel.id] +=1
+            await interaction.delete_original_message()
             await surroundings(ctx, buttons)
 
     if buttons:view = ViewWithButton()
