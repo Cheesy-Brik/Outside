@@ -753,6 +753,7 @@ async def inv(ctx, *, txt = 'all'):
 
     if txt != 'all':
         txt = ' '.join(txt.split('_'))
+        print(txt)
 
         try: 
             print(id + ' ' + txt)
