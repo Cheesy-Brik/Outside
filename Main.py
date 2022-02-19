@@ -717,7 +717,19 @@ async def inv(ctx, *, txt = 'all'):
             if not self.disabled:
                 self.disabled = True
 
-    id = ctx.author.id   
+    if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have a pocket')
+            return
+    else:
+        id = ctx.author.id
+        try:save["users"][id]
+        except:
+            await ctx.reply('You do not have a pocket')
+            return
+
     reg1 = 0
     inv = []
     pageinv=[]
