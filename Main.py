@@ -755,7 +755,7 @@ async def inv(ctx, *, txt = 'all'):
         txt = ' '.join(txt.split('_'))
 
         try: 
-            print(id)
+            print(id + ' ' + txt)
             embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
