@@ -795,19 +795,48 @@ async def inv(ctx, *, txt = 'all'):
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
+    
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
-     id = ctx.author.id    
+
      reg1 = 0
      inv = []
      pageinv=[]
+
+     class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.num = 1
+            self.disabled = False
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                if self.num < len(pageinv): self.num += 1 
+                embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
+                embed.set_author(name=" ")
+                embed.set_footer(text=" ")  
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+                embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
+                embed.set_author(name=" ")
+                embed.set_footer(text=" ")
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                self.disabled = True
+
      if txt != 'all':
          try: 
              embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
              embed.set_author(name=" ")
              embed.set_footer(text=" ")             
-             await ctx.reply(embed = embed)
+             await ctx.reply(embed = embed, view=ViewWithButton())
          except:
              if ctx.message.mentions != []:
                 id = ctx.message.mentions[0].id
@@ -829,35 +858,7 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
                  reg1 = 0
          if reg1 != 30:
              pageinv.append('\n'.join(inv))            
-         embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
-         embed.set_author(name=" ")
-         embed.set_footer(text=" ")
-         msg = await ctx.reply(embed=embed)
-         num=1
-         await msg.add_reaction("◀")
-         await msg.add_reaction("▶")
-         await msg.add_reaction("⏹")
-         while True:
-             def check(reaction, user):
-                 return user==ctx.message.author and str(reaction.emoji) in ["▶","◀","⏹"]
-             try: reaction, user = await client.wait_for("reaction_add", timeout=300, check = check)
-             except asyncio.TimeoutError: break
-             else:
-                 if not user == client.user:
-                     try: await msg.remove_reaction(emoji=reaction.emoji, member=user)
-                     except: pass
-                     if str(reaction.emoji) == "▶": 
-                         if num < len(pageinv): num += 1
-                     elif str(reaction.emoji) == "◀":
-                         if num > 1: num -= 1
-                     elif str(reaction.emoji) == "⏹": break
-                 embed=discord.Embed(title=f"Recipes(Page {num})", description=pageinv[num - 1])
-                 embed.set_author(name=" ")
-                 embed.set_footer(text=" ")
-                 await msg.edit(content = '', embed = embed)
-         await msg.remove_reaction(emoji= "▶", member = client.user)      
-         await msg.remove_reaction(emoji= "◀", member = client.user)
-         await msg.remove_reaction(emoji= "⏹", member = client.user)                  
+                
 @client.command(aliases = ['brain', 't'])
 async def think(ctx):
     "Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe."
