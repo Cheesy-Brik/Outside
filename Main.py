@@ -14,7 +14,7 @@ from discord.ext import commands
 from discord.ui import button, View, Button
 from discord.interactions import Interaction
 
-test = True
+test = False
 
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
@@ -386,7 +386,12 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     
     wheatnoise = PerlinNoise(octaves=15, seed=558)
     chickennoise = PerlinNoise(octaves=700, seed=929)
-    cownoise = PerlinNoise(octaves=600, seed=929)
+    cownoise = PerlinNoise(octaves=600, seed=689)
+    pignoise = PerlinNoise(octaves=700, seed=919)
+    ramnoise = PerlinNoise(octaves=500, seed=719)
+    fishnoise = PerlinNoise(octaves=700, seed=671)
+    bunnynoise = PerlinNoise(octaves=300, seed=611)
+    frognoise = PerlinNoise(octaves=450, seed=919)
     
     if vis in biomes[biome]:
         vis = biomes[biome][vis]
@@ -454,6 +459,16 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         if random.randint(0,2) == 0:animals.append('chicken')
     if square in ['grass'] and cownoise(pos + [time_tick/10**5]) >= 0.5:
         if random.randint(0,2) == 0:animals.append('cow')
+    if square in ['grass'] and pignoise(pos + [time_tick/10**5]) >= 0.25:
+        if random.randint(0,2) == 0:animals.append('pig')
+    if square in ['snow', 'stone'] and ramnoise(pos + [time_tick/10**5]) >= 0.25:
+        if random.randint(0,2) == 0:animals.append('ram')
+    if square in ['ocean'] and fishnoise(pos + [time_tick/10**5]) >= 0.1:
+        if random.randint(0,2) == 0:animals.append('fish')
+    if square in ['grass'] and bunnynoise(pos + [time_tick/10**5]) >= 0.5:
+        if random.randint(0,2) == 0:animals.append('bunny')
+    if biome in ['swamp'] and square in ['ocean'] and frognoise(pos + [time_tick/10**5]) >= 0.6:
+        if random.randint(0,2) == 0:animals.append('frog')
     random.seed(str(pos))
     
     
@@ -495,6 +510,11 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     
     if 'chicken' in animals:vis = '🐔'
     if 'cow' in animals:vis = '🐮'
+    if 'pig' in animals:vis = '🐷'
+    if 'ram' in animals:vis = '🐏'
+    if 'fish' in animals:vis = '🐟'
+    if 'bunny' in animals:vis = '🐰'
+    if 'frog' in animals:vis = '🐸'
     
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
@@ -1126,9 +1146,9 @@ async def use(ctx, *, tool = ''):
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-    elif tool in ['mushroom soup', 'crude medicine']:#Healing Items
+    elif tool in ['mushroom soup', 'crude medicine', 'frog legs', 'raw chicken', 'raw pork', 'raw beef', 'raw bunny meat', 'raw mutton']:#Healing Items
             heal = 0
-            if tool in ['mushroom soup']:#Food items    
+            if tool in ['mushroom soup', 'fog legs', 'raw chicken', 'raw pork', 'raw beef', 'raw bunny meat', 'raw mutton']:#Food items    
                 if tool == 'mushroom soup':heal=random.randint(8,15)
                 if save['users'][id]['stats']['health'] == 100:
                     await ctx.reply('You can\'t eat that')
@@ -1144,6 +1164,7 @@ async def use(ctx, *, tool = ''):
 
                 save['users'][id]['stats']['health'] += 10
                 if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+
             await ctx.reply(f"You gained {heal} HP and you now have {save['users'][id]['stats']['health']} HP")
     elif tool in ['crude spear', 'crude wooden spear']:
         for i in range(3):
@@ -1156,14 +1177,23 @@ async def use(ctx, *, tool = ''):
             return
         animal = random.choice(fetch_square(id, (x-1)+i, (y-1)+j)['animals'])
         animal_drops = {
-            'chicken' : ['feather', 'feather', 'raw chicken','raw chicken','raw chicken', 'beak']
+            'chicken' : ['feather', 'feather', 'raw chicken','raw chicken','raw chicken', 'beak'],
+            'cow': ['raw beef', 'raw beef'],
+            'pig': ['raw pork', 'raw pork'],
+            'ram': ['wool', 'wool', 'raw mutton', 'raw mutton', 'raw mutton', 'ram horn'],
+            'fish': ['raw fish', 'raw fish'],
+            'bunny': ['raw bunny meat', 'raw bunny meat'],
+            'frog': ['frog egg', 'frog egg', 'frog leg', 'frog leg', 'frog leg', 'frog leg'],
         }
         drops = []
         for i in range(random.randint(1,3)):drops.append(random.choice(animal_drops[animal]))
         for drop in drops:
             if drop in save['users'][id]['inv']:save['users'][id]['inv'][drop]['amount'] += 1
             else:save['users'][id]['inv'][drop] = {'amount' : 1}
-        await ctx.send(f'You killed a {animal} and got {drops}')
+
+        if len(drops) == 1:await ctx.reply(f'You killed a {animal} and got {drops[0]}')
+        elif len(drops) == 2:await ctx.reply(f'You killed a {animal} and got {drops[0]} and {drops[1]}')
+        else: await ctx.reply(f'You killed a {animal} and got {", ".join(drops[0:len(drops)-2])} and {drops[len(drops)-1]}')
     elif tool in ['crude knife', 'crude wooden knife']:
         if items + placements not in ['oak tree', 'tuft of grass', 'pine tree', 'wheat plant']:
             await ctx.reply('Theres nothing to use this on')
