@@ -1262,12 +1262,12 @@ async def use(ctx, *, tool = ''):
             'pine log' : (10, 1),
         }#Conditionals
         if player_square['biome'] == 'temperate':
-            fishs['raw tropical fish']=(1000, 501)
+            fishs['raw tropical fish']=(1000, 201)
             fishs['raw fish']=(0, 0)
         if player_square['biome'] == 'forest':
-            fishs['salmon']=(1000, 851)
-            fishs['cod']=(850, 601)
-            fishs['catfish']=(600, 501)
+            fishs['salmon']=(1000, 451)
+            fishs['cod']=(450, 301)
+            fishs['catfish']=(300, 201)
             fishs['raw fish']=(0, 0)
         
         random.seed(time.time())
