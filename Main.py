@@ -169,7 +169,7 @@ recipes = {
         },
         'intel' : 15,
         'requires' : 'has(id, "iron")',
-        'station' : 'crude furnace',
+        'station' : 'crude furnace',#<-----------------------------------------------------------------------------NEED TO REWORK STATION SYSTEM TO ALLOW FOR RECIPES TO HAVE MULTIPLE STATIONS
         'amount' : 5
     },
     'crude oak plank' : {
@@ -277,7 +277,7 @@ recipes = {
     },
     'cooked fish': {
         'recipe' : {
-            'fish' : 3,
+            'raw fish' : 3,
             'stick' : 1
         },
         'requires' : 'has(id, "fish")',
@@ -293,6 +293,60 @@ recipes = {
         'intel':12,
         'station':'fire'
     },
+    'cooked beef': {
+        'recipe' : {
+            'raw beef' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw beef")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked pork': {
+        'recipe' : {
+            'raw pork' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw pork")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked mutton': {
+        'recipe' : {
+            'raw mutton' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw mutton")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked bunny meat': {
+        'recipe' : {
+            'raw bunny meat' : 1,
+            'stick' : 1
+        },
+        'requires' : 'has(id, "raw bunny meat")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked frog leg': {
+        'recipe' : {
+            'frog leg' : 2,
+            'stick' : 1
+        },
+        'requires' : 'has(id, "raw frog leg")',
+        'intel':12,
+        'station':'fire'
+    },
+    'bread' : {
+        'recipe' : {
+            'what plant' : 5,
+            'coal' : 1
+        },
+        'requires' : 'has(id, "wheat plant")',
+        'intel':12,
+        'station':'crude furnace'
+    }
 }
 #functions
 def user_check(id):
@@ -385,7 +439,13 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     temp = 101-round((elevation+0.5)*101,2)
     
     wheatnoise = PerlinNoise(octaves=15, seed=558)
-    chickennoise =  PerlinNoise(octaves=700, seed=929)
+    chickennoise = PerlinNoise(octaves=700, seed=929)
+    cownoise = PerlinNoise(octaves=600, seed=689)
+    boarnoise = PerlinNoise(octaves=700, seed=919)
+    ramnoise = PerlinNoise(octaves=500, seed=719)
+    fishnoise = PerlinNoise(octaves=700, seed=671)
+    bunnynoise = PerlinNoise(octaves=300, seed=611)
+    frognoise = PerlinNoise(octaves=450, seed=919)
     
     if vis in biomes[biome]:
         vis = biomes[biome][vis]
@@ -451,6 +511,18 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     random.seed(str(pos) + str(time_tick))
     if square in ['grass'] and chickennoise(pos + [time_tick/10**5]) >= 0.35:
         if random.randint(0,2) == 0:animals.append('chicken')
+    if square in ['grass'] and cownoise(pos + [time_tick/10**5]) >= 0.5:
+        if random.randint(0,2) == 0:animals.append('cow')
+    if square in ['grass'] and boarnoise(pos + [time_tick/10**5]) >= 0.4:
+        if random.randint(0,2) == 0:animals.append('boar')
+    if square in ['snow', 'stone'] and ramnoise(pos + [time_tick/10**5]) >= 0.3:
+        if random.randint(0,2) == 0:animals.append('ram')
+    if square in ['ocean'] and fishnoise(pos + [time_tick/10**5]) >= 0.1:
+        if random.randint(0,2) == 0:animals.append('fish')
+    if square in ['grass'] and bunnynoise(pos + [time_tick/10**5]) >= 0.5:
+        if random.randint(0,2) == 0:animals.append('bunny')
+    if biome in ['swamp'] and square in ['ocean', 'mud'] and frognoise(pos + [time_tick/10**5]) >= 0.45:
+        if random.randint(0,2) == 0:animals.append('frog')
     random.seed(str(pos))
     
     
@@ -491,9 +563,16 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'boulder' in placements:vis = '🪨'#ROCK, THIS IS ROCK
     
     if 'chicken' in animals:vis = '🐔'
+    if 'cow' in animals:vis = '🐮'
+    if 'boar' in animals:vis = '🐗'
+    if 'ram' in animals:vis = '🐏'
+    if 'fish' in animals:vis = '🐟'
+    if 'bunny' in animals:vis = '🐰'
+    if 'frog' in animals:vis = '🐸'
     
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
+    if 'fire' in placements:vis='🔥'
 
     if str(pos) in save['terrain']['overide']:
         if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else vis
@@ -647,6 +726,28 @@ async def surroundings(ctx, buttons=True):
                 pass
 
             await surroundings(ctx, buttons)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='🎒')
+        async def inv(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await inv(ctx)
+            task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='📜')
+        async def recipes(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await crafts(ctx)
+            task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
 
     if buttons:view = ViewWithButton()
     else:view = View()
@@ -1065,9 +1166,10 @@ async def use(ctx, *, tool = ''):
     'Uses the specified tool'
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-    items = list(fetch_square(id, x, y)['has'])
-    placements = list(fetch_square(id, x, y)['placements'])
-    minerals= list(fetch_square(id, x, y)['minerals'])
+    player_square = fetch_square(id, x, y)
+    items = list(player_square['has'])
+    placements = list(player_square(id, x, y)['placements'])
+    minerals= list(player_square(id, x, y)['minerals'])
     
     if tool == '':
         await ctx.reply('You need to specify which tool to use')
@@ -1118,20 +1220,52 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You need to be next to water to use this')
             return
-        fish = 'fish'
+        #Lower number = Lower chance
+        fishs = {#Any biome any elevation
+            'raw fish' : 1000,
+            'stick' : 500,
+            'sea weed' : 500,
+            'oak log' : 200,
+            'pine log' : 200,
+        }#Conditionals
+        if player_square['biome'] == 'temperate':fishs['raw tropical fish']=700
+        if player_square['biome'] == 'forest':
+            fishs['salmon']=600
+            fishs['cod']=500
+            fishs['catfish']=400
+        
+        add = 0
+        A = random.randint(1,sum(fish[i] for i in list(fishs.keys())))
+        for i in fishs:
+            if A <= fishs[i] + add:
+                choice = i
+                break
+            else:add +=  fishs[i]['chance']
+        
+        fish = 'raw fish'
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-    elif tool in ['mushroom soup', 'crude medicine']:#Healing Items
+    elif tool in ['mushroom soup', 'crude medicine', 'cooked frog leg', 'cooked chicken', 'cooked pork', 'cooked beef', 'cooked bunny meat', 'cooked mutton']:#Healing Items
             heal = 0
-            if tool in ['mushroom soup']:#Food items    
+            if tool in ['mushroom soup', 'cooked frog legs', 'cooked chicken', 'cooked pork', 'cooked beef', 'cooked bunny meat', 'cooked mutton']:#Food items    
+                
                 if tool == 'mushroom soup':heal=random.randint(8,15)
+                if tool == 'cooked frog legs':heal=random.randint(4,5)
+                if tool == 'cooked chicken':heal=random.randint(10,12)
+                if tool == 'cooked pork':heal=random.randint(10,13)
+                if tool == 'cooked beef':heal=random.randint(13,16)
+                if tool == 'cooked bunny meat':heal =random.randint(4,7) 
+                if tool == 'cooked mutton':heal=random.randint(12,15)
+                if tool == 'bread':heal=14
+                
                 if save['users'][id]['stats']['health'] == 100:
                     await ctx.reply('You can\'t eat that')
                     return
 
                 save['users'][id]['stats']['health'] += 10
                 if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+            
             if tool in ['crude medicine']:#Medicines
                 if tool == 'crude medicine':heal=12
                 if save['users'][id]['stats']['health'] == 100:
@@ -1140,6 +1274,7 @@ async def use(ctx, *, tool = ''):
 
                 save['users'][id]['stats']['health'] += 10
                 if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+
             await ctx.reply(f"You gained {heal} HP and you now have {save['users'][id]['stats']['health']} HP")
     elif tool in ['crude spear', 'crude wooden spear']:
         for i in range(3):
@@ -1152,14 +1287,23 @@ async def use(ctx, *, tool = ''):
             return
         animal = random.choice(fetch_square(id, (x-1)+i, (y-1)+j)['animals'])
         animal_drops = {
-            'chicken' : ['feather', 'feather', 'raw chicken','raw chicken','raw chicken', 'beak']
+            'chicken' : ['feather', 'feather', 'raw chicken','raw chicken','raw chicken', 'beak'],
+            'cow': ['raw beef', 'raw beef'],
+            'pork': ['raw pork', 'raw pork'],
+            'ram': ['wool', 'wool', 'raw mutton', 'raw mutton', 'raw mutton', 'ram horn'],
+            'fish': ['raw fish', 'raw fish'],
+            'bunny': ['raw bunny meat', 'raw bunny meat'],
+            'frog': ['frog egg', 'frog egg', 'raw frog leg', 'raw frog leg', 'raw frog leg', 'raw frog leg'],
         }
         drops = []
         for i in range(random.randint(1,3)):drops.append(random.choice(animal_drops[animal]))
         for drop in drops:
             if drop in save['users'][id]['inv']:save['users'][id]['inv'][drop]['amount'] += 1
             else:save['users'][id]['inv'][drop] = {'amount' : 1}
-        await ctx.send(f'You killed a {animal} and got {drops}')
+
+        if len(drops) == 1:await ctx.reply(f'You killed a {animal} and got {drops[0]}')
+        elif len(drops) == 2:await ctx.reply(f'You killed a {animal} and got {drops[0]} and {drops[1]}')
+        else: await ctx.reply(f'You killed a {animal} and got {", ".join(drops[0:len(drops)-2])} and {drops[len(drops)-1]}')
     elif tool in ['crude knife', 'crude wooden knife']:
         if items + placements not in ['oak tree', 'tuft of grass', 'pine tree', 'wheat plant']:
             await ctx.reply('Theres nothing to use this on')
