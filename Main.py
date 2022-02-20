@@ -28,11 +28,7 @@ if not test:
     subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
 task = {}
 global save
-if open("save.txt","r",encoding="utf8").read():
-    save = eval(open("save.txt","r",encoding="utf8").read())
-else:
-    print(open("save.txt","r",encoding="utf8").read())
-    save = {'users' : {}, 'terrain' : {'overide' : {}, 'start_time' :round(time.time())}}
+save = eval(open("save.txt","r",encoding="utf8").read())
 if 'start_time' not in save['terrain']:
     save['terrain']['start_time'] = round(time.time())
 
