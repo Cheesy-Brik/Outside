@@ -1,10 +1,9 @@
 from ast import Await, alias
 import asyncio
 from datetime import datetime
-from optparse import AmbiguousOptionError
+from itertools import dropwhile
 import os
 import random
-from turtle import pos, position
 from perlin_noise import PerlinNoise
 from math import floor, ceil
 from numpy import sign, square
@@ -16,20 +15,27 @@ from discord.ext import commands
 from discord.ui import button, View, Button
 from discord.interactions import Interaction
 
+test = False
+
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
 client.remove_command('help')
 #Auto update git "master" branch when running the file
-subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
-subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
+if not test:    
+    subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
 task = {}
 global save
 if open("save.txt","r",encoding="utf8").read():
     save = eval(open("save.txt","r",encoding="utf8").read())
 else:
-    save = {'users' : {}, 'terrain' : {'overide' : {}}}
+    print(open("save.txt","r",encoding="utf8").read())
+    save = {'users' : {}, 'terrain' : {'overide' : {}, 'start_time' :round(time.time())}}
+if 'start_time' not in save['terrain']:
+    save['terrain']['start_time'] = round(time.time())
+
 def write():
     File = open("save.txt","w",encoding="utf8")
     File.write(str(save))
@@ -101,6 +107,39 @@ recipes = {
         'intel':10,
         'durability': 10
     },
+    'crude spear' : {
+        'recipe' : {
+            'rope' : 1,
+            'stick' : 3,
+            'mud clump' : 1,
+            'rock' : 3
+        },
+        'requires' : 'has(id, "rope") and has(id, "rock")',
+        'intel':10,
+        'durability': 10
+    },
+    'crude knife' : {
+        'recipe' : {
+            'rope' : 1,
+            'stick' : 1,
+            'mud clump' : 1,
+            'rock' : 3
+        },
+        'requires' : 'has(id, "rope") and has(id, "rock")',
+        'intel':10,
+        'durability': 12
+    },
+    'crude hammer' : {
+        'recipe' : {
+            'rope' : 2,
+            'stick' : 1,
+            'mud clump' : 1,
+            'rock' : 4
+        },
+        'requires' : 'has(id, "rope") and has(id, "rock")',
+        'intel':10,
+        'durability': 20
+    },
     'stone' : {
          'recipe' : {
             'rock' : 10,
@@ -133,7 +172,7 @@ recipes = {
         },
         'intel' : 15,
         'requires' : 'has(id, "iron")',
-        'station' : 'crude furnace',
+        'station' : 'crude furnace',#<-----------------------------------------------------------------------------NEED TO REWORK STATION SYSTEM TO ALLOW FOR RECIPES TO HAVE MULTIPLE STATIONS
         'amount' : 5
     },
     'crude oak plank' : {
@@ -174,6 +213,38 @@ recipes = {
         'intel':16,
         'durability': 40
     },
+    'crude wooden spear' : {
+        'recipe' : {
+            'rope' : 1,
+            'crude oak plank' : 3,
+            'nail' : 2,
+            'rock' : 3
+        },
+        'requires' : 'has(id, "crude oak plank") and has(id, "nail")',
+        'intel':16,
+        'durability': 35
+    },
+    'crude wooden knife' : {
+        'recipe' : {
+            'rope' : 1,
+            'crude oak plank' : 3,
+            'nail' : 2,
+            'rock' : 1
+        },
+        'requires' : 'has(id, "crude oak plank") and has(id, "nail")',
+        'intel':16,
+        'durability': 40
+    },
+    'crude wooden hammer' : {
+        'recipe' : {
+            'rope' : 1,
+            'crude oak plank' : 4,
+            'nail' : 3
+        },
+        'requires' : 'has(id, "crude oak plank") and has(id, "nail")',
+        'intel':16,
+        'durability': 55
+    },
     'thatch fabric' : {
         'recipe' : {
             'thatch' : 5
@@ -188,6 +259,7 @@ recipes = {
         },
         'requires' : 'has(id, "thatch fabric")',
         'intel':12,
+        'station' : 'fire'
     },
     'crude medicine' : {
         'recipe' : {
@@ -196,6 +268,87 @@ recipes = {
         },
         'requires' : 'has(id, "thatch fabric")',
         'intel':12,
+    },
+    'fire' : {
+        'recipe' : {
+            'oak log' : 1,
+            'stick' : 1,
+            'rope' : 1
+        },
+        'requires' : 'has(id, "rock")',
+        'intel':15,
+    },
+    'cooked fish': {
+        'recipe' : {
+            'raw fish' : 3,
+            'stick' : 1
+        },
+        'requires' : 'has(id, "fish")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked chicken': {
+        'recipe' : {
+            'raw chicken' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw chicken")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked beef': {
+        'recipe' : {
+            'raw beef' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw beef")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked pork': {
+        'recipe' : {
+            'raw pork' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw pork")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked mutton': {
+        'recipe' : {
+            'raw mutton' : 1,
+            'stick' : 2
+        },
+        'requires' : 'has(id, "raw mutton")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked bunny meat': {
+        'recipe' : {
+            'raw bunny meat' : 1,
+            'stick' : 1
+        },
+        'requires' : 'has(id, "raw bunny meat")',
+        'intel':12,
+        'station':'fire'
+    },
+    'cooked frog leg': {
+        'recipe' : {
+            'frog leg' : 2,
+            'stick' : 1
+        },
+        'requires' : 'has(id, "raw frog leg")',
+        'intel':12,
+        'station':'fire'
+    },
+    'bread' : {
+        'recipe' : {
+            'what plant' : 5,
+            'coal' : 1
+        },
+        'requires' : 'has(id, "wheat plant")',
+        'intel':12,
+        'station':'crude furnace'
     }
 }
 #functions
@@ -246,6 +399,7 @@ def user_check(id):
 def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
     biomenoise = PerlinNoise(octaves=1, seed=558)
+    time_tick = (round(time.time()) - save['terrain']['start_time'])//5
     
     elevation_scale = '🟪🟪🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟦🟨🟫🟫🟫🟫🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩🟩⬛⬛⬛⬛⬜⬜'
     squares ={
@@ -270,6 +424,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     
     has = []
     minerals = []
+    animals = []
     
     pos =[(x)/zoom,(y)/zoom]
     elevation=noise(pos)
@@ -287,12 +442,19 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     temp = 101-round((elevation+0.5)*101,2)
     
     wheatnoise = PerlinNoise(octaves=15, seed=558)
+    chickennoise = PerlinNoise(octaves=700, seed=929)
+    cownoise = PerlinNoise(octaves=600, seed=689)
+    boarnoise = PerlinNoise(octaves=700, seed=919)
+    ramnoise = PerlinNoise(octaves=500, seed=719)
+    fishnoise = PerlinNoise(octaves=700, seed=671)
+    bunnynoise = PerlinNoise(octaves=300, seed=611)
+    frognoise = PerlinNoise(octaves=450, seed=919)
     
     if vis in biomes[biome]:
         vis = biomes[biome][vis]
         sqaure = squares[vis]
     
-    if str(pos) in save['terrrain']['overide']:changed = save['terrrain']['overide'][str(pos)] #Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
+    if str(pos) in save['terrain']['overide']:changed = save['terrain']['overide'][str(pos)] #Need to make a copy so it doesn't directly change the overide dict, but when tried python seems to break down and not accept that
     #pre item gen overide does not work because of that
     
     #Top is least important and bottom is most important (aka which is shown on top)
@@ -348,6 +510,24 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
             placements.append('pine tree')
         elif random.randint(0,10 if biome == 'rocky' else 15) == 0:
             placements.append('boulder')
+    #Animals
+    random.seed(str(pos) + str(time_tick))
+    if square in ['grass'] and chickennoise(pos + [time_tick/10**5]) >= 0.35:
+        if random.randint(0,2) == 0:animals.append('chicken')
+    if square in ['grass'] and cownoise(pos + [time_tick/10**5]) >= 0.5:
+        if random.randint(0,2) == 0:animals.append('cow')
+    if square in ['grass'] and boarnoise(pos + [time_tick/10**5]) >= 0.4:
+        if random.randint(0,2) == 0:animals.append('boar')
+    if square in ['snow', 'stone'] and ramnoise(pos + [time_tick/10**5]) >= 0.3:
+        if random.randint(0,2) == 0:animals.append('ram')
+    if square in ['ocean'] and fishnoise(pos + [time_tick/10**5]) >= 0.1:
+        if random.randint(0,2) == 0:animals.append('fish')
+    if square in ['grass'] and bunnynoise(pos + [time_tick/10**5]) >= 0.5:
+        if random.randint(0,2) == 0:animals.append('bunny')
+    if biome in ['swamp'] and square in ['ocean', 'mud'] and frognoise(pos + [time_tick/10**5]) >= 0.45:
+        if random.randint(0,2) == 0:animals.append('frog')
+    random.seed(str(pos))
+    
     
     if square == 'stone':
         mineral_chances = {
@@ -363,7 +543,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
                 for _ in range (random.randint(1,2)):minerals.append(i)
     
     #post item gen overide pre extra visuals
-    if str(pos) in save['terrrain']['overide']:
+    if str(pos) in save['terrain']['overide']:
         #Tried using exec, but python does not allow it :O
         if 'vis' in changed:vis=changed['vis']
         if 'square' in changed:square=changed['square']
@@ -385,10 +565,19 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'pine tree' in placements:vis = '🎄' if random.randint(0,500) == 0 else '🌲'
     if 'boulder' in placements:vis = '🪨'#ROCK, THIS IS ROCK
     
+    if 'chicken' in animals:vis = '🐔'
+    if 'cow' in animals:vis = '🐮'
+    if 'boar' in animals:vis = '🐗'
+    if 'ram' in animals:vis = '🐏'
+    if 'fish' in animals:vis = '🐟'
+    if 'bunny' in animals:vis = '🐰'
+    if 'frog' in animals:vis = '🐸'
+    
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
+    if 'fire' in placements:vis='🔥'
 
-    if str(pos) in save['terrrain']['overide']:
+    if str(pos) in save['terrain']['overide']:
         if 'dropped_items' in changed:vis='🧺' if changed['dropped_items'] else vis
 
     player = False
@@ -398,7 +587,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         if str(f'[{x/1000}, {y/1000}]') == str(pos):player = True
     
     #complete overide
-    if str(pos) in save['terrrain']['overide']:
+    if str(pos) in save['terrain']['overide']:
         #Tried using exec, but python does not allow it :O
         if 'vis' in changed:vis=changed['vis']
         if 'square' in changed:square=changed['square']
@@ -419,7 +608,8 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         'biome' : biome,
         'elevation' : elevation,
         'minerals' : minerals,
-        'placements' : placements
+        'placements' : placements,
+        'animals' : animals
     }    
 def has(id, item):
     return item in save['users'][id]['inv']
@@ -483,9 +673,37 @@ async def surroundings(ctx, buttons=True):
 
         return embed
     
+    class Dropdown(discord.ui.Select):
+        def __init__(self):
+
+            # Set the options that will be presented inside the dropdown
+            options = []
+            
+            for i in save['users'][ctx.author.id]['recipes']:
+                can_craft=True
+                for j in recipes[i]['recipe']:
+                    if j not in save['users'][ctx.author.id]['inv']:
+                        can_craft=False
+                    elif save['users'][ctx.author.id]['inv'][j]['amount'] < recipes[i]['recipe'][j]:
+                        can_craft=False
+                options.append(discord.SelectOption(label=i, description='You can craft this' if can_craft else 'You can\'t craft this', emoji='📜'))
+            if not options:
+                options.append(discord.SelectOption(label='Nothing to craft', description='Click the button with the brain on it or use !think to think of a new recipe', emoji='❌'))
+            # The placeholder is what will be shown when no option is chosen
+            # The min and max values indicate we can only pick one of the three options
+            # The options parameter defines the dropdown options. We defined this above
+            super().__init__(placeholder='Craft something', min_values=1, max_values=1, options=options)
+
+        async def callback(self, interaction: discord.Interaction):
+            await craft(ctx, item=self.values[0])
+    
     class ViewWithButton(View):
         def __init__(self):
             super().__init__(timeout=120)
+            async def check(interaction):
+                return interaction.user.id == ctx.author.id
+            self.interaction_check = check
+            self.add_item(Dropdown())
         
         @button(style=discord.ButtonStyle.blurple, emoji='🔼')
         async def up(self, button: Button, interaction: Interaction):
@@ -510,12 +728,18 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
-        
+
         @button(style=discord.ButtonStyle.blurple, emoji='👁️')
         async def look(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await look(ctx)
             task[ctx.channel.id] +=1
+
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
             await surroundings(ctx, buttons)
         
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
@@ -523,7 +747,48 @@ async def surroundings(ctx, buttons=True):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
             task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
             await surroundings(ctx, buttons)
+            
+        @button(style=discord.ButtonStyle.blurple, emoji='🧠')
+        async def think(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await think(ctx)
+            task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
+            await surroundings(ctx, buttons)
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='🎒')
+        async def inv(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await inv(ctx)
+            task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='📜')
+        async def recipes(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await crafts(ctx)
+            task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
 
     if buttons:view = ViewWithButton()
     else:view = View()
@@ -660,9 +925,9 @@ async def pickup(ctx):
         else:save['users'][id]['inv'][item] = {'amount':1}
     
     items.remove(item)
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
     save['users'][id]['stats']['int level'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
@@ -675,13 +940,68 @@ async def pickup(ctx):
 @client.command(aliases = ['inventory', 'pocket', 'i', 'items'])
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
-    id = ctx.author.id   
+
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.num = 1
+            self.disabled = False
+            async def check(interaction):
+                return interaction.user.id == ctx.author.id
+            self.interaction_check = check
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                if self.num > 1: self.num -= 1
+                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+                if id == ctx.author.id:embed.set_footer(text=ctx.author)
+                else:embed.set_footer(text=ctx.message.mentions[0])
+                await msg.edit(content = '', embed = embed)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                self.disabled = True
+
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                if self.num < len(pageinv): self.num += 1 
+                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+                if id == ctx.author.id:embed.set_footer(text=ctx.author)
+                else:embed.set_footer(text=ctx.message.mentions[0])
+                await msg.edit(content = '', embed = embed)
+
+    if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have a pocket')
+            return
+    else:
+        id = ctx.author.id
+        try:save["users"][id]
+        except:
+            await ctx.reply('You do not have a pocket')
+            return
+
     reg1 = 0
     inv = []
     pageinv=[]
+    num = 1
+
     if txt != 'all':
+        txt = txt.split(' ')
+
+        for x in txt:
+            if x[0:3] == "<@!" and x[len(x) - 1] == ">":
+                txt.remove(x)
+
+        txt = ' '.join(txt)
+
         try: 
-            embed=discord.Embed(title=txt, description="\n".join( (x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
+            embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
             embed.set_author(name=" ")
             embed.set_footer(text=" ")             
             await ctx.reply(embed = embed)
@@ -696,58 +1016,104 @@ async def inv(ctx, *, txt = 'all'):
             else:
                 await ctx.reply("You don't have any of that item")
                 return
-    for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
-        if save["users"][id]['inv'][i]['amount'] > 0: 
-            inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
-            reg1 += 1
-        if reg1 == 30:
-            pageinv.append('\n'.join(inv))
-            inv = []
-            reg1 = 0
+    else:
+        for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
+            if save["users"][id]['inv'][i]['amount'] > 0: 
+                inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
+                reg1 += 1
+            if reg1 == 30:
+                pageinv.append('\n'.join(inv))
+                inv = []
+                reg1 = 0
+
     if reg1 != 30:
         pageinv.append('\n'.join(inv))            
     embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
-    msg = await ctx.reply(embed=embed)
-    num=1
-    await msg.add_reaction("◀")
-    await msg.add_reaction("▶")
-    await msg.add_reaction("⏹")
-    while True:
-        def check(reaction, user):
-            return user==ctx.message.author and str(reaction.emoji) in ["▶","◀","⏹"]
-        try: reaction, user = await client.wait_for("reaction_add", timeout=300, check = check)
-        except asyncio.TimeoutError: break
-        else:
-            if not user == client.user:
-                try: await msg.remove_reaction(emoji=reaction.emoji, member=user)
-                except: pass
-                if str(reaction.emoji) == "▶": 
-                    if num < len(pageinv): num += 1
-                elif str(reaction.emoji) == "◀":
-                    if num > 1: num -= 1
-                elif str(reaction.emoji) == "⏹": break
-            embed=discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
-            if id == ctx.author.id:embed.set_footer(text=ctx.author)
-            else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
-    await msg.remove_reaction(emoji= "▶", member = client.user)      
-    await msg.remove_reaction(emoji= "◀", member = client.user)
-    await msg.remove_reaction(emoji= "⏹", member = client.user)          
+    msg = await ctx.reply(embed=embed, view=ViewWithButton())
+
 @client.command(aliases = ['recipes', 'rs'])
 async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command into one
      "Shows what recipes you can craft."
-     id = ctx.author.id    
+
+     if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have any recipes')
+            return
+     else:
+        id = ctx.author.id
+    
      reg1 = 0
      inv = []
      pageinv=[]
+
+     class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.num = 1
+            self.disabled = False
+            async def check(interaction):
+                return interaction.user.id == ctx.author.id
+            self.interaction_check = check
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                reg1 = 0
+                inv = []
+                pageinv=[]
+
+                if self.num < len(pageinv): self.num += 1 
+                for i in sorted(save["users"][id]['recipes'], reverse = True):             
+                    if i != '':
+                        inv.append(f'**{i}**')
+                        reg1 += 1
+                    if reg1 == 30:
+                        pageinv.append('\n'.join(inv))
+                        inv = []
+                        reg1 = 0
+                if reg1 != 30:
+                    pageinv.append('\n'.join(inv))            
+                embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
+                embed.set_author(name=" ")
+                embed.set_footer(text=" ")
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def stop(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                self.disabled = True
+
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if not self.disabled:
+                reg1 = 0
+                inv = []
+                pageinv=[]
+
+                if self.num > 1: self.num -= 1
+                for i in sorted(save["users"][id]['recipes'], reverse = True):             
+                    if i != '':
+                        inv.append(f'**{i}**')
+                        reg1 += 1
+                    if reg1 == 30:
+                        pageinv.append('\n'.join(inv))
+                        inv = []
+                        reg1 = 0
+                if reg1 != 30:
+                    pageinv.append('\n'.join(inv))            
+                embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
+                embed.set_author(name=" ")
+                embed.set_footer(text=" ")
+
      if txt != 'all':
          try: 
              embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
              embed.set_author(name=" ")
              embed.set_footer(text=" ")             
-             await ctx.reply(embed = embed)
+             await ctx.reply(embed = embed, view=ViewWithButton())
          except:
              if ctx.message.mentions != []:
                 id = ctx.message.mentions[0].id
@@ -772,32 +1138,8 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
          embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
          embed.set_author(name=" ")
          embed.set_footer(text=" ")
-         msg = await ctx.reply(embed=embed)
-         num=1
-         await msg.add_reaction("◀")
-         await msg.add_reaction("▶")
-         await msg.add_reaction("⏹")
-         while True:
-             def check(reaction, user):
-                 return user==ctx.message.author and str(reaction.emoji) in ["▶","◀","⏹"]
-             try: reaction, user = await client.wait_for("reaction_add", timeout=300, check = check)
-             except asyncio.TimeoutError: break
-             else:
-                 if not user == client.user:
-                     try: await msg.remove_reaction(emoji=reaction.emoji, member=user)
-                     except: pass
-                     if str(reaction.emoji) == "▶": 
-                         if num < len(pageinv): num += 1
-                     elif str(reaction.emoji) == "◀":
-                         if num > 1: num -= 1
-                     elif str(reaction.emoji) == "⏹": break
-                 embed=discord.Embed(title=f"Recipes(Page {num})", description=pageinv[num - 1])
-                 embed.set_author(name=" ")
-                 embed.set_footer(text=" ")
-                 await msg.edit(content = '', embed = embed)
-         await msg.remove_reaction(emoji= "▶", member = client.user)      
-         await msg.remove_reaction(emoji= "◀", member = client.user)
-         await msg.remove_reaction(emoji= "⏹", member = client.user)                  
+         msg = await ctx.reply(embed=embed, view=ViewWithButton())      
+                
 @client.command(aliases = ['brain', 't'])
 async def think(ctx):
     "Has a chance to unlock new recipes, some recipes require items to be crafted before they can be unlocked. The higher intelligence you have the more likely you are to unlock a new recipe."
@@ -862,15 +1204,15 @@ async def use(ctx, *, tool = ''):
     'Uses the specified tool'
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-    items = list(fetch_square(id, x, y)['has'])
-    placements = list(fetch_square(id, x, y)['placements'])
-    minerals= list(fetch_square(id, x, y)['minerals'])
+    player_square = fetch_square(id, x, y)
+    items = list(player_square['has'])
+    placements = list(player_square(id, x, y)['placements'])
+    minerals= list(player_square(id, x, y)['minerals'])
     
     if tool == '':
         await ctx.reply('You need to specify which tool to use')
         return
     if tool not in save['users'][id]['inv']:
-        print(save['users'][id]['inv'])
         await ctx.reply('You don\'t have that tool')
         return
     if 'durability' in save['users'][id]['inv'][tool]:
@@ -915,20 +1257,52 @@ async def use(ctx, *, tool = ''):
         else:
             await ctx.reply('You need to be next to water to use this')
             return
-        fish = 'fish'
+        #Lower number = Lower chance
+        fishs = {#Any biome any elevation
+            'raw fish' : 1000,
+            'stick' : 500,
+            'sea weed' : 500,
+            'oak log' : 200,
+            'pine log' : 200,
+        }#Conditionals
+        if player_square['biome'] == 'temperate':fishs['raw tropical fish']=700
+        if player_square['biome'] == 'forest':
+            fishs['salmon']=600
+            fishs['cod']=500
+            fishs['catfish']=400
+        
+        add = 0
+        A = random.randint(1,sum(fish[i] for i in list(fishs.keys())))
+        for i in fishs:
+            if A <= fishs[i] + add:
+                choice = i
+                break
+            else:add +=  fishs[i]['chance']
+        
+        fish = 'raw fish'
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
-    elif tool in ['mushroom soup']:#Healing Items
+    elif tool in ['mushroom soup', 'crude medicine', 'cooked frog leg', 'cooked chicken', 'cooked pork', 'cooked beef', 'cooked bunny meat', 'cooked mutton']:#Healing Items
             heal = 0
-            if tool in ['mushroom soup']:#Food items    
+            if tool in ['mushroom soup', 'cooked frog legs', 'cooked chicken', 'cooked pork', 'cooked beef', 'cooked bunny meat', 'cooked mutton']:#Food items    
+                
                 if tool == 'mushroom soup':heal=random.randint(8,15)
+                if tool == 'cooked frog legs':heal=random.randint(4,5)
+                if tool == 'cooked chicken':heal=random.randint(10,12)
+                if tool == 'cooked pork':heal=random.randint(10,13)
+                if tool == 'cooked beef':heal=random.randint(13,16)
+                if tool == 'cooked bunny meat':heal =random.randint(4,7) 
+                if tool == 'cooked mutton':heal=random.randint(12,15)
+                if tool == 'bread':heal=14
+                
                 if save['users'][id]['stats']['health'] == 100:
                     await ctx.reply('You can\'t eat that')
                     return
 
                 save['users'][id]['stats']['health'] += 10
                 if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+            
             if tool in ['crude medicine']:#Medicines
                 if tool == 'crude medicine':heal=12
                 if save['users'][id]['stats']['health'] == 100:
@@ -937,7 +1311,68 @@ async def use(ctx, *, tool = ''):
 
                 save['users'][id]['stats']['health'] += 10
                 if save['users'][id]['stats']['health'] > 100:save['users'][id]['stats']['health'] = 100
+
             await ctx.reply(f"You gained {heal} HP and you now have {save['users'][id]['stats']['health']} HP")
+    elif tool in ['crude spear', 'crude wooden spear']:
+        for i in range(3):
+            for j in range(3):
+                if fetch_square(id, (x-1)+i, (y-1)+j)['animals']:break
+            else:continue#Best not to think about it
+            break
+        else:
+            await ctx.reply('You need to be next to an animal')
+            return
+        animal = random.choice(fetch_square(id, (x-1)+i, (y-1)+j)['animals'])
+        animal_drops = {
+            'chicken' : ['feather', 'feather', 'raw chicken','raw chicken','raw chicken', 'beak'],
+            'cow': ['raw beef', 'raw beef'],
+            'pork': ['raw pork', 'raw pork'],
+            'ram': ['wool', 'wool', 'raw mutton', 'raw mutton', 'raw mutton', 'ram horn'],
+            'fish': ['raw fish', 'raw fish'],
+            'bunny': ['raw bunny meat', 'raw bunny meat'],
+            'frog': ['frog egg', 'frog egg', 'raw frog leg', 'raw frog leg', 'raw frog leg', 'raw frog leg'],
+        }
+        drops = []
+        for i in range(random.randint(1,3)):drops.append(random.choice(animal_drops[animal]))
+        for drop in drops:
+            if drop in save['users'][id]['inv']:save['users'][id]['inv'][drop]['amount'] += 1
+            else:save['users'][id]['inv'][drop] = {'amount' : 1}
+
+        if len(drops) == 1:await ctx.reply(f'You killed a {animal} and got {drops[0]}')
+        elif len(drops) == 2:await ctx.reply(f'You killed a {animal} and got {drops[0]} and {drops[1]}')
+        else: await ctx.reply(f'You killed a {animal} and got {", ".join(drops[0:len(drops)-2])} and {drops[len(drops)-1]}')
+    elif tool in ['crude knife', 'crude wooden knife']:
+        if items + placements not in ['oak tree', 'tuft of grass', 'pine tree', 'wheat plant']:
+            await ctx.reply('Theres nothing to use this on')
+            return
+        if 'tuft of grass' in items:
+            items = ['tuft of grass', 'tuft of grass']
+            items.remove('tuft of grass')
+        elif 'wheat plant' in items:
+            items = ['wheat seeds', 'wheat seeds']
+            items.remove('wheat plant')
+        elif 'pine tree' in placements:
+            items = ['oak leaf']
+        elif 'oak tree' in placements:
+            items = ['pine needle']
+        for item in items:
+            if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
+            else:save['users'][id]['inv'][item] = {'amount' : 1}
+        await ctx.reply(f'You got {items}')
+    elif tool in ['crude hammer', 'crude wooden hammer']:
+        unhammerables = ['oak tree', 'pine tree', 'boulder']
+        for i in unhammerables:
+            if i in placements:
+                await ctx.reply('There\'s nothing to use this on')
+                return
+        if not placements:
+            await ctx.reply('There\'s nothing to use this on')
+            return
+        item = placements[0]
+        placements.remove(item)
+        if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
+        else:save['users'][id]['inv'][item] = {'amount' : 1}
+        await ctx.reply(f'You picked up a {item}')
     else:
         await ctx.reply('Not a tool')
         return        
@@ -953,10 +1388,10 @@ async def use(ctx, *, tool = ''):
         save['users'][id]['inv'][tool]['amount'] -= 1
     
     
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['minerals'] = list(minerals)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['minerals'] = list(minerals)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
 @client.command(aliases = ['r'])
 async def recipe(ctx, *, recipe = ''):
     'Gets the recipe of a specified item'
@@ -973,7 +1408,7 @@ async def recipe(ctx, *, recipe = ''):
 @client.command(aliases = ['pl'])
 async def place(ctx, *, placement = ''):
     'Places down the specified item'
-    placeables = ['crude furnace', 'crude wooden wall']
+    placeables = ['crude furnace', 'crude wooden wall', 'fire']
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     placements = list(fetch_square(id, x, y)['placements'])
@@ -995,8 +1430,8 @@ async def place(ctx, *, placement = ''):
     placements.append(placement)
     save['users'][id]['inv'][placement]['amount']-=1
     
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
     await ctx.reply(f'You placed down a {placements}')
 @client.command(aliases = ['d'])
 async def drop(ctx, amount = 1, *, item = ''):
@@ -1026,9 +1461,9 @@ async def drop(ctx, amount = 1, *, item = ''):
             save['users'][id]['inv'][item]['durability'] -= amount*recipes[item]['durability']
     
     items.append(dropped)
-    if not str(f'[{x/1000}, {y/1000}]') in save['terrrain']['overide']: save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
-    save['terrrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
+    if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
+    save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
     await ctx.reply(f'Your dropped a {item}, {amount} times')
     
 #other
@@ -1107,6 +1542,19 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
             b.append(square['vis'] if not square['player'] else '🙂')
         a.append(''.join(b))
     await ctx.reply('\n'.join(a))
+
+@client.command()
+async def give(ctx, amount=1, *, item): 
+    id = ctx.author.id
+    if id not in [806714339943251999, 666999744572293170]:return
+    recipe = item
+    if 'amount' in recipes[recipe]: amount =  recipes[recipe]['amount']
+    if recipe in save['users'][id]['inv']:save['users'][id]['inv'][recipe]['amount'] += amount
+    else:save['users'][id]['inv'][recipe] = {'amount' : amount}
+    if 'durability' in recipes[recipe]:
+        if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
+        else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
+
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
@@ -1114,6 +1562,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     for i in client.commands:
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
     await ctx.reply(embed=embed)
+
 @client.command()
 async def temp(ctx):
     await pickup(ctx)
