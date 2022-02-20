@@ -296,6 +296,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     
     wheatnoise = PerlinNoise(octaves=15, seed=558)
     chickennoise =  PerlinNoise(octaves=700, seed=929)
+    cownoise = PerlinNoise(octaves=450, seed=929)
     
     if vis in biomes[biome]:
         vis = biomes[biome][vis]
@@ -361,6 +362,8 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     random.seed(str(pos) + str(time_tick))
     if square in ['grass'] and chickennoise(pos + [time_tick/10**5]) >= 0.35:
         if random.randint(0,2) == 0:animals.append('chicken')
+    if square in ['grass'] and cownoise(pos + [time_tick/10**5]) >= 0.35:
+        animals.append('cow')
     random.seed(str(pos))
     
     
@@ -401,6 +404,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if 'boulder' in placements:vis = '🪨'#ROCK, THIS IS ROCK
     
     if 'chicken' in animals:vis = '🐔'
+    if 'cow' in animals:vis = '🐮'
     
     if 'crude wooden wall' in placements:vis='🌰'
     if 'crude furnace' in placements:vis='🪔'
