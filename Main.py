@@ -363,7 +363,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     if square in ['grass'] and chickennoise(pos + [time_tick/10**5]) >= 0.35:
         if random.randint(0,2) == 0:animals.append('chicken')
     if square in ['grass'] and cownoise(pos + [time_tick/10**5]) >= 0.35:
-        animals.append('cow')
+        if random.randint(0, 1) == 0: animals.append('cow')
     random.seed(str(pos))
     
     
