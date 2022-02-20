@@ -1,6 +1,7 @@
 from ast import Await, alias
 import asyncio
 from datetime import datetime
+from itertools import dropwhile
 import os
 import random
 from perlin_noise import PerlinNoise
@@ -670,12 +671,37 @@ async def surroundings(ctx, buttons=True):
 
         return embed
     
+    class Dropdown(discord.ui.Select):
+        def __init__(self):
+
+            # Set the options that will be presented inside the dropdown
+            options = []
+            
+            for i in save['users'][ctx.author.id]['recipes']:
+                can_craft=True
+                for j in recipes[i]['recipe']:
+                    if j not in save['users'][ctx.author.id]['inv']:
+                        can_craft=False
+                    elif save['users'][ctx.author.id]['inv'][j]['amount'] < recipes[i]['recipe'][j]:
+                        can_craft=False
+                options.append(discord.SelectOption(label=i, description='You can craft this' if can_craft else 'You can\'t craft this', emoji='📜'))
+            if not options:
+                options.append(discord.SelectOption(label='Nothing to craft', description='Click the button with the brain on it or use !think to think of a new recipe', emoji='❌'))
+            # The placeholder is what will be shown when no option is chosen
+            # The min and max values indicate we can only pick one of the three options
+            # The options parameter defines the dropdown options. We defined this above
+            super().__init__(placeholder='Craft something', min_values=1, max_values=1, options=options)
+
+        async def callback(self, interaction: discord.Interaction):
+            await craft(ctx, item=self.values[0])
+    
     class ViewWithButton(View):
         def __init__(self):
             super().__init__(timeout=120)
             async def check(interaction):
                 return interaction.user.id == ctx.author.id
             self.interaction_check = check
+            self.add_item(Dropdown())
         
         @button(style=discord.ButtonStyle.blurple, emoji='🔼')
         async def up(self, button: Button, interaction: Interaction):
@@ -718,6 +744,19 @@ async def surroundings(ctx, buttons=True):
         async def pickup(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
+            task[ctx.channel.id] +=1
+            
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
+            await surroundings(ctx, buttons)
+            
+        @button(style=discord.ButtonStyle.blurple, emoji='🧠')
+        async def think(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await think(ctx)
             task[ctx.channel.id] +=1
             
             try:
@@ -954,13 +993,10 @@ async def inv(ctx, *, txt = 'all'):
         txt = txt.split(' ')
 
         for x in txt:
-            print(x[0:3] == "<@!" and x[len(x) - 1] == ">")
             if x[0:3] == "<@!" and x[len(x) - 1] == ">":
                 txt.remove(x)
 
         txt = ' '.join(txt)
-
-        print(txt)
 
         try: 
             embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
@@ -1175,7 +1211,6 @@ async def use(ctx, *, tool = ''):
         await ctx.reply('You need to specify which tool to use')
         return
     if tool not in save['users'][id]['inv']:
-        print(save['users'][id]['inv'])
         await ctx.reply('You don\'t have that tool')
         return
     if 'durability' in save['users'][id]['inv'][tool]:
@@ -1321,7 +1356,7 @@ async def use(ctx, *, tool = ''):
         for item in items:
             if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
             else:save['users'][id]['inv'][item] = {'amount' : 1}
-        await ctx.send(f'You got {items}')
+        await ctx.reply(f'You got {items}')
     elif tool in ['crude hammer', 'crude wooden hammer']:
         unhammerables = ['oak tree', 'pine tree', 'boulder']
         for i in unhammerables:
@@ -1335,7 +1370,7 @@ async def use(ctx, *, tool = ''):
         placements.remove(item)
         if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
         else:save['users'][id]['inv'][item] = {'amount' : 1}
-        await ctx.send(f'You picked up a {item}')
+        await ctx.reply(f'You picked up a {item}')
     else:
         await ctx.reply('Not a tool')
         return        
