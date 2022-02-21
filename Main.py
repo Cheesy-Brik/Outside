@@ -811,10 +811,10 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     
-    ups=['up', 'north']
-    downs=['down', 'south']
-    lefts=['left', 'east']
-    rights=['right', 'west']
+    ups=['up', 'north', 'u', 'w']
+    downs=['down', 'south', 'd', 's']
+    lefts=['left', 'east', 'l', 'a']
+    rights=['right', 'west', 'r', 'd']
     
     #I don't even fucking know at this point
     for i in range(min(abs(amount), 10)):  
