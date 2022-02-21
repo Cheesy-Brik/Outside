@@ -1202,8 +1202,8 @@ async def use(ctx, *, tool = ''):
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     player_square = fetch_square(id, x, y)
     items = list(player_square['has'])
-    placements = list(player_square(id, x, y)['placements'])
-    minerals= list(player_square(id, x, y)['minerals'])
+    placements = list(player_square['placements'])
+    minerals= list(player_square['minerals'])
     
     if tool == '':
         await ctx.reply('You need to specify which tool to use')
