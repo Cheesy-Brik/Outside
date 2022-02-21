@@ -706,7 +706,7 @@ async def surroundings(ctx, buttons=True):
             self.interaction_check = check
             self.add_item(Dropdown())
         
-        @button(style=discord.ButtonStyle.blurple, emoji='📤')
+        @button(style=discord.ButtonStyle.gray, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
@@ -725,7 +725,7 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'up', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🧠')
+        @button(style=discord.ButtonStyle.gray, emoji='🧠')
         async def think(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await think(ctx)
@@ -744,7 +744,7 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'left', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
 
-        @button(style=discord.ButtonStyle.blurple, emoji='👁️', row=1)
+        @button(style=discord.ButtonStyle.gray, emoji='👁️', row=1)
         async def look(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await look(ctx)
@@ -763,7 +763,7 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'right', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🎒', row=2)
+        @button(style=discord.ButtonStyle.gray, emoji='🎒', row=2)
         async def inv(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await inv(ctx)
@@ -780,7 +780,7 @@ async def surroundings(ctx, buttons=True):
             await walk(ctx, 'down', 1, True)
             await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='📜', row=2)
+        @button(style=discord.ButtonStyle.gray, emoji='📜', row=2)
         async def recipes(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await crafts(ctx)
