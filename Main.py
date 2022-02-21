@@ -706,43 +706,6 @@ async def surroundings(ctx, buttons=True):
             self.interaction_check = check
             self.add_item(Dropdown())
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🔼')
-        async def up(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'up', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-        
-        @button(style=discord.ButtonStyle.blurple, emoji='🔽')
-        async def down(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'down', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-
-        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
-        async def left(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'left', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
-        async def right(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'right', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-
-        @button(style=discord.ButtonStyle.blurple, emoji='👁️')
-        async def look(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await look(ctx)
-            task[ctx.channel.id] +=1
-
-            try:
-                await msg.edit(view=View())
-            except:
-                pass
-
-            await surroundings(ctx, buttons)
-        
         @button(style=discord.ButtonStyle.blurple, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
@@ -755,7 +718,13 @@ async def surroundings(ctx, buttons=True):
                 pass
 
             await surroundings(ctx, buttons)
-            
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='🔼')
+        async def up(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'up', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+        
         @button(style=discord.ButtonStyle.blurple, emoji='🧠')
         async def think(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
@@ -768,8 +737,33 @@ async def surroundings(ctx, buttons=True):
                 pass
 
             await surroundings(ctx, buttons)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️', row=1)
+        async def left(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'left', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+        @button(style=discord.ButtonStyle.blurple, emoji='👁️', row=1)
+        async def look(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await look(ctx)
+            task[ctx.channel.id] +=1
+
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
+            await surroundings(ctx, buttons)        
+
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️', row=1)
+        async def right(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'right', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🎒')
+        @button(style=discord.ButtonStyle.blurple, emoji='🎒', row=2)
         async def inv(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await inv(ctx)
@@ -780,7 +774,13 @@ async def surroundings(ctx, buttons=True):
             except:
                 pass
         
-        @button(style=discord.ButtonStyle.blurple, emoji='📜')
+        @button(style=discord.ButtonStyle.blurple, emoji='🔽', row=2)
+        async def down(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'down', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='📜', row=2)
         async def recipes(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await crafts(ctx)
