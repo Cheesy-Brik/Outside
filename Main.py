@@ -1,6 +1,7 @@
 from ast import Await, alias
 import asyncio
 from datetime import datetime
+from dis import dis
 from itertools import dropwhile
 import os
 import random
@@ -371,7 +372,7 @@ def user_check(id):
             if i not in save['users'][id]:
                 save['users'][id][i] = defaults[i]
         if 'health' not in save['users'][id]['stats']:save['users'][id]['stats']['health']=100
-        if 'nation' not in save['users']: save['users']['nation'] = {}
+        if 'nation' not in save['users'][id]: save['users'][id]['nation'] = {}
     except:
         random.seed()
         pos = [random.randint(0,500)-250, random.randint(0,500)-250]
@@ -952,26 +953,34 @@ async def inv(ctx, *, txt = 'all'):
         
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                if self.num > 1: self.num -= 1
-                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
-                if id == ctx.author.id:embed.set_footer(text=ctx.author)
-                else:embed.set_footer(text=ctx.message.mentions[0])
-                await msg.edit(content = '', embed = embed)
+            if self.num > 1: 
+                button.disabled = False
+                self.num -= 1
+            else:
+                button.disabled = True
+            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(content = '', embed = embed)
+            await msg.edit(embed=embed, view=self)
 
         @button(style=discord.ButtonStyle.blurple, emoji='⏹')
-        async def stop(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                self.disabled = True
+        async def kill(self, button: Button, interaction: Interaction):
+            self.stop()
+            await msg.edit(embed=embed, view=None)
 
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def next(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                if self.num < len(pageinv): self.num += 1 
-                embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
-                if id == ctx.author.id:embed.set_footer(text=ctx.author)
-                else:embed.set_footer(text=ctx.message.mentions[0])
-                await msg.edit(content = '', embed = embed)
+            if self.num < len(pageinv): 
+                button.disabled = False
+                self.num += 1
+            else:
+                button.disabled = True
+            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(content = '', embed = embed)
+            await msg.edit(embed=embed, view=self)
 
     if ctx.message.mentions != []:
         id = ctx.message.mentions[0].id
@@ -1058,56 +1067,64 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
             async def check(interaction):
                 return interaction.user.id == ctx.author.id
             self.interaction_check = check
-        
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
-        async def next(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                reg1 = 0
-                inv = []
-                pageinv=[]
-
-                if self.num < len(pageinv): self.num += 1 
-                for i in sorted(save["users"][id]['recipes'], reverse = True):             
-                    if i != '':
-                        inv.append(f'**{i}**')
-                        reg1 += 1
-                    if reg1 == 30:
-                        pageinv.append('\n'.join(inv))
-                        inv = []
-                        reg1 = 0
-                if reg1 != 30:
-                    pageinv.append('\n'.join(inv))            
-                embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
-                embed.set_author(name=" ")
-                embed.set_footer(text=" ")
-
-        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
-        async def stop(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                self.disabled = True
 
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
-            if not self.disabled:
-                reg1 = 0
-                inv = []
-                pageinv=[]
+            reg1 = 0
+            inv = []
+            pageinv=[]
 
-                if self.num > 1: self.num -= 1
-                for i in sorted(save["users"][id]['recipes'], reverse = True):             
-                    if i != '':
-                        inv.append(f'**{i}**')
-                        reg1 += 1
-                    if reg1 == 30:
-                        pageinv.append('\n'.join(inv))
-                        inv = []
-                        reg1 = 0
-                if reg1 != 30:
-                    pageinv.append('\n'.join(inv))            
-                embed=discord.Embed(title="Recipes(Page 1)", description=pageinv[0])
-                embed.set_author(name=" ")
-                embed.set_footer(text=" ")
+            if self.num > 1: 
+                button.disabled = False
+                self.num -= 1
+            else:
+                button.disabled = True
+            for i in sorted(save["users"][id]['recipes'], reverse = True):             
+                if i != '':
+                    inv.append(f'**{i}**')
+                    reg1 += 1
+                if reg1 == 30:
+                    pageinv.append('\n'.join(inv))
+                    inv = []
+                    reg1 = 0
+            if reg1 != 30:
+                pageinv.append('\n'.join(inv))            
+            embed=discord.Embed(title=f"Recipes(Page {self.num})", description=pageinv[self.num-1])
+            embed.set_author(name=" ")
+            embed.set_footer(text=" ")
+            await msg.edit(embed=embed, view=self)        
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def kill(self, button: Button, interaction: Interaction):
+            self.stop()
+            await msg.edit(embed=embed, view=self)
 
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            reg1 = 0
+            inv = []
+            pageinv=[]
+
+            if self.num < len(pageinv): 
+                button.disabled = False
+                self.num += 1
+            else:
+                button.disabled = True
+            for i in sorted(save["users"][id]['recipes'], reverse = True):             
+                if i != '':
+                    inv.append(f'**{i}**')
+                    reg1 += 1
+                if reg1 == 30:
+                    pageinv.append('\n'.join(inv))
+                    inv = []
+                    reg1 = 0
+            if reg1 != 30:
+                pageinv.append('\n'.join(inv))            
+            embed=discord.Embed(title=f"Recipes(Page {self.num})", description=pageinv[self.num-1])
+            embed.set_author(name=" ")
+            embed.set_footer(text=" ")
+            await msg.edit(embed=embed, view=self)
+                
      if txt != 'all':
          try: 
              embed=discord.Embed(title=txt, description=f'{txt}({ save["users"][id]["recipes"][txt.lower()]})')
@@ -1277,8 +1294,6 @@ async def use(ctx, *, tool = ''):
         random.seed(time.time())
         A = random.randint(1,1000)
 
-        print(A)
-
         matched = False
         
         for fisz in fishs:
@@ -1354,23 +1369,26 @@ async def use(ctx, *, tool = ''):
         elif len(drops) == 2:await ctx.reply(f'You killed a {animal} and got {drops[0]} and {drops[1]}')
         else: await ctx.reply(f'You killed a {animal} and got {", ".join(drops[0:len(drops)-2])} and {drops[len(drops)-1]}')
     elif tool in ['crude knife', 'crude wooden knife']:
-        if items + placements not in ['oak tree', 'tuft of grass', 'pine tree', 'wheat plant']:
+        for i in items + placements:
+            if i in ['oak tree', 'tuft of grass', 'pine tree', 'wheat plant']:break
+        else:
             await ctx.reply('Theres nothing to use this on')
             return
         if 'tuft of grass' in items:
-            items = ['tuft of grass', 'tuft of grass']
+            knife = ['tuft of grass', 'tuft of grass']
             items.remove('tuft of grass')
         elif 'wheat plant' in items:
-            items = ['wheat seeds', 'wheat seeds']
+            knife = ['wheat seeds', 'wheat seeds']
             items.remove('wheat plant')
         elif 'pine tree' in placements:
-            items = ['oak leaf']
+            knife = ['oak leaf']
         elif 'oak tree' in placements:
-            items = ['pine needle']
-        for item in items:
+            knife = ['pine needle']
+        for item in knife:
             if item in save['users'][id]['inv']:save['users'][id]['inv'][item]['amount'] += 1
             else:save['users'][id]['inv'][item] = {'amount' : 1}
-        await ctx.reply(f'You got {items}')
+        knife = str(knife)[1:-1].replace("'", '')
+        await ctx.reply(f'You got {knife}')
     elif tool in ['crude hammer', 'crude wooden hammer']:
         unhammerables = ['oak tree', 'pine tree', 'boulder']
         for i in unhammerables:
@@ -1444,7 +1462,7 @@ async def place(ctx, *, placement = ''):
     
     if not str(f'[{x/1000}, {y/1000}]') in save['terrain']['overide']: save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')] = {}
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['placements'] = list(placements)
-    await ctx.reply(f'You placed down a {placements}')
+    await ctx.reply(f'You placed down a {placements[0]}')
 @client.command(aliases = ['d'])
 async def drop(ctx, amount = 1, *, item = ''):
     id = ctx.author.id
