@@ -1255,30 +1255,42 @@ async def use(ctx, *, tool = ''):
             return
         #Lower number = Lower chance
         fishs = {#Any biome any elevation
-            'raw fish' : 1000,
-            'stick' : 500,
-            'sea weed' : 500,
-            'oak log' : 200,
-            'pine log' : 200,
+            'raw fish' : (1000, 201),
+            'stick' : (200, 101),
+            'sea weed' : (100, 21),
+            'oak log' : (20, 11),
+            'pine log' : (10, 1),
         }#Conditionals
-        if player_square['biome'] == 'temperate':fishs['raw tropical fish']=700
+        if player_square['biome'] == 'temperate':
+            fishs['raw tropical fish']=(1000, 201)
+            fishs['raw fish']=(0, 0)
         if player_square['biome'] == 'forest':
-            fishs['salmon']=600
-            fishs['cod']=500
-            fishs['catfish']=400
+            fishs['salmon']=(1000, 451)
+            fishs['cod']=(450, 301)
+            fishs['catfish']=(300, 201)
+            fishs['raw fish']=(0, 0)
         
-        add = 0
-        A = random.randint(1,sum(fish[i] for i in list(fishs.keys())))
-        for i in fishs:
-            if A <= fishs[i] + add:
-                choice = i
+        random.seed(time.time())
+        A = random.randint(1,1000)
+
+        print(A)
+
+        matched = False
+        
+        for fisz in fishs:
+            if fishs[fisz][1] <= A <= fishs[fisz][0]:
+                fish = fisz
+                matched = True
                 break
-            else:add +=  fishs[i]['chance']
-        
-        fish = 'raw fish'
+
+        if not matched:
+            fish = "pine log"
+
         await ctx.reply(f'You got a {fish}')
         if fish in save['users'][id]['inv']:save['users'][id]['inv'][fish]['amount'] += 1
         else:save['users'][id]['inv'][fish] = {'amount' : 1}
+
+        del A
     elif tool in ['mushroom soup', 'crude medicine', 'cooked frog leg', 'cooked chicken', 'cooked pork', 'cooked beef', 'cooked bunny meat', 'cooked mutton']:#Healing Items
             heal = 0
             if tool in ['mushroom soup', 'cooked frog legs', 'cooked chicken', 'cooked pork', 'cooked beef', 'cooked bunny meat', 'cooked mutton']:#Food items    
