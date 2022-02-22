@@ -621,7 +621,7 @@ def respawn(id):
     square = fetch_square(id, x, y)
     while square['square'] in ['ocean', 'deep ocean'] :
         pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
-        square = fetch_square(id, x, y)
+        square = fetch_square(id, pos[0], pos[1])
     
     save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
     save['users'][id]['stats']['health'] = 100
