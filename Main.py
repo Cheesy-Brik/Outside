@@ -617,10 +617,10 @@ def has(id, item):
 def respawn(id):
     random.seed()
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-    pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+    pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
     square = fetch_square(id, x, y)
     while square['square'] in ['ocean', 'deep ocean'] :
-        pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+        pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
         square = fetch_square(id, x, y)
     
     save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
