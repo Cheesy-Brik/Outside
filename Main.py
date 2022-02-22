@@ -625,6 +625,7 @@ def respawn(id):
     
     save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
     save['users'][id]['stats']['health'] = 100
+    print(save['users'][id]['stats']['health'])
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
@@ -860,6 +861,8 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
             break
         else:
             damage += 1
+    
+    save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     save['users'][id]['stats']['health'] -= damage
     if save['users'][id]['stats']['health']<=0:
         dropped = random.choice(list(save['users'][id]['inv'].keys()))
@@ -868,8 +871,6 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
         respawn(id)
         return
     if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
-    
-    save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     if not buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS.
         await surroundings(ctx, False)
 @client.command(aliases = ['l'])
