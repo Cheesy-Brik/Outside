@@ -962,7 +962,6 @@ async def inv(ctx, *, txt = 'all'):
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
             await msg.edit(embed=embed, view=self)
 
         @button(style=discord.ButtonStyle.blurple, emoji='⏹')
@@ -975,13 +974,12 @@ async def inv(ctx, *, txt = 'all'):
             if self.num < len(pageinv): 
                 button.disabled = False
                 self.num += 1
-                print('here')
             else:
                 button.disabled = True
+                print('here')
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
             await msg.edit(embed=embed, view=self)
 
     if ctx.message.mentions != []:
