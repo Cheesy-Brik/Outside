@@ -1108,6 +1108,7 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
 
             if self.num < len(pageinv): 
                 button.disabled = False
+                print('eee')
                 self.num += 1
             else:
                 button.disabled = True
