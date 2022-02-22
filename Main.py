@@ -975,6 +975,7 @@ async def inv(ctx, *, txt = 'all'):
             if self.num < len(pageinv): 
                 button.disabled = False
                 self.num += 1
+                print('here')
             else:
                 button.disabled = True
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
@@ -1105,13 +1106,7 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
             reg1 = 0
             inv = []
             pageinv=[]
-
-            if self.num < len(pageinv): 
-                button.disabled = False
-                print('eee')
-                self.num += 1
-            else:
-                button.disabled = True
+            
             for i in sorted(save["users"][id]['recipes'], reverse = True):             
                 if i != '':
                     inv.append(f'**{i}**')
@@ -1120,6 +1115,12 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
                     pageinv.append('\n'.join(inv))
                     inv = []
                     reg1 = 0
+            
+            if self.num < len(pageinv): 
+                button.disabled = False
+                self.num += 1
+            else:
+                button.disabled = True
             if reg1 != 30:
                 pageinv.append('\n'.join(inv))            
             embed=discord.Embed(title=f"Recipes(Page {self.num})", description=pageinv[self.num-1])
