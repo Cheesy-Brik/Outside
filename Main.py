@@ -622,10 +622,9 @@ def respawn(id):
     while square['square'] in ['ocean', 'deep ocean'] :
         pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
         square = fetch_square(id, pos[0], pos[1])
-    
     save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
     save['users'][id]['stats']['health'] = 100
-    print(save['users'][id]['stats']['health'])
+    
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
@@ -1497,7 +1496,18 @@ async def drop(ctx, amount = 1, *, item = ''):
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
     await ctx.reply(f'Your dropped a {item}, {amount} times')
-    
+
+@client.command(aliases = ['fr'])
+async def forcerespawn(ctx):
+    ''
+    if not ctx.message.mentions:
+        await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
+        return
+    if ctx.message.mentions[0].id == ctx.author.id:
+        respawn(ctx.author.id)
+    else:
+        await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
+        return
 #other
 @client.event
 async def on_message(txt):
