@@ -1504,10 +1504,10 @@ async def forcerespawn(ctx):
         await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
         return
     if ctx.message.mentions[0].id == ctx.author.id:
-        dropped = random.choice(list(save['users'][id]['inv'].keys()))
-        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
+        dropped = random.choice(list(save['users'][ctx.author.id]['inv'].keys()))
+        await drop(ctx, amount=save['users'][ctx.author.id]['inv'][dropped]['amount']//2,item=dropped)
         await ctx.reply('You took too much damage and you died')
-        respawn(id)
+        respawn(ctx.author.id)
         return
     else:
         await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
