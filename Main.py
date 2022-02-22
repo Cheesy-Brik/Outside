@@ -1499,7 +1499,7 @@ async def drop(ctx, amount = 1, *, item = ''):
 
 @client.command(aliases = ['fr'])
 async def forcerespawn(ctx):
-    ' '
+    'Forces a respawn'
     if not ctx.message.mentions:
         await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
         return
