@@ -614,7 +614,11 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     }    
 def has(id, item):
     return item in save['users'][id]['inv']
-def respawn(id):
+async def respawn(ctx, id):
+    dropped = random.choice([ item for item in list(save['users'][id]['inv'].keys()) if save['users'][id]['inv'][item]['amount'] > 0])
+    if dropped:    
+        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
+    await ctx.reply('You took too much damage and you died')
     random.seed()
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
@@ -864,10 +868,7 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
     save['users'][id]['stats']['health'] -= damage
     if save['users'][id]['stats']['health']<=0:
-        dropped = random.choice(list(save['users'][id]['inv'].keys()))
-        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
-        await ctx.reply('You took too much damage and you died')
-        respawn(id)
+        await respawn(ctx, id)
         return
     if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     if not buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS.
@@ -1504,10 +1505,7 @@ async def forcerespawn(ctx):
         await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
         return
     if ctx.message.mentions[0].id == ctx.author.id:
-        dropped = random.choice(list(save['users'][ctx.author.id]['inv'].keys()))
-        await drop(ctx, amount=save['users'][ctx.author.id]['inv'][dropped]['amount']//2,item=dropped)
-        await ctx.reply('You took too much damage and you died')
-        respawn(ctx.author.id)
+        await respawn(ctx, ctx.author.id)
         return
     else:
         await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
