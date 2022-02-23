@@ -1602,7 +1602,7 @@ async def found(ctx, *, nation_name):
     else:
         #too see what square a nation is in loop trough all nation's claims and for each claim point see if the square is inside a claim use the code
         for i in save['nations']:#Where nations is a dict
-            for j in save['nations']['claims']:#Where j is a tuple
+            for j in save['nations'][i]['claims']:#Where j is a tuple
                 claim_x, claim_y = tuple(j)
 
                 if (x<claim_x+4 and x>=claim_x) and (y<claim_y+4 and y>=claim_y):
