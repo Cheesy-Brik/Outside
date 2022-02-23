@@ -1624,7 +1624,7 @@ async def nation(ctx, *, nation_name):
     owner = await client.fetch_user(save['nations'][nation_name]['owner'])
     embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
     
-    embed.add_field(name='Owner', value=owner.id, inline=False)
+    embed.add_field(name='Owner', value=owner.name, inline=False)
 
     await ctx.reply(embed=embed)
 
