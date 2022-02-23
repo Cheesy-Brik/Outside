@@ -1626,6 +1626,8 @@ async def nation(ctx, *, nation_name):
     
     embed.add_field(name='Owner', value=owner.id, inline=False)
 
+    await ctx.reply(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
