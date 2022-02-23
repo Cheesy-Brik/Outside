@@ -349,6 +349,16 @@ recipes = {
         'requires' : 'has(id, "wheat plant")',
         'intel':12,
         'station':'crude furnace'
+    },
+    'nation banner': {
+        'recipe' : {
+            'rock': 10,
+            'stick': 15,
+            'thatch fabric': 5,
+            'rope': 2
+        },
+        'requires' : 'has(id, "rock") and has(id, "stick") and has(id, "thatch fabric") and has(id, "rope")',
+        'intel':12,
     }
 }
 #functions
@@ -1575,6 +1585,7 @@ async def info(ctx, user:discord.Member=''):
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
