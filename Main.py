@@ -1586,6 +1586,39 @@ async def info(ctx, user:discord.Member=''):
     
     await ctx.reply(embed=embed)
 
+@client.command(aliases = ['f'])
+async def found(ctx, *, nation_name):
+    x, y = save['users'][ctx.author.id]['pos']
+
+    claim = (5*floor(x/5), 5*floor(y/5))
+
+    if 'nations' not in save:
+        save['nations'] = {
+            nation_name : {
+                'claims' : [claim],
+                'owner' : ctx.author.id
+            }
+        }
+    else:
+        #too see what square a nation is in loop trough all nation's claims and for each claim point see if the square is inside a claim use the code
+        for i in save['nations']:#Where nations is a dict
+            for j in save['nations']['claims']:#Where j is a tuple
+                claim_x, claim_y = tuple(j)
+
+                if (x<claim_x+4 and x>=claim_x) and (y<claim_y+4 and y>=claim_y):
+                    nation = i
+                    await ctx.reply(f'Your claim is in a nation!')
+                    return
+
+            else:continue
+            
+        save['nations'][nation_name] = {
+            'claims' : [claim],
+            'owner' : ctx.author.id
+        }
+
+    await ctx.reply(f'You founded a new nation!')
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
