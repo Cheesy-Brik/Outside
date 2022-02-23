@@ -349,6 +349,16 @@ recipes = {
         'requires' : 'has(id, "wheat plant")',
         'intel':12,
         'station':'crude furnace'
+    },
+    'nation banner': {
+        'recipe' : {
+            'rock': 10,
+            'stick': 15,
+            'thatch fabric': 5,
+            'rope': 2
+        },
+        'requires' : 'has(id, "rock") and has(id, "stick") and has(id, "thatch fabric") and has(id, "rope")',
+        'intel':12,
     }
 }
 #functions
@@ -426,6 +436,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     has = []
     minerals = []
     animals = []
+    nation = None
     
     pos =[(x)/zoom,(y)/zoom]
     elevation=noise(pos)
@@ -600,6 +611,12 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         if 'minerals' in changed:minerals=changed['minerals']
         if 'placements' in changed:placements=changed['placements']
     
+    for i in save['nations']:#Where nations is a dict
+            for j in save['nations'][i]['claims']:#Where j is a tuple
+                claim_x, claim_y = tuple(j)
+                if (pos[0]<claim_x+4 and pos[0]>=claim_x) and (pos[1]<claim_y+4 and pos[1]>=claim_y):
+                    nation = i
+    
     return {
         'vis' : vis,
         'square' : square,
@@ -614,17 +631,21 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     }    
 def has(id, item):
     return item in save['users'][id]['inv']
-def respawn(id):
+async def respawn(ctx, id):
+    dropped = random.choice([ item for item in list(save['users'][id]['inv'].keys()) if save['users'][id]['inv'][item]['amount'] > 0])
+    if dropped:    
+        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
+    await ctx.reply('You took too much damage and you died')
     random.seed()
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-    pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
+    pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
     square = fetch_square(id, x, y)
     while square['square'] in ['ocean', 'deep ocean'] :
-        pos = [random.randint(x-50,x+50), random.randint(y-50,y+50)]
-        square = fetch_square(id, x, y)
-    
+        pos = [random.randint(x-200,x+200), random.randint(y-200,y+200)]
+        square = fetch_square(id, pos[0], pos[1])
     save['users'][id]['pos'] = [list(pos)[1],-list(pos)[0]]
     save['users'][id]['stats']['health'] = 100
+    
 @client.event
 async def on_ready():
     for developer in [666999744572293170, 806714339943251999]:
@@ -706,44 +727,7 @@ async def surroundings(ctx, buttons=True):
             self.interaction_check = check
             self.add_item(Dropdown())
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🔼')
-        async def up(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'up', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-        
-        @button(style=discord.ButtonStyle.blurple, emoji='🔽')
-        async def down(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'down', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-
-        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
-        async def left(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'left', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-
-        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
-        async def right(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await walk(ctx, 'right', 1, True)
-            await msg.edit(embed=await fetch_area(ctx.author.id))
-
-        @button(style=discord.ButtonStyle.blurple, emoji='👁️')
-        async def look(self, button: Button, interaction: Interaction):
-            if task[ctx.channel.id] != taskid:self.stop()
-            await look(ctx)
-            task[ctx.channel.id] +=1
-
-            try:
-                await msg.edit(view=View())
-            except:
-                pass
-
-            await surroundings(ctx, buttons)
-        
-        @button(style=discord.ButtonStyle.blurple, emoji='📤')
+        @button(style=discord.ButtonStyle.gray, emoji='📤')
         async def pickup(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await pickup(ctx)
@@ -755,8 +739,14 @@ async def surroundings(ctx, buttons=True):
                 pass
 
             await surroundings(ctx, buttons)
-            
-        @button(style=discord.ButtonStyle.blurple, emoji='🧠')
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='🔼')
+        async def up(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'up', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+        
+        @button(style=discord.ButtonStyle.gray, emoji='🧠')
         async def think(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await think(ctx)
@@ -768,8 +758,33 @@ async def surroundings(ctx, buttons=True):
                 pass
 
             await surroundings(ctx, buttons)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️', row=1)
+        async def left(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'left', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+
+        @button(style=discord.ButtonStyle.gray, emoji='👁️', row=1)
+        async def look(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await look(ctx)
+            task[ctx.channel.id] +=1
+
+            try:
+                await msg.edit(view=View())
+            except:
+                pass
+
+            await surroundings(ctx, buttons)        
+
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️', row=1)
+        async def right(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'right', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
         
-        @button(style=discord.ButtonStyle.blurple, emoji='🎒')
+        @button(style=discord.ButtonStyle.gray, emoji='🎒', row=2)
         async def inv(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await inv(ctx)
@@ -780,7 +795,13 @@ async def surroundings(ctx, buttons=True):
             except:
                 pass
         
-        @button(style=discord.ButtonStyle.blurple, emoji='📜')
+        @button(style=discord.ButtonStyle.blurple, emoji='🔽', row=2)
+        async def down(self, button: Button, interaction: Interaction):
+            if task[ctx.channel.id] != taskid:self.stop()
+            await walk(ctx, 'down', 1, True)
+            await msg.edit(embed=await fetch_area(ctx.author.id))
+        
+        @button(style=discord.ButtonStyle.gray, emoji='📜', row=2)
         async def recipes(self, button: Button, interaction: Interaction):
             if task[ctx.channel.id] != taskid:self.stop()
             await crafts(ctx)
@@ -811,10 +832,10 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     
-    ups=['up', 'north']
-    downs=['down', 'south']
-    lefts=['left', 'east']
-    rights=['right', 'west']
+    ups=['up', 'north', 'u', 'w']
+    downs=['down', 'south', 'd', 's']
+    lefts=['left', 'east', 'l', 'a']
+    rights=['right', 'west', 'r', 'd']
     
     #I don't even fucking know at this point
     for i in range(min(abs(amount), 10)):  
@@ -834,7 +855,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     if not buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS.
         await surroundings(ctx, False)
 @client.command(aliases = ['sw'])
-async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1):
+async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), amount = 1, buttons = False):
     "Will randomly walk you one square either up, down, left or right, You can specify which direction and distance to go by doin !walk <direction> <distance> (max distance is 10)."
     id = ctx.author.id
     x,y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -860,17 +881,15 @@ async def swim(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
             break
         else:
             damage += 1
-    save['users'][id]['stats']['health'] -= damage
-    if save['users'][id]['stats']['health']<=0:
-        dropped = random.choice(list(save['users'][id]['inv'].keys()))
-        await drop(ctx, amount=save['users'][id]['inv'][dropped]['amount']//2,item=dropped)
-        await ctx.reply('You took too much damage and you died')
-        respawn(id)
-        return
-    if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
-    await surroundings(ctx, True)
+    save['users'][id]['stats']['health'] -= damage
+    if save['users'][id]['stats']['health']<=0:
+        await respawn(ctx, id)
+        return
+    if damage:await ctx.reply(f"You took {damage} damage and you now have {save['users'][id]['stats']['health']} health")
+    if not buttons: # Dear future Alpha: REMEMBER THIS IS TO SILENTLY CHANGE THE POSITION OF THE PLAYER WHEN USING BUTTONS.
+        await surroundings(ctx, False)
 @client.command(aliases = ['l'])
 async def look(ctx):
     "Tells you all the current items in the square you're in"
@@ -961,7 +980,6 @@ async def inv(ctx, *, txt = 'all'):
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
             await msg.edit(embed=embed, view=self)
 
         @button(style=discord.ButtonStyle.blurple, emoji='⏹')
@@ -976,10 +994,10 @@ async def inv(ctx, *, txt = 'all'):
                 self.num += 1
             else:
                 button.disabled = True
+                print('here')
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
-            await msg.edit(content = '', embed = embed)
             await msg.edit(embed=embed, view=self)
 
     if ctx.message.mentions != []:
@@ -1104,12 +1122,7 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
             reg1 = 0
             inv = []
             pageinv=[]
-
-            if self.num < len(pageinv): 
-                button.disabled = False
-                self.num += 1
-            else:
-                button.disabled = True
+            
             for i in sorted(save["users"][id]['recipes'], reverse = True):             
                 if i != '':
                     inv.append(f'**{i}**')
@@ -1118,6 +1131,12 @@ async def crafts(ctx, *, txt = 'all'):#Gotta merge this and the !recipe command 
                     pageinv.append('\n'.join(inv))
                     inv = []
                     reg1 = 0
+            
+            if self.num < len(pageinv): 
+                button.disabled = False
+                self.num += 1
+            else:
+                button.disabled = True
             if reg1 != 30:
                 pageinv.append('\n'.join(inv))            
             embed=discord.Embed(title=f"Recipes(Page {self.num})", description=pageinv[self.num-1])
@@ -1495,7 +1514,19 @@ async def drop(ctx, amount = 1, *, item = ''):
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] =  True
     await ctx.reply(f'Your dropped a {item}, {amount} times')
-    
+
+@client.command(aliases = ['fr'])
+async def forcerespawn(ctx):
+    'Forces a respawn'
+    if not ctx.message.mentions:
+        await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
+        return
+    if ctx.message.mentions[0].id == ctx.author.id:
+        await respawn(ctx, ctx.author.id)
+        return
+    else:
+        await ctx.reply('To confirm this @ yourself when using the command, also this respawn does have all the normal effects of a normal respawn')
+        return
 #other
 @client.event
 async def on_message(txt):
@@ -1561,6 +1592,49 @@ async def info(ctx, user:discord.Member=''):
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
+
+@client.command(aliases = ['f'])
+async def found(ctx, *, nation_name):
+    x, y = save['users'][ctx.author.id]['pos']
+
+    claim = (5*floor(x/5), 5*floor(y/5))
+
+    if 'nations' not in save:
+        save['nations'] = {
+            nation_name : {
+                'claims' : [claim],
+                'owner' : ctx.author.id
+            }
+        }
+    else:
+        #too see what square a nation is in loop trough all nation's claims and for each claim point see if the square is inside a claim use the code
+        for i in save['nations']:#Where nations is a dict
+            for j in save['nations'][i]['claims']:#Where j is a tuple
+                claim_x, claim_y = tuple(j)
+
+                if (x<claim_x+4 and x>=claim_x) and (y<claim_y+4 and y>=claim_y):
+                    nation = i
+                    await ctx.reply(f'Your claim is in a nation!')
+                    return
+
+            else:continue
+            
+        save['nations'][nation_name] = {
+            'claims' : [claim],
+            'owner' : ctx.author.id
+        }
+
+    await ctx.reply(f'You founded a new nation!')
+
+@client.command(aliases = ['n'])
+async def nation(ctx, *, nation_name):
+    owner = await client.fetch_user(save['nations'][nation_name]['owner'])
+    embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
+    
+    embed.add_field(name='Owner', value=owner.name, inline=False)
+
+    await ctx.reply(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
@@ -1590,7 +1664,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
     embed.set_thumbnail(url=ctx.me.avatar.url)
     for i in client.commands:
-         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)#command objects are genrators so you have to parse to str
+         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
     await ctx.reply(embed=embed)
 
 @client.command()
