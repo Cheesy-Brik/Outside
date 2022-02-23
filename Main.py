@@ -1619,6 +1619,12 @@ async def found(ctx, *, nation_name):
 
     await ctx.reply(f'You founded a new nation!')
 
+@client.command(aliases = ['n'])
+async def nation(ctx, *, nation_name):
+    embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
+    
+    embed.add_field(name='Owner', value=await client.fetch_user(save['nations'][nation_name]['owner']).name, inline=False)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
