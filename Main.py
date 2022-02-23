@@ -1621,9 +1621,10 @@ async def found(ctx, *, nation_name):
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
+    owner = await client.fetch_user(save['nations'][nation_name]['owner'])
     embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
     
-    embed.add_field(name='Owner', value=await client.fetch_user(save['nations'][nation_name]['owner']).name, inline=False)
+    embed.add_field(name='Owner', value=owner.id, inline=False)
 
 @client.command()
 @commands.has_role("Has touched grass")
