@@ -976,6 +976,7 @@ async def inv(ctx, *, txt = 'all'):
                 self.num += 1
             else:
                 button.disabled = True
+                print('here')
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
