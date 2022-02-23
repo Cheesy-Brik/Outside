@@ -383,6 +383,8 @@ def user_check(id):
                 save['users'][id][i] = defaults[i]
         if 'health' not in save['users'][id]['stats']:save['users'][id]['stats']['health']=100
         if 'nation' not in save['users'][id]: save['users'][id]['nation'] = {}
+        if 'nations' not in save['terrain']:
+            save['terrain']['nations'] = {}
     except:
         random.seed()
         pos = [random.randint(0,500)-250, random.randint(0,500)-250]
@@ -611,11 +613,14 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         if 'minerals' in changed:minerals=changed['minerals']
         if 'placements' in changed:placements=changed['placements']
     
-    for i in save['nations']:#Where nations is a dict
-            for j in save['nations'][i]['claims']:#Where j is a tuple
-                claim_x, claim_y = tuple(j)
+    for i in save['terrain']['nations']:#Where nations is a dict
+            for j in save['terrain']['nations'][i]['claims']:#Where j is a tuple
+                claim_x, claim_y = tuple(j);claim_x, claim_y = (claim_x/1000, claim_y/1000)#           :)
                 if (pos[0]<claim_x+4 and pos[0]>=claim_x) and (pos[1]<claim_y+4 and pos[1]>=claim_y):
                     nation = i
+                    break
+            else:continue
+            break
     
     return {
         'vis' : vis,
@@ -627,7 +632,8 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         'elevation' : elevation,
         'minerals' : minerals,
         'placements' : placements,
-        'animals' : animals
+        'animals' : animals,
+        'nation' : nation
     }    
 def has(id, item):
     return item in save['users'][id]['inv']
@@ -1595,40 +1601,40 @@ async def info(ctx, user:discord.Member=''):
 
 @client.command(aliases = ['f'])
 async def found(ctx, *, nation_name):
+    id = ctx.author.id
+    
     x, y = save['users'][ctx.author.id]['pos']
 
     claim = (5*floor(x/5), 5*floor(y/5))
 
-    if 'nations' not in save:
-        save['nations'] = {
-            nation_name : {
-                'claims' : [claim],
-                'owner' : ctx.author.id
-            }
-        }
-    else:
-        #too see what square a nation is in loop trough all nation's claims and for each claim point see if the square is inside a claim use the code
-        for i in save['nations']:#Where nations is a dict
-            for j in save['nations'][i]['claims']:#Where j is a tuple
-                claim_x, claim_y = tuple(j)
-
-                if (x<claim_x+4 and x>=claim_x) and (y<claim_y+4 and y>=claim_y):
-                    nation = i
-                    await ctx.reply(f'Your claim is in a nation!')
-                    return
-
-            else:continue
-            
-        save['nations'][nation_name] = {
+    
+    
+    if fetch_square(id, x, y)['nation']:
+        await ctx.reply(f'This claim would intersect another claim')
+        return
+    
+    if nation_name not in save['terrain']['nations']:
+        save['terrain']['nations'][nation_name] = {
             'claims' : [claim],
             'owner' : ctx.author.id
         }
-
-    await ctx.reply(f'You founded a new nation!')
+    else:
+        await ctx.reply('That nation already exists!')
+        return
+    
+    save['terrain']['nations'][nation_name] = {
+        'claims' : [claim],
+        'owner' : ctx.author.id
+    }
+    save['users'][id]['nation'] = {
+        'name' : nation_name
+    }
+    
+    await ctx.reply(f'You founded {nation_name}!')
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
-    owner = await client.fetch_user(save['nations'][nation_name]['owner'])
+    owner = await client.fetch_user(save['terrain']['nations'][nation_name]['owner'])
     embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
     
     embed.add_field(name='Owner', value=owner.name, inline=False)
