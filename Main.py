@@ -1611,7 +1611,7 @@ async def info(ctx, user:discord.Member=''):
 async def found(ctx, *, nation_name):
     id = ctx.author.id
     
-    x, y = save['users'][ctx.author.id]['pos']
+    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
 
