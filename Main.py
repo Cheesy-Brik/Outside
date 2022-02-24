@@ -698,6 +698,7 @@ async def surroundings(ctx, buttons=True):
         embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
         embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
         embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
+        embed.add_field(name = 'Nation', value = fetch_square(id, x, y)['nation'] if fetch_square(id, x, y)['nation'] else 'None', inline = False)
 
         return embed
     
