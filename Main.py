@@ -1615,7 +1615,7 @@ async def found(ctx, *, nation_name):
 
     claim = (5*floor(x/5), 5*floor(y/5))
 
-    
+    print(fetch_square(id, x, y))
     
     if fetch_square(id, x, y)['nation']:
         await ctx.reply(f'This claim would intersect another claim')
