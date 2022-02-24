@@ -693,6 +693,8 @@ async def surroundings(ctx, buttons=True):
             if h-i*10 <= 0:h_bar += '⬛'
             else:h_bar += '🟥'
 
+        print(fetch_square(id, x, y)['nation'])
+
         if fetch_square(id, x, y)['nation']:
             nation = fetch_square(id, x, y)['nation']
         else:
