@@ -1673,7 +1673,7 @@ async def join(ctx, *, nation_name):
 async def leave(ctx):
     id = ctx.author.id
 
-    await ctx.send(f'Are you sure you want to leave {save["users"][id]["nation"]["name"]}? (y/n)')
+    await ctx.send(f'Are you sure you want to leave {save["users"][id]["nation"]}? (y/n)')
     nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
     nation['members'].remove(id)
     del save['users'][id]['nation']
