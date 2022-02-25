@@ -1655,10 +1655,13 @@ async def nation(ctx, *, nation_name):
 async def join(ctx, *, nation_name):
     id = ctx.author.id
     nation = save['terrain']['nations'][nation_name]
-    
-    if save['users'][id]['nation']["name"]:
-        await ctx.reply(f'You already belong to {save["users"][id]["nation"]["name"]}')
-        return
+
+    if save['users'][id]['nation']:
+        try:
+            await ctx.reply(f'You already belong to {save["users"][id]["nation"]["name"]}')
+            return
+        except:
+            pass
 
     nation['members'].append(id)
     save['users'][id]['nation'] = {
@@ -1670,7 +1673,7 @@ async def join(ctx, *, nation_name):
 async def leave(ctx):
     id = ctx.author.id
     nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
-    save['terrain']['nations'][nation]['members'].remove(id)
+    nation['members'].remove(id)
     del save['users'][id]['nation']
     await ctx.reply(f'You left {nation}!')
 
