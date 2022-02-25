@@ -818,7 +818,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     ups=['up', 'north', 'u', 'w']
     downs=['down', 'south', 'd', 's']
     lefts=['left', 'east', 'l', 'a']
-    rights=['right', 'west', 'r', 'd']
+    rights=['right', 'west', 'r']
     
     #I don't even fucking know at this point
     for i in range(min(abs(amount), 10)):  
