@@ -1669,7 +1669,7 @@ async def join(ctx, *, nation_name):
 @client.command(aliases = ['le'])
 async def leave(ctx):
     id = ctx.author.id
-    nation = save['terrain']['nations'][save['users'][id]['nation']]
+    nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
     save['terrain']['nations'][nation]['members'].remove(id)
     del save['users'][id]['nation']
     await ctx.reply(f'You left {nation}!')
