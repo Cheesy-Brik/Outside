@@ -1633,7 +1633,8 @@ async def found(ctx, *, nation_name):
     save['terrain']['nations'][nation_name] = {
         'claims' : [claim],
         'owner' : ctx.author.id,
-        'members' : [ctx.author.id]
+        'members' : [ctx.author.id],
+        'name' : nation_name
     }
     save['users'][id]['nation'] = {
         'name' : nation_name
@@ -1664,6 +1665,9 @@ async def join(ctx, *, nation_name):
             save['terrain']['nations'][nationx]['members'] = []
 
     nation['members'].append(id)
+    save['users'][id]['nation'] = {
+        'name' : nation_name
+    }
     await ctx.reply(f'You joined {nation_name}!')
 
 @client.command()
