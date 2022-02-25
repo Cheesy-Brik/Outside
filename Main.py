@@ -1672,10 +1672,14 @@ async def join(ctx, *, nation_name):
 @client.command(aliases = ['le'])
 async def leave(ctx):
     id = ctx.author.id
-    nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
-    nation['members'].remove(id)
-    del save['users'][id]['nation']
-    await ctx.reply(f'You left {nation["name"]}!')
+
+    try:
+        nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
+        nation['members'].remove(id)
+        del save['users'][id]['nation']
+        await ctx.reply(f'You left {nation["name"]}!')
+    except:
+        await ctx.reply('You are not in a nation!')
 
 @client.command()
 @commands.has_role("Has touched grass")
