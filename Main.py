@@ -693,11 +693,19 @@ async def surroundings(ctx, buttons=True):
             if h-i*10 <= 0:h_bar += '⬛'
             else:h_bar += '🟥'
 
+        print(fetch_square(id, x, y))
+
+        if fetch_square(id, x, y)['nation']:
+            nation = fetch_square(id, x, y)['nation']
+        else:
+            nation = 'None'
+
         embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
         embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
         embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
         embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
+        embed.add_field(name = 'Nation', value = nation, inline = False)
 
         return embed
     
@@ -1603,11 +1611,11 @@ async def info(ctx, user:discord.Member=''):
 async def found(ctx, *, nation_name):
     id = ctx.author.id
     
-    x, y = save['users'][ctx.author.id]['pos']
+    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
 
-    
+    print(fetch_square(id, x, y))
     
     if fetch_square(id, x, y)['nation']:
         await ctx.reply(f'This claim would intersect another claim')
@@ -1668,7 +1676,11 @@ async def give(ctx, amount=1, *, item):
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
-    embed.set_thumbnail(url=ctx.me.avatar.url)
+    try:
+        embed.set_thumbnail(url=ctx.me.avatar.url)
+    except:
+        print()
+
     for i in client.commands:
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
     await ctx.reply(embed=embed)
