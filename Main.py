@@ -1680,7 +1680,7 @@ async def leave(ctx):
         await ctx.reply(f'You left {nation["name"]}!')
     except Exception as e:
         await ctx.reply('You are not in a nation!')
-        await ctx.reply(e.with_traceback)
+        await ctx.reply(e)
 
 @client.command()
 @commands.has_role("Has touched grass")
