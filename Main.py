@@ -1674,6 +1674,7 @@ async def leave(ctx):
     id = ctx.author.id
 
     if save["users"][id]["nation"]:
+        print(save['users'][id]['nation'])
         nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
         nation['members'].remove(id)
         del save['users'][id]['nation']
