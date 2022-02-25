@@ -1654,6 +1654,11 @@ async def nation(ctx, *, nation_name):
 @client.command(aliases = ['j'])
 async def join(ctx, *, nation_name):
     id = ctx.author.id
+    
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+
     nation = save['terrain']['nations'][nation_name]
 
     if save['users'][id]['nation']:
