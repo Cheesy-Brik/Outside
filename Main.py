@@ -1692,7 +1692,7 @@ async def leave(ctx):
     else:
         await ctx.reply('You are not in a nation!')
 
-@client.command(aliases = ['d'])
+@client.command(aliases = ['ds'])
 async def disband(ctx, *, nation_name):
     id = ctx.author.id
 
