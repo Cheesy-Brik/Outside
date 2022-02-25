@@ -1656,13 +1656,9 @@ async def join(ctx, *, nation_name):
     id = ctx.author.id
     nation = save['terrain']['nations'][nation_name]
     
-    for nationx in save['terrain']['nations']:
-        try:
-            if id in save['terrain']['nations'][nationx]['members']:
-                await ctx.reply(f'You already belong to {nationx}')
-                return
-        except:
-            save['terrain']['nations'][nationx]['members'] = []
+    if save['users'][id]['nation']:
+        await ctx.reply(f'You already belong to {save["users"][id]["nation"]}')
+        return
 
     nation['members'].append(id)
     save['users'][id]['nation'] = {
