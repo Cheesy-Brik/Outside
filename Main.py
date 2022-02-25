@@ -1658,7 +1658,7 @@ async def join(ctx, *, nation_name):
 
     if save['users'][id]['nation']:
         try:
-            await ctx.reply(f'You already belong to {save["users"][id]["nation"]["name"]}')
+            await ctx.reply(f'You already belong to {save["users"][id]["nation"]}')
             return
         except:
             pass
