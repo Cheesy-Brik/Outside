@@ -1675,7 +1675,7 @@ async def leave(ctx):
     nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
     nation['members'].remove(id)
     del save['users'][id]['nation']
-    await ctx.reply(f'You left {nation}!')
+    await ctx.reply(f'You left {nation["name"]}!')
 
 @client.command()
 @commands.has_role("Has touched grass")
