@@ -1707,7 +1707,7 @@ async def disband(ctx, *, nation_name):
     for member in save['terrain']['nations'][nation_name]['members']:
         del save['users'][member]['nation']
 
-    del save['terrain']['nation'][nation_name]
+    del save['terrain']['nations'][nation_name]
     await ctx.reply(f'You disbanded {nation_name}!')
 
     channel = client.get_channel(946595503699820595)
