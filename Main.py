@@ -1696,15 +1696,15 @@ async def leave(ctx):
 async def disband(ctx, *, nation_name):
     id = ctx.author.id
 
-    if nation_name not in save['terrain']['nation']:
+    if nation_name not in save['terrain']['nations']:
         await ctx.reply('That nation does not exist')
         return
 
-    if save['terrain']['nation'][nation_name]['owner'] != id:
+    if save['terrain']['nations'][nation_name]['owner'] != id:
         await ctx.reply('You do not own that nation!')
         return
 
-    for member in save['terrain']['nation'][nation_name]['members']:
+    for member in save['terrain']['nations'][nation_name]['members']:
         del save['users'][member]['nation']
 
     del save['terrain']['nation'][nation_name]
