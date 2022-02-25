@@ -1632,7 +1632,8 @@ async def found(ctx, *, nation_name):
     
     save['terrain']['nations'][nation_name] = {
         'claims' : [claim],
-        'owner' : ctx.author.id
+        'owner' : ctx.author.id,
+        'members' : [ctx.author.id]
     }
     save['users'][id]['nation'] = {
         'name' : nation_name
@@ -1648,6 +1649,23 @@ async def nation(ctx, *, nation_name):
     embed.add_field(name='Owner', value=owner.name, inline=False)
 
     await ctx.reply(embed=embed)
+
+@client.command(aliases = ['j'])
+async def join(ctx, *, nation_name):
+    id = ctx.author.id
+    nation = save['terrain']['nations'][nation_name]
+    
+    if nation['owner'] == id:
+        await ctx.reply('You already own this nation')
+        return
+    
+    for nationx in save['users'][id]['nations']:
+        if id in nationx['members']:
+            await ctx.reply('You already belong to this nation')
+            return
+
+    nation['members'].append(id)
+    await ctx.reply(f'You joined {nation_name}!')
 
 @client.command()
 @commands.has_role("Has touched grass")
