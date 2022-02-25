@@ -1642,6 +1642,9 @@ async def found(ctx, *, nation_name):
     }
     
     await ctx.reply(f'You founded {nation_name}!')
+    
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
