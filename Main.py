@@ -1642,7 +1642,7 @@ async def found(ctx, *, nation_name):
     }
     
     await ctx.reply(f'You founded {nation_name}!')
-    
+
     channel = client.get_channel(946595503699820595)
     await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
@@ -1691,6 +1691,27 @@ async def leave(ctx):
         del save['users'][id]['nation']
     else:
         await ctx.reply('You are not in a nation!')
+
+@client.command(aliases = ['d'])
+async def disband(ctx, *, nation_name):
+    id = ctx.author.id
+
+    if nation_name not in save['terrain']['nation']:
+        await ctx.reply('That nation does not exist')
+        return
+
+    if save['terrain']['nation'][nation_name]['owner'] != id:
+        await ctx.reply('You do not own that nation!')
+        return
+
+    for member in save['terrain']['nation'][nation_name]['members']:
+        del save['users'][member]['nation']
+
+    del save['terrain']['nation'][nation_name]
+    await ctx.reply(f'You disbanded {nation_name}!')
+
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
 @client.command()
 @commands.has_role("Has touched grass")
