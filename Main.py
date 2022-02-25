@@ -1674,11 +1674,12 @@ async def leave(ctx):
     id = ctx.author.id
 
     if save["users"][id]["nation"]:
-        print(save['users'][id]['nation'])
-        nation = save['terrain']['nations'][save['users'][id]['nation']['name']]
+        nation_name = save["users"][id]["nation"]["name"]
+        await ctx.reply(f'You left {nation_name}!')
+
+        nation = save['terrain']['nations'][nation_name]
         nation['members'].remove(id)
         del save['users'][id]['nation']
-        await ctx.reply(f'You left {nation["name"]}!')
     else:
         await ctx.reply('You are not in a nation!')
 
