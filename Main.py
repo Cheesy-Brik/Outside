@@ -349,6 +349,16 @@ recipes = {
         'requires' : 'has(id, "wheat plant")',
         'intel':12,
         'station':'crude furnace'
+    },
+    'nation banner': {
+        'recipe' : {
+            'rock': 10,
+            'stick': 15,
+            'thatch fabric': 5,
+            'rope': 2
+        },
+        'requires' : 'has(id, "rock") and has(id, "stick") and has(id, "thatch fabric") and has(id, "rope")',
+        'intel':12,
     }
 }
 #functions
@@ -373,6 +383,8 @@ def user_check(id):
                 save['users'][id][i] = defaults[i]
         if 'health' not in save['users'][id]['stats']:save['users'][id]['stats']['health']=100
         if 'nation' not in save['users'][id]: save['users'][id]['nation'] = {}
+        if 'nations' not in save['terrain']:
+            save['terrain']['nations'] = {}
     except:
         random.seed()
         pos = [random.randint(0,500)-250, random.randint(0,500)-250]
@@ -426,6 +438,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     has = []
     minerals = []
     animals = []
+    nation = None
     
     pos =[(x)/zoom,(y)/zoom]
     elevation=noise(pos)
@@ -600,6 +613,15 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         if 'minerals' in changed:minerals=changed['minerals']
         if 'placements' in changed:placements=changed['placements']
     
+    for i in save['terrain']['nations']:#Where nations is a dict
+            for j in save['terrain']['nations'][i]['claims']:#Where j is a tuple
+                claim_x, claim_y = tuple(j);claim_x, claim_y = (claim_x/1000, claim_y/1000)#           :)
+                if (pos[0]<claim_x+4 and pos[0]>=claim_x) and (pos[1]<claim_y+4 and pos[1]>=claim_y):
+                    nation = i
+                    break
+            else:continue
+            break
+    
     return {
         'vis' : vis,
         'square' : square,
@@ -610,7 +632,8 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
         'elevation' : elevation,
         'minerals' : minerals,
         'placements' : placements,
-        'animals' : animals
+        'animals' : animals,
+        'nation' : nation
     }    
 def has(id, item):
     return item in save['users'][id]['inv']
@@ -670,11 +693,19 @@ async def surroundings(ctx, buttons=True):
             if h-i*10 <= 0:h_bar += '⬛'
             else:h_bar += '🟥'
 
+        print(fetch_square(id, x, y))
+
+        if fetch_square(id, x, y)['nation']:
+            nation = fetch_square(id, x, y)['nation']
+        else:
+            nation = 'None'
+
         embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
         embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
         embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
         embed.add_field(name = 'Health', value = f'{h_bar}', inline = False)
+        embed.add_field(name = 'Nation', value = nation, inline = False)
 
         return embed
     
@@ -1572,9 +1603,119 @@ async def info(ctx, user:discord.Member=''):
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
+    embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
+
+@client.command(aliases = ['f'])
+async def found(ctx, *, nation_name):
+    id = ctx.author.id
+    
+    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
+
+    claim = (5*floor(x/5), 5*floor(y/5))
+
+    for nation in save['terrain']['nations']:
+        if id == save['terrain']['nations'][nation]['owner']:
+            await ctx.reply('You already own a nation!')
+            return
+    
+    if fetch_square(id, x, y)['nation']:
+        await ctx.reply(f'This claim would intersect another claim')
+        return
+    
+    if nation_name not in save['terrain']['nations']:
+        save['terrain']['nations'][nation_name] = {
+            'claims' : [claim],
+            'owner' : ctx.author.id
+        }
+    else:
+        await ctx.reply('That nation already exists!')
+        return
+    
+    save['terrain']['nations'][nation_name] = {
+        'claims' : [claim],
+        'owner' : ctx.author.id,
+        'members' : [ctx.author.id],
+        'name' : nation_name
+    }
+    save['users'][id]['nation'] = {
+        'name' : nation_name
+    }
+    
+    await ctx.reply(f'You founded {nation_name}!')
+
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} founded {nation_name}!')
+
+@client.command(aliases = ['n'])
+async def nation(ctx, *, nation_name):
+    owner = await client.fetch_user(save['terrain']['nations'][nation_name]['owner'])
+    embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
+    
+    embed.add_field(name='Owner', value=owner.name, inline=False)
+
+    await ctx.reply(embed=embed)
+
+@client.command(aliases = ['j'])
+async def join(ctx, *, nation_name):
+    id = ctx.author.id
+
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+
+    nation = save['terrain']['nations'][nation_name]
+
+    if save['users'][id]['nation']:
+        try:
+            await ctx.reply(f'You already belong to {save["users"][id]["nation"]["name"]}')
+            return
+        except:
+            pass
+
+    nation['members'].append(id)
+    save['users'][id]['nation'] = {
+        'name' : nation_name
+    }
+    await ctx.reply(f'You joined {nation_name}!')
+
+@client.command(aliases = ['le'])
+async def leave(ctx):
+    id = ctx.author.id
+
+    if save["users"][id]["nation"]:
+        nation_name = save["users"][id]["nation"]["name"]
+        await ctx.reply(f'You left {nation_name}!')
+
+        nation = save['terrain']['nations'][nation_name]
+        nation['members'].remove(id)
+        del save['users'][id]['nation']
+    else:
+        await ctx.reply('You are not in a nation!')
+
+@client.command(aliases = ['ds'])
+async def disband(ctx, *, nation_name):
+    id = ctx.author.id
+
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+
+    if save['terrain']['nations'][nation_name]['owner'] != id:
+        await ctx.reply('You do not own that nation!')
+        return
+
+    for member in save['terrain']['nations'][nation_name]['members']:
+        del save['users'][member]['nation']
+
+    del save['terrain']['nations'][nation_name]
+    await ctx.reply(f'You disbanded {nation_name}!')
+
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
@@ -1602,7 +1743,11 @@ async def give(ctx, amount=1, *, item):
 @client.command()
 async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
-    embed.set_thumbnail(url=ctx.me.avatar.url)
+    try:
+        embed.set_thumbnail(url=ctx.me.avatar.url)
+    except:
+        print()
+
     for i in client.commands:
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
     await ctx.reply(embed=embed)
