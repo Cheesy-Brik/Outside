@@ -1068,10 +1068,8 @@ async def inv(ctx, *, txt = 'all'):
                 pageinv.append('\n'.join(inv))
                 inv = []
                 reg1 = 0
-            if reg1 != 30:
-                pageinv.append('\n'.join(inv))
 
-    embed=discord.Embed(title="Inventory(Page 1)", description=pageinv)
+    embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
