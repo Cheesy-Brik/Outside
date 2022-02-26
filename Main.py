@@ -1069,7 +1069,7 @@ async def inv(ctx, *, txt = 'all'):
                 inv = []
                 reg1 = 0
 
-        embed = discord.Embed(title=f"Inventory(Page {num})", description=pageinv[num - 1])
+        embed = discord.Embed(title=f"Inventory(Page 1)", description=pageinv[num - 1])
         if id == ctx.author.id:embed.set_footer(text=ctx.author)
         else:embed.set_footer(text=ctx.message.mentions[0])
         msg = await ctx.reply(embed=embed, view=ViewWithButton())
