@@ -693,8 +693,6 @@ async def surroundings(ctx, buttons=True):
             if h-i*10 <= 0:h_bar += '⬛'
             else:h_bar += '🟥'
 
-        print(fetch_square(id, x, y))
-
         if fetch_square(id, x, y)['nation']:
             nation = fetch_square(id, x, y)['nation']
         else:
@@ -849,20 +847,49 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     ups=['up', 'north', 'u', 'w']
     downs=['down', 'south', 'd', 's']
     lefts=['left', 'east', 'l', 'a']
-    rights=['right', 'west', 'r', 'd']
+    rights=['right', 'west', 'r']
+    
+    if direction[0] == '>':
+        direction=direction[1:]
+        total = 0
+        amounts=re.findall(r'[0-9]+', direction)
+        directions=re.findall(r'[A-z]+', direction)
+        if len(amounts)!=len(directions):
+            await ctx.reply('For every direction you must specify how much you would like to walk in that direction (EX. u2r4d1)')
+            return
+        else:
+            for i in range(len(amounts)):
+                amount = int(amounts[i])
+                direction=directions[i]
+                for i in range(min(abs(amount), 10)):  
+                    if total >= 10:
+                        await ctx.send('You have walked your max distance')
+                        break
+                    last = (x,y)
+                    if direction in lefts:y-=sign(amount)
+                    if direction in rights:y+=sign(amount)
+                    if direction in ups:x-=sign(amount)
+                    if direction in downs:x+=sign(amount)
+                    total+=1
+                    if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
+                        x, y = last
+                        if has(id, 'boat'):pass
+                        await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
+                        break
     
     #I don't even fucking know at this point
-    for i in range(min(abs(amount), 10)):  
-        last = (x,y)
-        if direction in lefts:y-=sign(amount)
-        if direction in rights:y+=sign(amount)
-        if direction in ups:x-=sign(amount)
-        if direction in downs:x+=sign(amount)
-        if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
-            x, y = last
-            if has(id, 'boat'):pass
-            await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
-            break
+    else:    
+        for i in range(min(abs(amount), 10)):  
+            last = (x,y)
+            if direction in lefts:y-=sign(amount)
+            if direction in rights:y+=sign(amount)
+            if direction in ups:x-=sign(amount)
+            if direction in downs:x+=sign(amount)
+            if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
+                x, y = last
+                if has(id, 'boat'):pass
+                await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
+                break
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
 
@@ -1008,7 +1035,6 @@ async def inv(ctx, *, txt = 'all'):
                 self.num += 1
             else:
                 button.disabled = True
-                print('here')
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
@@ -1036,7 +1062,7 @@ async def inv(ctx, *, txt = 'all'):
         txt = txt.split(' ')
 
         for x in txt:
-            if x[0:3] == "<@!" and x[len(x) - 1] == ">":
+            if x[0:3] == "<@!" and x[-1] == ">":
                 txt.remove(x)
 
         txt = ' '.join(txt)
@@ -1057,19 +1083,20 @@ async def inv(ctx, *, txt = 'all'):
             else:
                 await ctx.reply("You don't have any of that item")
                 return
-    else:
-        for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
-            if save["users"][id]['inv'][i]['amount'] > 0: 
-                inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
-                reg1 += 1
-            if reg1 == 30:
-                pageinv.append('\n'.join(inv))
-                inv = []
-                reg1 = 0
+
+    for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
+        if save["users"][id]['inv'][i]['amount'] > 0: 
+            inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
+            reg1 += 1
+        if reg1 == 30:
+            pageinv.append('\n'.join(inv))
+            inv = []
+            reg1 = 0
 
     if reg1 != 30:
-        pageinv.append('\n'.join(inv))            
-    embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
+        pageinv.append('\n'.join(inv))
+
+    embed=discord.Embed(title="Inventory(Page 1)", description="\n".join(pageinv))
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
@@ -1567,7 +1594,6 @@ async def on_message(txt):
                 user =  discord.utils.get(client.get_all_members(), id=user_id)
                 role = discord.utils.get(client.get_guild(807722851045998653).roles, id=942835439558066196) 
                 await  user.add_roles(role)
-        print(str(txt.embeds[0].color), txt.embeds[0].description)
     write()
     for i in save['users']:
         try:    
@@ -1603,6 +1629,7 @@ async def info(ctx, user:discord.Member=''):
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
+    embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
@@ -1615,7 +1642,10 @@ async def found(ctx, *, nation_name):
 
     claim = (5*floor(x/5), 5*floor(y/5))
 
-    print(fetch_square(id, x, y))
+    for nation in save['terrain']['nations']:
+        if id == save['terrain']['nations'][nation]['owner']:
+            await ctx.reply('You already own a nation!')
+            return
     
     if fetch_square(id, x, y)['nation']:
         await ctx.reply(f'This claim would intersect another claim')
@@ -1632,13 +1662,18 @@ async def found(ctx, *, nation_name):
     
     save['terrain']['nations'][nation_name] = {
         'claims' : [claim],
-        'owner' : ctx.author.id
+        'owner' : ctx.author.id,
+        'members' : [ctx.author.id],
+        'name' : nation_name
     }
     save['users'][id]['nation'] = {
         'name' : nation_name
     }
     
     await ctx.reply(f'You founded {nation_name}!')
+
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1648,6 +1683,64 @@ async def nation(ctx, *, nation_name):
     embed.add_field(name='Owner', value=owner.name, inline=False)
 
     await ctx.reply(embed=embed)
+
+@client.command(aliases = ['j'])
+async def join(ctx, *, nation_name):
+    id = ctx.author.id
+
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+
+    nation = save['terrain']['nations'][nation_name]
+
+    if save['users'][id]['nation']:
+        try:
+            await ctx.reply(f'You already belong to {save["users"][id]["nation"]["name"]}')
+            return
+        except:
+            pass
+
+    nation['members'].append(id)
+    save['users'][id]['nation'] = {
+        'name' : nation_name
+    }
+    await ctx.reply(f'You joined {nation_name}!')
+
+@client.command(aliases = ['le'])
+async def leave(ctx):
+    id = ctx.author.id
+
+    if save["users"][id]["nation"]:
+        nation_name = save["users"][id]["nation"]["name"]
+        await ctx.reply(f'You left {nation_name}!')
+
+        nation = save['terrain']['nations'][nation_name]
+        nation['members'].remove(id)
+        del save['users'][id]['nation']
+    else:
+        await ctx.reply('You are not in a nation!')
+
+@client.command(aliases = ['ds'])
+async def disband(ctx, *, nation_name):
+    id = ctx.author.id
+
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+
+    if save['terrain']['nations'][nation_name]['owner'] != id:
+        await ctx.reply('You do not own that nation!')
+        return
+
+    for member in save['terrain']['nations'][nation_name]['members']:
+        del save['users'][member]['nation']
+
+    del save['terrain']['nations'][nation_name]
+    await ctx.reply(f'You disbanded {nation_name}!')
+
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
 @client.command()
 @commands.has_role("Has touched grass")
