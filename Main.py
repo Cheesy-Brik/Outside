@@ -1,16 +1,38 @@
-from ast import Await, alias
+
+#Welcome to the outside bot main.py file, please not that some outside files are refrenced that you may not have access to
+#This is on purpose as most of these files are only accessible to the dev team or only accessible from the main dev's files (Cheesy Brik)
+#Feel free to contribute here https://github.com/Cheesy-Brik/Outside
+#And don't take credit for work that isn't yours :)
+
+#Main dev: Cheesy Brik
+#Co dev: AlphaBeta906
+
+#Thank you to:
+#Ryan/slweeb
+#Kazikan
+#Createsource (for the orginal outside idea)
+#Nubo318
+#Devi
+
+
+#WARNING:
+#The below code was probably not optimized, you've been warned
+
+
+
+
 import asyncio
-from datetime import datetime
-from dis import dis
-from itertools import dropwhile
 import os
 import random
 from perlin_noise import PerlinNoise
 from math import floor, ceil
-from numpy import sign, square
+from numpy import sign
 import time
 import re
 import subprocess
+from better_profanity import profanity#Literally 1984
+profanity.load_censor_words(whitelist_words=['poop', 'shit', 'fuck', 'cum', 'boob', 'boobs'])
+profanity.add_censor_words([])
 import discord
 from discord.ext import commands
 from discord.ui import button, View, Button
@@ -34,7 +56,6 @@ if 'start_time' not in save['terrain']:
     save['terrain']['start_time'] = round(time.time())
 if 'nations' not in save['terrain']:
     save['terrain']['nations'] = {}
-
 
 def write():
     File = open("save.txt","w",encoding="utf8")
@@ -362,7 +383,15 @@ recipes = {
     }
 }
 #functions
-def user_check(id):
+async def user_check(id):
+    for i in dict(save['terrain']['nations']):#Scuff * 100
+        if i not in save['terrain']['nations']:continue
+        channel = client.get_channel(946595503699820595)
+        if not save['terrain']['nations'][i]['members']:
+            try:    
+                save['terrain']['nations'].pop(i)
+                await channel.send(f'{i} has 0 members and has been disbanded')
+            except:pass
     defaults = {#----- NEED to find an effiecient way to check if a user is missing a key present in defaults, this includes nested dicts such as settings and stats(That's the hard part)
             'stats' : {
                 'alive' : True,
@@ -990,6 +1019,7 @@ async def pickup(ctx):
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['has'] = list(items)
     save['terrain']['overide'][str(f'[{x/1000}, {y/1000}]')]['dropped_items'] = bool([x for x in items if type(x) is dict])
     save['users'][id]['stats']['int level'] += 1
+    if save['users'][id]['nation']:save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'] += 1
     if type(item) is dict:    
         if item[list(item.keys())[0]]['amount'] == 1:    
             await ctx.reply(f'You picked up a {list(item.keys())[0]}')
@@ -1275,6 +1305,9 @@ async def craft(ctx, *, item = ''):
             if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
             else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
         save['users'][id]['stats']['int level'] += 1
+        if save['users'][id]['nation']:
+            print(save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'])
+            save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'] += 1#PROgrammer :,)
         await ctx.reply(f'You crafted {amount if amount != 1 else ""} {recipe}')
 @client.command(aliases = ['u'])
 async def use(ctx, *, tool = ''):
@@ -1571,8 +1604,9 @@ async def forcerespawn(ctx):
 #other
 @client.event
 async def on_message(txt):
-    user_check(txt.author.id)
-    if txt.author.id not in [807757190316163104, 943456334936936458]: #dis da bot id (including Outside Alpha)
+    id=txt.author.id
+    await user_check(id)
+    if id not in [807757190316163104, 943456334936936458]: #dis da bot id (including Outside Alpha)
         if not txt.guild:
             await txt.reply('Hey! Outside is currently in beta and to make sure all bugs are squished and found playing outside in the dms is not allowed. Sorry! When the bot goes out of beta this will be allowed!\n if you are somehow playing this bot without being in the official outside server here is the invite link! https://discord.gg/CqdY897Qxm')
             return
@@ -1582,11 +1616,15 @@ async def on_message(txt):
     await client.process_commands(txt)
     for i in client.commands:
         if txt.content.lower() == f'!{i.name}':
-            save['users'][txt.author.id]['stats']['online'] = round(time.time())
-    if save['users'][txt.author.id]['stats']['intelligence']+1 <= floor(save['users'][txt.author.id]['stats']['int level'] ** 0.55):
-        save['users'][txt.author.id]['stats']['intelligence'] = floor(save['users'][txt.author.id]['stats']['int level'] ** 0.55)
+            save['users'][id]['stats']['online'] = round(time.time())
+    if save['users'][id]['stats']['intelligence']+1 <= floor(save['users'][id]['stats']['int level'] ** 0.55):
+        save['users'][id]['stats']['intelligence'] = floor(save['users'][id]['stats']['int level'] ** 0.55)
         await txt.reply('Your intelligence increased')
-    if txt.author.id == 302050872383242240:
+    if save['users'][id]['nation']:
+        if save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1 <= floor(save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'] ** 0.4):
+            save['terrain']['nations'][save['users'][id]['nation']['name']]['nation'] = floor(save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'] ** 0.4)
+            await txt.reply(f"The nation level of {save['users'][id]['nation']['name']} increased")
+    if id == 302050872383242240:
         if str(txt.embeds[0].color) == '#24b7b7':
             if 'Bump done! :thumbsup:' in txt.embeds[0].description:
                 user_id = int(re.findall(r'(?<=<@)(.*?)(?=>)', txt.embeds[0].description)[0])
@@ -1595,6 +1633,7 @@ async def on_message(txt):
                 role = discord.utils.get(client.get_guild(807722851045998653).roles, id=942835439558066196) 
                 await  user.add_roles(role)
     write()
+    await user_check(id)
     for i in save['users']:
         try:    
             user =  discord.utils.get(client.get_all_members(), id=i)
@@ -1651,24 +1690,33 @@ async def found(ctx, *, nation_name):
         await ctx.reply(f'This claim would intersect another claim')
         return
     
+    if profanity.contains_profanity(nation_name):
+        await ctx.reply('That nation name contains profanity')
+        return
+    
     if nation_name not in save['terrain']['nations']:
         save['terrain']['nations'][nation_name] = {
             'claims' : [claim],
-            'owner' : ctx.author.id
+            'owner' : ctx.author.id,
+            'natlevel' : 0,
+            'nation' : 0,
+            'members' : [id]
+        }
+        save['users'][id]['nation'] = {
+            'name' : nation_name,
+            'permissions' : {
+                'owner' : True,
+                'makeclaims' : True,
+                'delclaims' : True,
+                'giveperms' : True,
+                'kickmembers' : True,
+                'invitemembers' : True
+                
+            }
         }
     else:
         await ctx.reply('That nation already exists!')
         return
-    
-    save['terrain']['nations'][nation_name] = {
-        'claims' : [claim],
-        'owner' : ctx.author.id,
-        'members' : [ctx.author.id],
-        'name' : nation_name
-    }
-    save['users'][id]['nation'] = {
-        'name' : nation_name
-    }
     
     await ctx.reply(f'You founded {nation_name}!')
 
@@ -1703,8 +1751,17 @@ async def join(ctx, *, nation_name):
 
     nation['members'].append(id)
     save['users'][id]['nation'] = {
-        'name' : nation_name
-    }
+            'name' : nation_name,
+            'permissions' : {
+                'owner' : False,
+                'makeclaims' : False,
+                'delclaims' : False,
+                'giveperms' : False,
+                'kickmembers' : False,
+                'invitemembers' : False
+                
+            }
+        }
     await ctx.reply(f'You joined {nation_name}!')
 
 @client.command(aliases = ['le'])
@@ -1714,10 +1771,10 @@ async def leave(ctx):
     if save["users"][id]["nation"]:
         nation_name = save["users"][id]["nation"]["name"]
         await ctx.reply(f'You left {nation_name}!')
-
+    
         nation = save['terrain']['nations'][nation_name]
         nation['members'].remove(id)
-        del save['users'][id]['nation']
+        save["users"][id]["nation"] = {}
     else:
         await ctx.reply('You are not in a nation!')
 
@@ -1741,6 +1798,65 @@ async def disband(ctx, *, nation_name):
 
     channel = client.get_channel(946595503699820595)
     await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+
+@client.command(aliases = ['gp'])
+async def giveperm(ctx, user, *, perm):
+    id = ctx.author.id
+    perm = perm.strip().replace(' ', '').lower()
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    if not save['users'][id]['nation']['permissions']['giveperms'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``giveperms`` permission to do that')
+        return
+    if perm not in save['users'][id]['nation']['permissions']:
+        await ctx.reply('Not a valid permission to give')
+        return
+    if not ctx.message.mentions:
+        await ctx.reply('You must @ the person you would like to give permissions to (EX. !giveperm @someone make claims)')
+        return
+    perms_id = ctx.message.mentions[0].id
+    if save['users'][id]['nation']['name'] != save['users'][perms_id]['nation']['name']:
+        await ctx.reply('You are not in a nation with that person')
+        return
+    if not save['users'][id]['nation']['permissions'][perm]:
+        await ctx.reply('You must already have a permission to give it')
+        return
+    if save['users'][perms_id]['nation']['permissions'][perm]:
+        await ctx.reply('That person already has that permision')
+        return
+    save['users'][perms_id]['nation']['permissions'][perm] = True
+
+@client.command(aliases = ['tp'])
+async def takeperm(ctx, user, *, perm):
+    id = ctx.author.id
+    perm = perm.strip().replace(' ', '').lower()
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    if not save['users'][id]['nation']['permissions']['giveperms'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``giveperms`` permission to do that')
+        return
+    if perm not in save['users'][id]['nation']['permissions']:
+        await ctx.reply('Not a valid permission to take')
+        return
+    if not ctx.message.mentions:
+        await ctx.reply('You must @ the person you would like to give permissions to (EX. !takeperm @someone make claims)')
+        return
+    perms_id = ctx.message.mentions[0].id
+    if save['users'][id]['nation']['name'] != save['users'][perms_id]['nation']['name']:
+        await ctx.reply('You are not in a nation with that person')
+        return
+    if save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You cannot take permissions away from an owner')
+    if not save['users'][id]['nation']['permissions'][perm]:
+        await ctx.reply('You must already have a permission to take it')
+        return
+    if not save['users'][perms_id]['nation']['permissions'][perm]:
+        await ctx.reply('That person doesn\'t have that permission')
+        return
+    save['users'][perms_id]['nation']['permissions'][perm] = False
+
 
 @client.command()
 @commands.has_role("Has touched grass")
