@@ -1838,8 +1838,7 @@ async def giveperm(ctx, user, *, perm):
         await ctx.reply('That person already has that permision')
         return
     if perm == 'owner':
-        owners=save['terrain']['nations'][save['users'][id]['nation']]['owners']
-        owners.append(perms_id)
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['owners'].append(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = True
 
 @client.command(aliases = ['tp'])
@@ -1871,8 +1870,7 @@ async def takeperm(ctx, user, *, perm):
         await ctx.reply('That person doesn\'t have that permission')
         return
     if perm == 'owner':
-        owners=save['terrain']['nations'][save['users'][id]['nation']]['owners']
-        owners.append(perms_id)
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['owners'].remove(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = False
 
 
