@@ -38,7 +38,7 @@ from discord.ext import commands
 from discord.ui import button, View, Button
 from discord.interactions import Interaction
 
-test = False
+test = True
 
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
