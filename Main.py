@@ -1769,6 +1769,8 @@ async def join(ctx, *, nation_name):
             }
         }
     await ctx.reply(f'You joined {nation_name}!')
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} joined {nation_name}!')
 
 @client.command(aliases = ['le'])
 async def leave(ctx):
@@ -1785,8 +1787,12 @@ async def leave(ctx):
         nation = save['terrain']['nations'][nation_name]
         nation['members'].remove(id)
         save["users"][id]["nation"] = {}
+        channel = client.get_channel(946595503699820595)
+        await channel.send(f'{ctx.author.mention} left {nation_name}!')
     else:
         await ctx.reply('You are not in a nation!')
+    
+    
 
 @client.command(aliases = ['ds'])
 async def disband(ctx, *, nation_name):
