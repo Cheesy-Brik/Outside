@@ -49,6 +49,11 @@ if not test:
     subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
     subprocess.run(["git", "pull", 'origin', 'master'], stdout=subprocess.DEVNULL)
     subprocess.run(["git", "push", 'origin', 'master'], stdout=subprocess.DEVNULL)
+elif test:
+    subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "pull", 'origin', 'test'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "push", 'origin', 'test'], stdout=subprocess.DEVNULL)
 task = {}
 global save
 save = eval(open("save.txt","r",encoding="utf8").read())
@@ -1697,7 +1702,7 @@ async def found(ctx, *, nation_name):
     if nation_name not in save['terrain']['nations']:
         save['terrain']['nations'][nation_name] = {
             'claims' : [claim],
-            'owner' : ctx.author.id,
+            'owners' : [ctx.author.id],
             'natlevel' : 0,
             'nation' : 0,
             'members' : [id]
@@ -1825,6 +1830,8 @@ async def giveperm(ctx, user, *, perm):
     if save['users'][perms_id]['nation']['permissions'][perm]:
         await ctx.reply('That person already has that permision')
         return
+    if perm == 'owner':
+        save['terrain']['nations'][save['users'][id]['nation']]
     save['users'][perms_id]['nation']['permissions'][perm] = True
 
 @client.command(aliases = ['tp'])
