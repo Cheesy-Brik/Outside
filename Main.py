@@ -1831,7 +1831,7 @@ async def giveperm(ctx, user, *, perm):
     if save['users'][id]['nation']['name'] != save['users'][perms_id]['nation']['name']:
         await ctx.reply('You are not in a nation with that person')
         return
-    if not save['users'][id]['nation']['permissions'][perm]:
+    if not save['users'][id]['nation']['permissions'][perm] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You must already have a permission to give it')
         return
     if save['users'][perms_id]['nation']['permissions'][perm]:
@@ -1840,6 +1840,7 @@ async def giveperm(ctx, user, *, perm):
     if perm == 'owner':
         save['terrain']['nations'][save['users'][id]['nation']['name']]['owners'].append(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = True
+    await ctx.reply(f'You gave <!{perms_id}> the permission ``{perm}``')
 
 @client.command(aliases = ['tp'])
 async def takeperm(ctx, user, *, perm):
@@ -1872,6 +1873,7 @@ async def takeperm(ctx, user, *, perm):
     if perm == 'owner':
         save['terrain']['nations'][save['users'][id]['nation']['name']]['owners'].remove(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = False
+    await ctx.reply(f'You took the ``{perm}`` permission away from <!{perms_id}>')
 
 
 @client.command()
