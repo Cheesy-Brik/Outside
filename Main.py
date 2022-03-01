@@ -1776,7 +1776,8 @@ async def leave(ctx):
 
     if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
         await ctx.send('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
-        
+        return
+    
     if save["users"][id]["nation"]:
         nation_name = save["users"][id]["nation"]["name"]
         await ctx.reply(f'You left {nation_name}!')
