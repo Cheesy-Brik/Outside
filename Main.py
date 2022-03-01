@@ -1773,6 +1773,9 @@ async def join(ctx, *, nation_name):
 async def leave(ctx):
     id = ctx.author.id
 
+    if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
+        await ctx.send('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
+        
     if save["users"][id]["nation"]:
         nation_name = save["users"][id]["nation"]["name"]
         await ctx.reply(f'You left {nation_name}!')
@@ -1791,14 +1794,16 @@ async def disband(ctx, *, nation_name):
         await ctx.reply('That nation does not exist')
         return
 
-    if save['terrain']['nations'][nation_name]['owner'] != id:
+    for i in save['terrain']['nations'][nation_name]['owners']:
+        if i == id:break
+    else:
         await ctx.reply('You do not own that nation!')
         return
-
+    
     for member in save['terrain']['nations'][nation_name]['members']:
-        del save['users'][member]['nation']
+        save['users'][member]['nation'] = {}
 
-    del save['terrain']['nations'][nation_name]
+    save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
 
     channel = client.get_channel(946595503699820595)
@@ -1831,7 +1836,7 @@ async def giveperm(ctx, user, *, perm):
         await ctx.reply('That person already has that permision')
         return
     if perm == 'owner':
-        save['terrain']['nations'][save['users'][id]['nation']]
+        save['terrain']['nations'][save['users'][id]['nation']]['owners'].append(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = True
 
 @client.command(aliases = ['tp'])
@@ -1862,6 +1867,8 @@ async def takeperm(ctx, user, *, perm):
     if not save['users'][perms_id]['nation']['permissions'][perm]:
         await ctx.reply('That person doesn\'t have that permission')
         return
+    if perm == 'owner':
+        save['terrain']['nations'][save['users'][id]['nation']]['owners'].remove(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = False
 
 
