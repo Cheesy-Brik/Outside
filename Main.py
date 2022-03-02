@@ -1990,7 +1990,6 @@ async def undeclare(ctx, stance='', *, nation_name):
 async def nation_settings(ctx, setting=''):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
-    stance =  stance.lower().strip().replace(' ', '')
     x = []
     for i in save['terrain']['nations'][nation]['settings']:
         value = save['terrain']['nations'][nation]['settings'][i]
