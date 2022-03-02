@@ -18,8 +18,7 @@
 #WARNING:
 #The below code was probably not optimized, you've been warned
 
-
-
+# Alpha was here 💀💀💀💀
 
 import asyncio
 import os
@@ -1611,7 +1610,7 @@ async def forcerespawn(ctx):
 async def on_message(txt):
     id=txt.author.id
     await user_check(id)
-    if id not in [807757190316163104, 943456334936936458]: #dis da bot id (including Outside Alpha)
+    if id not in [807757190316163104, 943456334936936458, 948533992817295400]: #dis da bot id (including Outside Alpha)
         if not txt.guild:
             await txt.reply('Hey! Outside is currently in beta and to make sure all bugs are squished and found playing outside in the dms is not allowed. Sorry! When the bot goes out of beta this will be allowed!\n if you are somehow playing this bot without being in the official outside server here is the invite link! https://discord.gg/CqdY897Qxm')
             return
