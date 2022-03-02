@@ -1903,8 +1903,8 @@ async def claim(ctx):
     if not save['users'][id]['nation']['permissions']['makeclaims'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``makeclaims`` permission to do that')
         return
-    if not fetch_square(x, y)['nation']:
-        await ctx.reply('That area is already claimed')
+    if fetch_square(id, x, y)['nation']:
+        await ctx.reply(f'This claim would intersect another claim')
         return
     if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
         save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
@@ -1926,11 +1926,14 @@ async def deleteclaim(ctx):
     if not save['users'][id]['nation']['permissions']['delclaims'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``delclaims`` permission to do that')
         return
-    if claim not in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
-        await ctx.reply('That area is not claimed')
+    if not fetch_square(id, x, y)['nation']:
+        await ctx.reply(f'This area is not claimed!')
         return
-    save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].remove(claim)
-    await ctx.reply(f"You deleted this claim for the nation of {save['users'][id]['nation']['name']}")
+    if fetch_square(id, x, y)['nation'] == save['users'][id]['nation']['name']:
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].remove(claim)
+        await ctx.reply(f"You deleted this claim for the nation of {save['users'][id]['nation']['name']}")
+    else:
+        await ctx.reply('Another nation owns this claim!')
     
 @client.command(aliases = ['de'])
 async def declare(ctx, stance='', *, nation_name):
