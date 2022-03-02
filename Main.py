@@ -1689,6 +1689,7 @@ async def found(ctx, *, nation_name):
 
     for nation in save['terrain']['nations']:
         if id == save['terrain']['nations'][nation]['owner']:
+            print('You already own a nation')
             await ctx.reply('You already own a nation!')
             end = True
             break
