@@ -2000,7 +2000,7 @@ async def nation_settings(ctx, setting=''):
                 x.append('>' + j + ' : '+ str(value2))
         else:
             x.append(i + ' : '+ str(value))
-    await ctx.send('\n')
+    await ctx.send('\n'.join(x))
 
 @client.command()
 @commands.has_role("Has touched grass")
