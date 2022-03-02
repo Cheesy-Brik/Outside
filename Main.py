@@ -707,7 +707,9 @@ async def surroundings(ctx, buttons=True):
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
-        player_square = fetch_square(id, x-3, y+3)
+        print(-(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]))
+        
+        player_square = fetch_square(id, -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
         temp = player_square["temp"]
         
         temp_emoji = '🧊🥶😬😕🙂😐😞🥵🔥'#Innefficent
@@ -1682,7 +1684,8 @@ async def found(ctx, *, nation_name):
     id = ctx.author.id
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-
+    print(x, y)
+    
     claim = (5*floor(y/5), 5*floor(-x/5))
 
     for nation in save['terrain']['nations']:
