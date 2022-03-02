@@ -1954,7 +1954,7 @@ async def declare(ctx, stance='', *, nation_name):
     save['terrain']['nations'][nation]['relationships'][stance] = True
     await ctx.reply(f'You have declared {stance} with {nation_name}')
     
-@client.command(aliases = ['de'])
+@client.command(aliases = ['ude'])
 async def undeclare(ctx, stance='', *, nation_name):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
