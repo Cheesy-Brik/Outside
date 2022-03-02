@@ -1788,7 +1788,6 @@ async def disband(ctx, *, nation_name):
     id = ctx.author.id
 
     if nation_name not in save['terrain']['nations']:
-        print("HI")
         await ctx.reply('That nation does not exist')
         return
 
