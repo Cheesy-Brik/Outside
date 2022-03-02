@@ -1851,7 +1851,7 @@ async def giveperm(ctx, user, *, perm):
 @client.command(aliases = ['tp'])
 async def takeperm(ctx, user, *, perm):
     id = ctx.author.id
-    perm = perm.strip().replace(' ', '').lower()
+    perm = perm.strip().replace(' ', '').lower().replace('delete', 'del')
     if not save['users'][id]['nation']:
         await ctx.reply('You are not in a nation!')
         return
@@ -1881,6 +1881,23 @@ async def takeperm(ctx, user, *, perm):
     save['users'][perms_id]['nation']['permissions'][perm] = False
     await ctx.reply(f'You took the ``{perm}`` permission away from <!{perms_id}>')
 
+@client.command(aliases = ['cl'])
+async def claim(ctx):
+    id = ctx.author.id
+    
+    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
+
+    claim = (5*floor(x/5), 5*floor(y/5))
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!, you can found one with !found')
+        return
+    if not save['users'][id]['nation']['permissions']['makeclaims'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``makeclaims`` permission to do that')
+    if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
+    else:
+        ctx.send('Your nation does not have any available claims to use, to increase this, increase your nation level')
+    
 
 @client.command()
 @commands.has_role("Has touched grass")
