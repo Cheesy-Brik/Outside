@@ -707,7 +707,7 @@ async def surroundings(ctx, buttons=True):
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
-        player_square = fetch_square(id, -x-3, y+3)
+        player_square = fetch_square(id, x-3, y+3)
         temp = player_square["temp"]
         
         temp_emoji = '🧊🥶😬😕🙂😐😞🥵🔥'#Innefficent
@@ -730,8 +730,6 @@ async def surroundings(ctx, buttons=True):
             else:h_bar += '🟥'
 
         nation = str(player_square['nation'])
-        print(nation)
-        print(player_square)
 
         embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
@@ -1685,7 +1683,7 @@ async def found(ctx, *, nation_name):
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
 
-    claim = (5*floor(x/5), 5*floor(y/5))
+    claim = (5*floor(y/5), 5*floor(-x/5))
 
     for nation in save['terrain']['nations']:
         if id == save['terrain']['nations'][nation]['owner']:
@@ -1896,7 +1894,7 @@ async def claim(ctx):
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
 
-    claim = (5*floor(x/5), 5*floor(y/5))
+    claim = (5*floor(y/5), 5*floor(-x/5))
     if not save['users'][id]['nation']:
         await ctx.reply('You are not in a nation!, you can found one with !found')
         return
@@ -1920,7 +1918,7 @@ async def deleteclaim(ctx):
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
 
-    claim = (5*floor(x/5), 5*floor(y/5))
+    claim = (5*floor(y/5), 5*floor(-x/5))
     if not save['users'][id]['nation']:
         await ctx.reply('You are not in a nation!, you can found one with !found')
         return
