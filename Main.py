@@ -1908,6 +1908,7 @@ async def claim(ctx):
         return
     if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
         save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
+        print(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'])
         await ctx.reply(f"You claimed this area for the nation of {save['users'][id]['nation']['name']}")
         await surroundings(ctx, False)
     else:
