@@ -1682,7 +1682,7 @@ async def found(ctx, *, nation_name):
     id = ctx.author.id
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-    print(x, y)
+    
     
     claim = (5*floor(y/5), 5*floor(-x/5))
 
@@ -1894,7 +1894,7 @@ async def claim(ctx):
     id = ctx.author.id
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
-
+    print(x, y)
     claim = (5*floor(y/5), 5*floor(-x/5))
     if not save['users'][id]['nation']:
         await ctx.reply('You are not in a nation!, you can found one with !found')
