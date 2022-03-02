@@ -728,12 +728,9 @@ async def surroundings(ctx, buttons=True):
             if h-i*10 <= 0:h_bar += '⬛'
             else:h_bar += '🟥'
 
-        if fetch_square(id, x, y)['nation']:
-            nation = fetch_square(id, x, y)['nation']
-        else:
-            nation = 'None'
+        nation = str(fetch_square(id, x, y)['nation'])
 
-        embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
+        embed = discord.Embed(title = f'Map', description = '`\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
         embed.add_field(name = 'Biome', value = f'{player_square["biome"]}', inline = False)
         embed.add_field(name = 'Coordinates', value = f'{y+3}, {-x-3}', inline = False)
