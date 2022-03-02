@@ -1685,11 +1685,15 @@ async def found(ctx, *, nation_name):
     x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
+    end = False
 
     for nation in save['terrain']['nations']:
         if id == save['terrain']['nations'][nation]['owner']:
             await ctx.reply('You already own a nation!')
-            return
+            end = True
+            break
+
+    if end: return
     
     if fetch_square(id, x, y)['nation']:
         await ctx.reply(f'This claim would intersect another claim')
