@@ -1987,7 +1987,7 @@ async def undeclare(ctx, stance='', *, nation_name):
     await channel.send(f'{ctx.author.mention} undeclared {stance} with {nation_name}!')
 
 @client.command(aliases = ['ns'])
-async def nation_settings(ctx, setting=''):
+async def nation_settings(ctx):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     x = []
@@ -2001,7 +2001,15 @@ async def nation_settings(ctx, setting=''):
         else:
             x.append(i + ' : '+ f'```py\n{str(value)}```')
     await ctx.send('\n'.join(x))
-
+    
+@client.command(aliases = ['cns'])#Unifinished!!!!!!!!
+async def chnage_nation_setting(ctx, *, setting_path):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    settings = save['terrain']['nations'][nation]['settings']
+    setting_path.split(' ')
+    if setting_path[0] not in settings:
+        await ctx.send('N')
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
