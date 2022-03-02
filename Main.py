@@ -1706,7 +1706,23 @@ async def found(ctx, *, nation_name):
             'owners' : [ctx.author.id],
             'natlevel' : 0,
             'nation' : 0,
-            'members' : [id]
+            'members' : [id],
+            'settings' : {
+                'inviteonly' : False,
+                'defaultpermissions' : {
+                'owner' : False,
+                'makeclaims' : False,
+                'delclaims' : False,
+                'giveperms' : False,
+                'kickmembers' : False,
+                'invitemembers' : False,
+                'managerelations' : False
+            },
+            },
+            'relationships':{
+                'allies' : [],
+                'war' : []
+            }
         }
         save['users'][id]['nation'] = {
             'name' : nation_name,
@@ -1716,7 +1732,8 @@ async def found(ctx, *, nation_name):
                 'delclaims' : True,
                 'giveperms' : True,
                 'kickmembers' : True,
-                'invitemembers' : True
+                'invitemembers' : True,
+                'managerelations' : True
                 
             }
         }
@@ -1758,15 +1775,7 @@ async def join(ctx, *, nation_name):
     nation['members'].append(id)
     save['users'][id]['nation'] = {
             'name' : nation_name,
-            'permissions' : {
-                'owner' : False,
-                'makeclaims' : False,
-                'delclaims' : False,
-                'giveperms' : False,
-                'kickmembers' : False,
-                'invitemembers' : False
-                
-            }
+            'permissions' : dict(save['terrain']['nations'][nation_name]['settings']['defaultpermissions'])
         }
     await ctx.reply(f'You joined {nation_name}!')
     channel = client.get_channel(946595503699820595)
@@ -1923,6 +1932,49 @@ async def deleteclaim(ctx):
     save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].remove(claim)
     await ctx.reply(f"You deleted this claim for the nation of {save['users'][id]['nation']['name']}")
     
+@client.command(aliases = ['de'])
+async def declare(ctx, stance='', *, nation_name):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    stance =  stance.lower().strip().replace(' ', '')
+    if not stance:
+        await ctx.reply('You must specify what stance you would like to take')
+        return
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+    if stance not in save['terrain']['nations'][nation]['relationships']:
+        await ctx.reply('Not a valid stance you can take')
+    if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``managerelations`` permission to do that')
+        return
+    if save['terrain']['nations'][nation]['relationships'][stance]:
+        await ctx.reply(f'You have already declared {stance} with {nation_name} ')
+        return
+    save['terrain']['nations'][nation]['relationships'][stance] = True
+    await ctx.reply(f'You have declared {stance} with {nation_name}')
+    
+@client.command(aliases = ['de'])
+async def undeclare(ctx, stance='', *, nation_name):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    stance =  stance.lower().strip().replace(' ', '')
+    if not stance:
+        await ctx.reply('You must specify what stance you would like to take')
+        return
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+    if stance not in save['terrain']['nations'][nation]['relationships']:
+        await ctx.reply('Not a valid stance you can undeclare')
+    if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``managerelations`` permission to do that')
+        return
+    if not save['terrain']['nations'][nation]['relationships'][stance]:
+        await ctx.reply(f'You are not {stance} with {nation_name} ')
+        return
+    save['terrain']['nations'][nation]['relationships'][stance] = False
+    await ctx.reply(f'You have undeclared {stance} with {nation_name}')
 
 @client.command()
 @commands.has_role("Has touched grass")
