@@ -1987,7 +1987,7 @@ async def undeclare(ctx, stance='', *, nation_name):
     await channel.send(f'{ctx.author.mention} undeclared {stance} with {nation_name}!')
 
 @client.command(aliases = ['ns'])
-async def nation_settings(ctx, setting):
+async def nation_settings(ctx, setting=''):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     stance =  stance.lower().strip().replace(' ', '')
