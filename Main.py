@@ -1953,8 +1953,13 @@ async def declare(ctx, stance='', *, nation_name):
     if save['terrain']['nations'][nation]['relationships'][stance]:
         await ctx.reply(f'You have already declared {stance} with {nation_name} ')
         return
-    save['terrain']['nations'][nation]['relationships'][stance] = True
+    save['terrain']['nations'][nation]['relationships'][stance].append(nation_name)
     await ctx.reply(f'You have declared {stance} with {nation_name}')
+    if stance == 'war' and nation_name in save['terrain']['nations'][nation]['relationships']['allies']:
+        await ctx.reply('You can\'t declare war with a nation you are allies with!')
+        return
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} declared {stance} with {nation_name}!')
     
 @client.command(aliases = ['ude'])
 async def undeclare(ctx, stance='', *, nation_name):
@@ -1975,8 +1980,28 @@ async def undeclare(ctx, stance='', *, nation_name):
     if not save['terrain']['nations'][nation]['relationships'][stance]:
         await ctx.reply(f'You are not {stance} with {nation_name} ')
         return
-    save['terrain']['nations'][nation]['relationships'][stance] = False
+    save['terrain']['nations'][nation]['relationships'][stance].remove(nation_name)
     await ctx.reply(f'You have undeclared {stance} with {nation_name}')
+    
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} undeclared {stance} with {nation_name}!')
+
+@client.command(aliases = ['ns'])
+async def nation_settings(ctx, setting):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    stance =  stance.lower().strip().replace(' ', '')
+    x = []
+    for i in save['terrain']['nations'][nation]['settings']:
+        value = save['terrain']['nations'][nation]['settings'][i]
+        if type(value) is dict:
+            x.append(j + ' : ')
+            for j in value:
+                value2 = value[j]
+                x.append('>' + j + ' : '+ value2)
+        else:
+            x.append(i + ' : '+ value)
+    await ctx.send('\n')
 
 @client.command()
 @commands.has_role("Has touched grass")
