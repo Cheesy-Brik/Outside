@@ -1903,7 +1903,7 @@ async def claim(ctx):
     if not save['users'][id]['nation']['permissions']['makeclaims'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``makeclaims`` permission to do that')
         return
-    if claim in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
+    if not fetch_square(x, y)['nation']:
         await ctx.reply('That area is already claimed')
         return
     if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
