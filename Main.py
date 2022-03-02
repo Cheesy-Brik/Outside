@@ -1896,6 +1896,7 @@ async def claim(ctx):
         return
     if claim in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
         await ctx.send('That area is already claimed')
+        return
     if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
         save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
         await ctx.send(f"You claimed this area for the nation of {save['users'][id]['nation']['name']}")
@@ -1917,6 +1918,7 @@ async def deleteclaim(ctx):
         return
     if claim not in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
         await ctx.reply('That area is not claimed')
+        return
     save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].remove(claim)
     await ctx.reply(f"You deleted this claim for the nation of {save['users'][id]['nation']['name']}")
     
