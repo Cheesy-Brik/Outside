@@ -1994,7 +1994,7 @@ async def nation_settings(ctx, setting=''):
     for i in save['terrain']['nations'][nation]['settings']:
         value = save['terrain']['nations'][nation]['settings'][i]
         if type(value) is dict:
-            x.append(j + ' : ')
+            x.append(i + ' : ')
             for j in value:
                 value2 = value[j]
                 x.append('>' + j + ' : '+ str(value2))
