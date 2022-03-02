@@ -707,7 +707,7 @@ async def surroundings(ctx, buttons=True):
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
-        player_square = fetch_square(id, x-3, y+3)
+        player_square = fetch_square(id, -x-3, y+3)
         temp = player_square["temp"]
         
         temp_emoji = '🧊🥶😬😕🙂😐😞🥵🔥'#Innefficent
