@@ -1724,8 +1724,12 @@ async def found(ctx, *, nation_name):
     
     await ctx.reply(f'You founded {nation_name}!')
 
-    channel = client.get_channel(946595503699820595)
-    await channel.send(f'{ctx.author.mention} founded {nation_name}!')
+    try:
+        channel = client.get_channel(946595503699820595)
+        await channel.send(f'{ctx.author.mention} founded {nation_name}!')
+    except:
+        channel = client.get_channel(948536828586246184)
+        await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1800,8 +1804,12 @@ async def disband(ctx, *, nation_name):
     del save['terrain']['nations'][nation_name]
     await ctx.reply(f'You disbanded {nation_name}!')
 
-    channel = client.get_channel(946595503699820595)
-    await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+    try:
+        channel = client.get_channel(946595503699820595)
+        await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+    except:
+        channel = client.get_channel(948536828586246184)
+        await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
 @client.command(aliases = ['gp'])
 async def giveperm(ctx, user, *, perm):
