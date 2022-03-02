@@ -1864,7 +1864,6 @@ async def takeperm(ctx, user, *, perm):
         return
     save['users'][perms_id]['nation']['permissions'][perm] = False
 
-
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
