@@ -1893,10 +1893,32 @@ async def claim(ctx):
         return
     if not save['users'][id]['nation']['permissions']['makeclaims'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``makeclaims`` permission to do that')
+        return
+    if claim in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
+        await ctx.send('That area is already claimed')
     if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
         save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
+        await ctx.send(f"You claimed this area for the nation of {save['users'][id]['nation']['name']}")
     else:
-        ctx.send('Your nation does not have any available claims to use, to increase this, increase your nation level')
+        await ctx.reply('Your nation does not have any available claims to use, to increase this, increase your nation level')
+        
+@client.command(aliases = ['dcl'])
+async def deleteclaim(ctx):
+    id = ctx.author.id
+    
+    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
+
+    claim = (5*floor(x/5), 5*floor(y/5))
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!, you can found one with !found')
+        return
+    if not save['users'][id]['nation']['permissions']['delclaims'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``delclaims`` permission to do that')
+        return
+    if claim not in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
+        await ctx.reply('That area is not claimed')
+    save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].remove(claim)
+    await ctx.reply(f"You deleted this claim for the nation of {save['users'][id]['nation']['name']}")
     
 
 @client.command()
