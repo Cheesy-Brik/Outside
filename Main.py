@@ -1685,16 +1685,11 @@ async def found(ctx, *, nation_name):
     x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
-    end = False
 
     for nation in save['terrain']['nations']:
         if id == save['terrain']['nations'][nation]['owner']:
-            print('You already own a nation')
             await ctx.reply('You already own a nation!')
-            end = True
-            break
-
-    if end: return
+            return
     
     if fetch_square(id, x, y)['nation']:
         await ctx.reply(f'This claim would intersect another claim')
@@ -1793,6 +1788,7 @@ async def disband(ctx, *, nation_name):
     id = ctx.author.id
 
     if nation_name not in save['terrain']['nations']:
+        print("HI")
         await ctx.reply('That nation does not exist')
         return
 
