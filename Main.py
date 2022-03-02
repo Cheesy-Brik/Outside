@@ -1686,6 +1686,8 @@ async def found(ctx, *, nation_name):
     claim = (5*floor(x/5), 5*floor(y/5))
 
     for nation in save['terrain']['nations']:
+        print(save['terrain']['nations'][nation])
+        
         if id == save['terrain']['nations'][nation]['owner']:
             await ctx.reply('You already own a nation!')
             return
