@@ -898,7 +898,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
                 direction=directions[i]
                 for i in range(min(abs(amount), 10)):  
                     if total >= 10:
-                        await ctx.send('You have walked your max distance')
+                        await ctx.reply('You have walked your max distance')
                         break
                     last = (x,y)
                     if direction in lefts:y-=sign(amount)
@@ -1777,7 +1777,7 @@ async def leave(ctx):
     id = ctx.author.id
 
     if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
-        await ctx.send('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
+        await ctx.reply('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
         return
     
     if save["users"][id]["nation"]:
@@ -1895,11 +1895,12 @@ async def claim(ctx):
         await ctx.reply('You need the ``makeclaims`` permission to do that')
         return
     if claim in save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']:
-        await ctx.send('That area is already claimed')
+        await ctx.reply('That area is already claimed')
         return
     if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
         save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
-        await ctx.send(f"You claimed this area for the nation of {save['users'][id]['nation']['name']}")
+        await ctx.reply(f"You claimed this area for the nation of {save['users'][id]['nation']['name']}")
+        await surroundings(ctx, False)
     else:
         await ctx.reply('Your nation does not have any available claims to use, to increase this, increase your nation level')
         
