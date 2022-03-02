@@ -1997,7 +1997,7 @@ async def nation_settings(ctx, setting=''):
             x.append(i + ' : ')
             for j in value:
                 value2 = value[j]
-                x.append('>' + j + ' : '+ str(value2))
+                x.append(' > ' + j + ' : '+ str(value2))
         else:
             x.append(i + ' : '+ str(value))
     await ctx.send('\n'.join(x))
