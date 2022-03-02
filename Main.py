@@ -1997,9 +1997,9 @@ async def nation_settings(ctx, setting=''):
             x.append(j + ' : ')
             for j in value:
                 value2 = value[j]
-                x.append('>' + j + ' : '+ value2)
+                x.append('>' + j + ' : '+ str(value2))
         else:
-            x.append(i + ' : '+ value)
+            x.append(i + ' : '+ str(value))
     await ctx.send('\n')
 
 @client.command()
