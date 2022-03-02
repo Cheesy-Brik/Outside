@@ -1683,7 +1683,7 @@ async def info(ctx, user:discord.Member=''):
 async def found(ctx, *, nation_name):
     id = ctx.author.id
     
-    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
 
@@ -1894,7 +1894,7 @@ async def takeperm(ctx, user, *, perm):
 async def claim(ctx):
     id = ctx.author.id
     
-    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
     if not save['users'][id]['nation']:
@@ -1917,7 +1917,7 @@ async def claim(ctx):
 async def deleteclaim(ctx):
     id = ctx.author.id
     
-    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
 
     claim = (5*floor(x/5), 5*floor(y/5))
     if not save['users'][id]['nation']:
