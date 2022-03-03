@@ -2126,7 +2126,7 @@ async def ehelp(ctx, *, txt = 'all'):
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if self.num > 1: 
-                button.disabled = False
+                #button.disabled = False
                 self.num -= 1
             else:
                 button.disabled = True
@@ -2143,7 +2143,7 @@ async def ehelp(ctx, *, txt = 'all'):
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def next(self, button: Button, interaction: Interaction):
             if self.num < len(pageinv): 
-                button.disabled = False
+                #button.disabled = False
                 self.num += 1
             else:
                 button.disabled = True
