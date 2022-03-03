@@ -2024,6 +2024,7 @@ async def nation_settings(ctx):
 @client.command(aliases = ['cns'])
 async def chnage_nation_setting(ctx, setting, new_value):
     id = ctx.author.id
+    new_value = eval(new_value)
     nation = save['users'][id]['nation']['name']
     settings = save['terrain']['nations'][nation]['settings']
     if not save['users'][id]['nation']:
