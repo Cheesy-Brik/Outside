@@ -2200,7 +2200,7 @@ async def ehelp(ctx, *, txt = 'all'):
     if reg1 != 10:
         pageinv.append('\n'.join(inv))
 
-    embed=discord.Embed(title="Inventory(Page 1)", description="\n".join(pageinv))
+    embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
     if id == ctx.author.id:embed.set_footer(text=ctx.author)
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
