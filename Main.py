@@ -2052,9 +2052,22 @@ async def chnage_nation_setting(ctx, setting, new_value):
             await ctx.reply('This setting value must be True or False (EX. !chnage_nation_setting <setting> True)')
             return
         save['terrain']['nations'][nation]['settings'][setting] = new_value
-        
 
-
+@client.command(aliases = ['r'])
+async def relations(ctx):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    relationships = save['terrain']['nations'][nation]['relations']
+    x = []
+    for i in relationships:
+        if relationships[i]:
+            x.append(i + ':')
+            for j in relationships[i]:
+                x.append(' -**' + i + '**')
+    if not x:
+        await ctx.reply('Your nation has not relations')
+        return
+    await ctx.reply('\n'.join(x))
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
