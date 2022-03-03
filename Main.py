@@ -2104,8 +2104,112 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
         print()
 
     for i in client.commands:
+         print(i)
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
     await ctx.reply(embed=embed)
+
+@client.command(aliases = ['ewhelp'])
+async def ehelp(ctx, *, txt = 'all'):
+    "Shows this command"
+
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.num = 1
+            self.disabled = False
+            async def check(interaction):
+                return interaction.user.id == ctx.author.id
+            self.interaction_check = check
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if self.num > 1: 
+                button.disabled = False
+                self.num -= 1
+            else:
+                button.disabled = True
+            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(embed=embed, view=self)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def kill(self, button: Button, interaction: Interaction):
+            self.stop()
+            await msg.edit(embed=embed, view=None)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if self.num < len(pageinv): 
+                button.disabled = False
+                self.num += 1
+            else:
+                button.disabled = True
+            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(embed=embed, view=self)
+
+    if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have a pocket')
+            return
+    else:
+        id = ctx.author.id
+        try:save["users"][id]
+        except:
+            await ctx.reply('You do not have a pocket')
+            return
+
+    reg1 = 0
+    inv = []
+    pageinv=[]
+    num = 1
+
+    if txt != 'all':
+        txt = txt.split(' ')
+
+        for x in txt:
+            if x[0:3] == "<@!" and x[-1] == ">":
+                txt.remove(x)
+
+        txt = ' '.join(txt)
+
+        try: 
+            embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
+            embed.set_author(name=" ")
+            embed.set_footer(text=" ")             
+            await ctx.reply(embed = embed)
+            return
+        except:
+            if ctx.message.mentions != []:
+                id = ctx.message.mentions[0].id
+                try:save["users"][id]
+                except:
+                    await ctx.reply('That person does not have a pocket')
+                    return
+            else:
+                await ctx.reply("You don't have any of that item")
+                return
+
+    for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
+        if save["users"][id]['inv'][i]['amount'] > 0: 
+            inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
+            reg1 += 1
+        if reg1 == 30:
+            pageinv.append('\n'.join(inv))
+            inv = []
+            reg1 = 0
+
+    if reg1 != 30:
+        pageinv.append('\n'.join(inv))
+
+    embed=discord.Embed(title="Inventory(Page 1)", description="\n".join(pageinv))
+    if id == ctx.author.id:embed.set_footer(text=ctx.author)
+    else:embed.set_footer(text=ctx.message.mentions[0])
+    msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
 @client.command()
 async def temp(ctx):
