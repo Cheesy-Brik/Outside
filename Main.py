@@ -2095,7 +2095,7 @@ async def nations(ctx):
     for i in save['terrain']['nations']:
         x.append(i)
     await ctx.reply('\n'.join(x))
-    
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
@@ -2106,7 +2106,8 @@ async def map(ctx, x=0, y=0, zoom = 1000, size =10):
             square = fetch_square(id, ((-y) + size//2)+i, x-size//2+j, zoom)
             b.append(square['vis'] if not square['player'] else '🙂')
         a.append(''.join(b))
-    await ctx.reply('\n'.join(a))
+    
+    embed = discord.Embed(title=f'Current Nations', description='\n'.join(a), color=0x00ff00)
 
 @client.command()
 async def give(ctx, amount=1, *, item): 
