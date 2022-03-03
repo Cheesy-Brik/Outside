@@ -1,5 +1,4 @@
-_BW='You need the ``managerelations`` permission to do that'
-_BV='You must specify what stance you would like to take'
+_BW='You need the ``managerelations`` permission to do that';_BV='You must specify what stance you would like to take'
 _BU='You are not in a nation!, you can found one with !found'
 _BT='You are not in a nation with that person'
 _BS='You need the ``giveperms`` permission to do that'
