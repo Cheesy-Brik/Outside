@@ -2201,7 +2201,7 @@ async def ehelp(ctx, *, txt = 'all'):
         pageinv.append('\n'.join(inv))
 
     embed=discord.Embed(title="Help(Page 1)", description=pageinv[0])
-    if id == ctx.author.id:embed.set_footer(text='command prefix is ```!```')
+    if id == ctx.author.id:embed.set_footer(text='command prefix is !')
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
