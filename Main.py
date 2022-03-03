@@ -2063,7 +2063,7 @@ async def relations(ctx):
         if relationships[i]:
             x.append(i + ':')
             for j in relationships[i]:
-                x.append(' -**' + relationships[i][j] + '**')
+                x.append(' -**' + j + '**')
     if not x:
         await ctx.reply('Your nation has no relations')
         return
