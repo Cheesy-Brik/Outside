@@ -2053,7 +2053,7 @@ async def chnage_nation_setting(ctx, setting, new_value):
             return
         save['terrain']['nations'][nation]['settings'][setting] = new_value
 
-@client.command(aliases = ['res'])
+@client.command(aliases = ['re'])
 async def relations(ctx):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
