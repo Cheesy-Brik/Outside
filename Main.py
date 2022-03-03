@@ -1963,13 +1963,13 @@ async def declare(ctx, stance='', *, nation_name):
     if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``managerelations`` permission to do that')
         return
-    await ctx.reply(f'You have declared {stance} with {nation_name}')
     if stance == 'war' and nation_name in save['terrain']['nations'][nation]['relationships']['allies']:
         await ctx.reply('You can\'t declare war with a nation you are allies with!')
         return
     if stance == 'allies' and nation_name in save['terrain']['nations'][nation]['relationships']['war']:
         await ctx.reply('You can\'t declare allies with a nation you are war with!')
         return
+    await ctx.reply(f'You have declared {stance} with {nation_name}')
     if save['terrain']['nations'][nation]['relationships'][stance]:
         await ctx.reply(f'You have already declared {stance} with {nation_name} ')
         return
