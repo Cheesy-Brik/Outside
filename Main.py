@@ -2041,6 +2041,11 @@ async def chnage_nation_setting(ctx, setting, new_value):
             return
         setting = setting.split('-')
         print(setting)
+        print(setting)
+        print(setting)
+        print(setting)
+        print(setting)
+        print('399')
         if setting[1] not in save['terrain']['nations'][nation]['settings'][setting[0]]:
             await ctx.reply('Not a valid setting')
             return
