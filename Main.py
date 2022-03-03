@@ -2029,7 +2029,9 @@ async def nation_settings(ctx):
                 x.append(' -' + j + ' : '+ f'```py\n-{str(value2)}```')
         else:
             x.append(i + ' : '+ f'```py\n{str(value)}```')
-    await ctx.send('You\'re nations settings'+'\n'.join(x))
+    
+    embed = discord.Embed(title=f'{nation} settings', description='\n'.join(x), color=0x00ff00)
+    await ctx.send(embed=embed)
     
 @client.command(aliases = ['cns'])
 async def chnage_nation_setting(ctx, setting, new_value):
