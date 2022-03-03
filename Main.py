@@ -2110,8 +2110,8 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
          if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
     await ctx.reply(embed=embed)
 
-@client.command(aliases = ['ewhelp'])
-async def ehelp(ctx, *, txt = 'all'):
+@client.command(aliases = ['h'])
+async def help(ctx, *, txt = 'all'):
     "Shows this command"
 
     class ViewWithButton(View):
