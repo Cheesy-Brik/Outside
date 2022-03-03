@@ -2190,7 +2190,7 @@ async def ehelp(ctx, *, txt = 'all'):
 
     for i in sorted(list(client.commands), key=lambda item: item.name):             
         print(i.name)
-        inv.append(f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '' + '\n' + i.help)
+        if i.help:inv.append(f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '' + '\n' + i.help)
         reg1 += 1
         if reg1 == 30:
             pageinv.append('\n'.join(inv))
