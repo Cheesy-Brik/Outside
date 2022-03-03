@@ -2095,21 +2095,6 @@ async def give(ctx, amount=1, *, item):
         if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
         else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
 
-@client.command()
-async def help(ctx, x=0, y=0, zoom = 1000, size =10):
-    embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
-    try:
-        embed.set_thumbnail(url=ctx.me.avatar.url)
-    except:
-        print()
-    
-    print(sorted(list(client.commands), key=lambda item: item.name))
-    
-    for i in client.commands:
-
-         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
-    await ctx.reply(embed=embed)
-
 @client.command(aliases = ['h'])
 async def help(ctx, *, txt = 'all'):
     "Shows this command"
