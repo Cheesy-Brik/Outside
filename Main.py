@@ -52,7 +52,10 @@ elif test:
     subprocess.run(["git", "add", 'Main.py'], stdout=subprocess.DEVNULL)
     subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
     subprocess.run(["git", "pull", 'origin', 'test'], stdout=subprocess.DEVNULL)
-    subprocess.run(["git", "push", '-u', 'origin', 'test'], stdout=subprocess.DEVNULL)
+    subprocess.run(["git", "push", 'origin', 'test'], stdout=subprocess.DEVNULL)
+
+    # Notice to Cheesy: Was fixing the push in git, so pls fix. Thanks
+    
 task = {}
 global save
 save = eval(open("save.txt","r",encoding="utf8").read())
