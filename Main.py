@@ -1971,6 +1971,9 @@ async def declare(ctx, stance='', *, nation_name):
     if stance == 'war' and nation_name in save['terrain']['nations'][nation]['relationships']['allies']:
         await ctx.reply('You can\'t declare war with a nation you are allies with!')
         return
+    if stance == 'allies' and nation_name in save['terrain']['nations'][nation]['relationships']['war']:
+        await ctx.reply('You can\'t declare allies with a nation you are war with!')
+        return
     channel = client.get_channel(946595503699820595)
     await channel.send(f'{ctx.author.mention} declared {stance} with {nation_name}!')
     
