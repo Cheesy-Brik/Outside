@@ -2033,19 +2033,13 @@ async def chnage_nation_setting(ctx, setting, new_value):
     if not save['users'][id]['nation']['permissions']['owner'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``owner`` permission to do that')
         return
-    if setting not in settings:
+    if setting not in settings and setting.split('-')[0] not in settings:
         await ctx.send('Not a valid setting')
-    if setting ==  'defaultpermissions':
+    if setting.split('-')[0] ==  'defaultpermissions':
         if len(setting.split('-')) == 1:
             await ctx.reply('You must sepcify which default permission you would like to change (EX. !change_nation_setting defaultpermissions-makeclaims True)')
             return
         setting = setting.split('-')
-        print(setting)
-        print(setting)
-        print(setting)
-        print(setting)
-        print(setting)
-        print('399')
         if setting[1] not in save['terrain']['nations'][nation]['settings'][setting[0]]:
             await ctx.reply('Not a valid setting')
             return
