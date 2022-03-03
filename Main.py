@@ -37,7 +37,7 @@ from discord.ext import commands
 from discord.ui import button, View, Button
 from discord.interactions import Interaction
 
-test = False
+test = True
 
 intents = discord.Intents(messages = True, guilds = True, reactions = True, members = True, presences = True)
 client = commands.Bot(command_prefix = '!',case_insensitive=True, intents = intents)
@@ -440,7 +440,8 @@ async def user_check(id):
             },
             'pos' : pos,
             'inv' : {},
-            'recipes' : []
+            'recipes' : [],
+            'nation' : {}
         } 
 def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     noise = PerlinNoise(octaves=5, seed=543)
@@ -649,7 +650,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     for i in save['terrain']['nations']:#Where nations is a dict
             for j in save['terrain']['nations'][i]['claims']:#Where j is a tuple
                 claim_x, claim_y = tuple(j);claim_x, claim_y = (claim_x/1000, claim_y/1000)#           :)
-                if (pos[0]<claim_x+4 and pos[0]>=claim_x) and (pos[1]<claim_y+4 and pos[1]>=claim_y):
+                if (pos[0]<claim_x+6/1000 and pos[0]>=claim_x) and (pos[1]<claim_y+6/1000 and pos[1]>=claim_y):
                     nation = i
                     break
             else:continue
@@ -704,7 +705,9 @@ async def surroundings(ctx, buttons=True):
     
     async def fetch_area(id, player = False):
         x,y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
-        player_square = fetch_square(id, x-3, y+3)
+        print(-(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]))
+        
+        player_square = fetch_square(id, -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
         temp = player_square["temp"]
         
         temp_emoji = '🧊🥶😬😕🙂😐😞🥵🔥'#Innefficent
@@ -726,10 +729,7 @@ async def surroundings(ctx, buttons=True):
             if h-i*10 <= 0:h_bar += '⬛'
             else:h_bar += '🟥'
 
-        if fetch_square(id, x, y)['nation']:
-            nation = fetch_square(id, x, y)['nation']
-        else:
-            nation = 'None'
+        nation = str(player_square['nation'])
 
         embed = discord.Embed(title = f'Map', description = '\n'.join(a), color = 0x00ff00)
         embed.add_field(name = 'Temperature', value = f'It feels {temp_scale[floor((temp+5)/110*9)]} {temp_emoji[floor((temp+5)/110*9)]}\n', inline = False)
@@ -896,7 +896,7 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
                 direction=directions[i]
                 for i in range(min(abs(amount), 10)):  
                     if total >= 10:
-                        await ctx.send('You have walked your max distance')
+                        await ctx.reply('You have walked your max distance')
                         break
                     last = (x,y)
                     if direction in lefts:y-=sign(amount)
@@ -1310,7 +1310,6 @@ async def craft(ctx, *, item = ''):
             else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
         save['users'][id]['stats']['int level'] += 1
         if save['users'][id]['nation']:
-            print(save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'])
             save['terrain']['nations'][save['users'][id]['nation']['name']]['natlevel'] += 1#PROgrammer :,)
         await ctx.reply(f'You crafted {amount if amount != 1 else ""} {recipe}')
 @client.command(aliases = ['u'])
@@ -1681,9 +1680,10 @@ async def info(ctx, user:discord.Member=''):
 async def found(ctx, *, nation_name):
     id = ctx.author.id
     
-    x, y = ( -(list(save['users'][id]['pos'])[1]+3) , (list(save['users'][id]['pos'])[0]-3) )
-
-    claim = (5*floor(x/5), 5*floor(y/5))
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+    
+    
+    claim = (5*floor(y/5), 5*floor(-x/5))
 
     for nation in save['terrain']['nations']:
         if id in save['terrain']['nations'][nation]['owners']:
@@ -1704,7 +1704,24 @@ async def found(ctx, *, nation_name):
             'owners' : [ctx.author.id],
             'natlevel' : 0,
             'nation' : 0,
-            'members' : [id]
+            'members' : [id],
+            'settings' : {
+                'inviteonly' : False,
+                'defaultpermissions' : {
+                'owner' : False,
+                'makeclaims' : False,
+                'delclaims' : False,
+                'giveperms' : False,
+                'kickmembers' : False,
+                'invitemembers' : False,
+                'managerelations' : False
+            },
+            },
+            'relationships':{
+                'allies' : [],
+                'war' : []
+            },
+            'invites' : []
         }
         save['users'][id]['nation'] = {
             'name' : nation_name,
@@ -1714,7 +1731,8 @@ async def found(ctx, *, nation_name):
                 'delclaims' : True,
                 'giveperms' : True,
                 'kickmembers' : True,
-                'invitemembers' : True
+                'invitemembers' : True,
+                'managerelations' : True
                 
             }
         }
@@ -1760,22 +1778,20 @@ async def join(ctx, *, nation_name):
     nation['members'].append(id)
     save['users'][id]['nation'] = {
             'name' : nation_name,
-            'permissions' : {
-                'owner' : False,
-                'makeclaims' : False,
-                'delclaims' : False,
-                'giveperms' : False,
-                'kickmembers' : False,
-                'invitemembers' : False
-                
-            }
+            'permissions' : dict(save['terrain']['nations'][nation_name]['settings']['defaultpermissions'])
         }
     await ctx.reply(f'You joined {nation_name}!')
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} joined {nation_name}!')
 
 @client.command(aliases = ['le'])
 async def leave(ctx):
     id = ctx.author.id
 
+    if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
+        await ctx.reply('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
+        return
+    
     if save["users"][id]["nation"]:
         nation_name = save["users"][id]["nation"]["name"]
         await ctx.reply(f'You left {nation_name}!')
@@ -1783,8 +1799,12 @@ async def leave(ctx):
         nation = save['terrain']['nations'][nation_name]
         nation['members'].remove(id)
         save["users"][id]["nation"] = {}
+        channel = client.get_channel(946595503699820595)
+        await channel.send(f'{ctx.author.mention} left {nation_name}!')
     else:
         await ctx.reply('You are not in a nation!')
+    
+    
 
 @client.command(aliases = ['ds'])
 async def disband(ctx, *, nation_name):
@@ -1794,14 +1814,16 @@ async def disband(ctx, *, nation_name):
         await ctx.reply('That nation does not exist')
         return
 
-    if save['terrain']['nations'][nation_name]['owner'] != id:
+    for i in save['terrain']['nations'][nation_name]['owners']:
+        if i == id:break
+    else:
         await ctx.reply('You do not own that nation!')
         return
-
+    
     for member in save['terrain']['nations'][nation_name]['members']:
-        del save['users'][member]['nation']
+        save['users'][member]['nation'] = {}
 
-    del save['terrain']['nations'][nation_name]
+    save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
 
     try:
@@ -1811,6 +1833,15 @@ async def disband(ctx, *, nation_name):
         channel = client.get_channel(948536828586246184)
         await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
+@client.command(aliases = ['pe'])
+async def permissions(ctx):
+     id = ctx.author.id
+     x=[]
+     for i in save['users'][id]['nation']['permissions']:
+         value = save['users'][id]['nation']['permissions'][i]
+         if value:x.append(i)
+     await ctx.reply('\n'.join(x))
+     
 @client.command(aliases = ['gp'])
 async def giveperm(ctx, user, *, perm):
     id = ctx.author.id
@@ -1831,20 +1862,21 @@ async def giveperm(ctx, user, *, perm):
     if save['users'][id]['nation']['name'] != save['users'][perms_id]['nation']['name']:
         await ctx.reply('You are not in a nation with that person')
         return
-    if not save['users'][id]['nation']['permissions'][perm]:
+    if not save['users'][id]['nation']['permissions'][perm] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You must already have a permission to give it')
         return
     if save['users'][perms_id]['nation']['permissions'][perm]:
         await ctx.reply('That person already has that permision')
         return
     if perm == 'owner':
-        save['terrain']['nations'][save['users'][id]['nation']]
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['owners'].append(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = True
+    await ctx.reply(f'You gave <!{perms_id}> the permission ``{perm}``')
 
 @client.command(aliases = ['tp'])
 async def takeperm(ctx, user, *, perm):
     id = ctx.author.id
-    perm = perm.strip().replace(' ', '').lower()
+    perm = perm.strip().replace(' ', '').lower().replace('delete', 'del')
     if not save['users'][id]['nation']:
         await ctx.reply('You are not in a nation!')
         return
@@ -1869,8 +1901,183 @@ async def takeperm(ctx, user, *, perm):
     if not save['users'][perms_id]['nation']['permissions'][perm]:
         await ctx.reply('That person doesn\'t have that permission')
         return
+    if perm == 'owner':
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['owners'].remove(perms_id)
     save['users'][perms_id]['nation']['permissions'][perm] = False
+    await ctx.reply(f'You took the ``{perm}`` permission away from <!{perms_id}>')
 
+@client.command(aliases = ['cl'])
+async def claim(ctx):
+    id = ctx.author.id
+    
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+    print(x, y)
+    claim = (5*floor(y/5), 5*floor(-x/5))
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!, you can found one with !found')
+        return
+    if not save['users'][id]['nation']['permissions']['makeclaims'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``makeclaims`` permission to do that')
+        return
+    if fetch_square(id, x, y)['nation']:
+        await ctx.reply(f'This claim would intersect another claim')
+        return
+    if len(save['terrain']['nations'][save['users'][id]['nation']['name']]['claims']) < save['terrain']['nations'][save['users'][id]['nation']['name']]['nation']+1:
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].append(claim)
+        await ctx.reply(f"You claimed this area for the nation of {save['users'][id]['nation']['name']}")
+        await surroundings(ctx, False)
+    else:
+        await ctx.reply('Your nation does not have any available claims to use, to increase this, increase your nation level')
+        
+@client.command(aliases = ['dcl'])
+async def deleteclaim(ctx):
+    id = ctx.author.id
+    
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+
+    claim = (5*floor(y/5), 5*floor(-x/5))
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!, you can found one with !found')
+        return
+    if not save['users'][id]['nation']['permissions']['delclaims'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``delclaims`` permission to do that')
+        return
+    if not fetch_square(id, x, y)['nation']:
+        await ctx.reply(f'This area is not claimed!')
+        return
+    if fetch_square(id, x, y)['nation'] == save['users'][id]['nation']['name']:
+        save['terrain']['nations'][save['users'][id]['nation']['name']]['claims'].remove(claim)
+        await ctx.reply(f"You deleted this claim for the nation of {save['users'][id]['nation']['name']}")
+    else:
+        await ctx.reply('Another nation owns this claim!')
+    
+@client.command(aliases = ['de'])
+async def declare(ctx, stance='', *, nation_name):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    stance =  stance.lower().strip().replace(' ', '')
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    if not stance:
+        await ctx.reply('You must specify what stance you would like to take')
+        return
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+    if stance not in save['terrain']['nations'][nation]['relationships']:
+        await ctx.reply('Not a valid stance you can take')
+    if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``managerelations`` permission to do that')
+        return
+    if stance == 'war' and nation_name in save['terrain']['nations'][nation]['relationships']['allies']:
+        await ctx.reply('You can\'t declare war with a nation you are allies with!')
+        return
+    if stance == 'allies' and nation_name in save['terrain']['nations'][nation]['relationships']['war']:
+        await ctx.reply('You can\'t declare allies with a nation you are war with!')
+        return
+    await ctx.reply(f'You have declared {stance} with {nation_name}')
+    if save['terrain']['nations'][nation]['relationships'][stance]:
+        await ctx.reply(f'You have already declared {stance} with {nation_name} ')
+        return
+    save['terrain']['nations'][nation]['relationships'][stance].append(nation_name)
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} declared {stance} with {nation_name}!')
+    
+@client.command(aliases = ['ude'])
+async def undeclare(ctx, stance='', *, nation_name):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    stance =  stance.lower().strip().replace(' ', '')
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    if not stance:
+        await ctx.reply('You must specify what stance you would like to take')
+        return
+    if nation_name not in save['terrain']['nations']:
+        await ctx.reply('That nation does not exist')
+        return
+    if stance not in save['terrain']['nations'][nation]['relationships']:
+        await ctx.reply('Not a valid stance you can undeclare')
+    if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``managerelations`` permission to do that')
+        return
+    if not save['terrain']['nations'][nation]['relationships'][stance]:
+        await ctx.reply(f'You are not {stance} with {nation_name} ')
+        return
+    save['terrain']['nations'][nation]['relationships'][stance].remove(nation_name)
+    await ctx.reply(f'You have undeclared {stance} with {nation_name}')
+    
+    channel = client.get_channel(946595503699820595)
+    await channel.send(f'{ctx.author.mention} undeclared {stance} with {nation_name}!')
+
+@client.command(aliases = ['ns'])
+async def nation_settings(ctx):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    x = []
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    for i in save['terrain']['nations'][nation]['settings']:
+        value = save['terrain']['nations'][nation]['settings'][i]
+        if type(value) is dict:
+            x.append(i + ' : ' + '\n')
+            for j in value:
+                value2 = value[j]
+                x.append(' -' + j + ' : '+ f'```py\n-{str(value2)}```')
+        else:
+            x.append(i + ' : '+ f'```py\n{str(value)}```')
+    await ctx.send('You\'re nations settings'+'\n'.join(x))
+    
+@client.command(aliases = ['cns'])
+async def chnage_nation_setting(ctx, setting, new_value):
+    id = ctx.author.id
+    new_value = eval(new_value)
+    nation = save['users'][id]['nation']['name']
+    settings = save['terrain']['nations'][nation]['settings']
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    if not save['users'][id]['nation']['permissions']['owner'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``owner`` permission to do that')
+        return
+    if setting.split('-')[0] not in settings:
+        await ctx.send('Not a valid setting')
+    if setting.split('-')[0] ==  'defaultpermissions':
+        if len(setting.split('-')) == 1:
+            await ctx.reply('You must sepcify which default permission you would like to change (EX. !change_nation_setting defaultpermissions-makeclaims True)')
+            return
+        setting = setting.split('-')
+        if setting[1] not in save['terrain']['nations'][nation]['settings'][setting[0]]:
+            await ctx.reply('Not a valid setting')
+            return
+        if type(new_value) is not bool:
+            await ctx.reply('This setting value must be True or False (EX. !chnage_nation_setting <setting> True)')
+            return
+        save['terrain']['nations'][nation]['settings'][setting[0]][setting[1]] = new_value
+    if setting == 'inviteonly':
+        if type(new_value) is not bool:
+            await ctx.reply('This setting value must be True or False (EX. !chnage_nation_setting <setting> True)')
+            return
+        save['terrain']['nations'][nation]['settings'][setting] = new_value
+
+@client.command(aliases = ['re'])
+async def relations(ctx):
+    id = ctx.author.id
+    nation = save['users'][id]['nation']['name']
+    relationships = save['terrain']['nations'][nation]['relationships']
+    x = []
+    for i in relationships:
+        if relationships[i]:
+            x.append(i + ':')
+            for j in relationships[i]:
+                x.append(' -**' + j + '**')
+    if not x:
+        await ctx.reply('Your nation has no relations')
+        return
+    await ctx.reply('\n'.join(x))
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
@@ -1895,17 +2102,102 @@ async def give(ctx, amount=1, *, item):
         if 'durability' in save['users'][id]['inv'][recipe]:save['users'][id]['inv'][recipe]['durability'] += recipes[recipe]['durability']
         else:save['users'][id]['inv'][recipe]['durability'] = recipes[recipe]['durability']
 
-@client.command()
-async def help(ctx, x=0, y=0, zoom = 1000, size =10):
-    embed = discord.Embed(title='Help', description='*Command prefix is* ``!``', color=0x00ff00)
-    try:
-        embed.set_thumbnail(url=ctx.me.avatar.url)
-    except:
-        print()
+@client.command(aliases = ['h'])
+async def help(ctx, *, txt = 'all'):
+    "Shows this command"
 
-    for i in client.commands:
-         if i.help:embed.add_field(name = f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '', value=i.help,inline=False)
-    await ctx.reply(embed=embed)
+    class ViewWithButton(View):
+        def __init__(self):
+            super().__init__(timeout=120)
+            self.num = 1
+            self.disabled = False
+            async def check(interaction):
+                return interaction.user.id == ctx.author.id
+            self.interaction_check = check
+        
+        @button(style=discord.ButtonStyle.blurple, emoji='◀️')
+        async def back(self, button: Button, interaction: Interaction):
+            if self.num > 1: 
+                #button.disabled = False
+                self.num -= 1
+            else:
+                pass
+                #button.disabled = True
+            embed=discord.Embed(title=f"Help(Page {self.num})", description=pageinv[self.num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(embed=embed, view=self)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='⏹')
+        async def kill(self, button: Button, interaction: Interaction):
+            self.stop()
+            await msg.edit(embed=embed, view=None)
+
+        @button(style=discord.ButtonStyle.blurple, emoji='▶️')
+        async def next(self, button: Button, interaction: Interaction):
+            if self.num < len(pageinv): 
+                #button.disabled = False
+                self.num += 1
+            else:
+                pass
+                #button.disabled = True
+            embed=discord.Embed(title=f"Help(Page {self.num})", description=pageinv[self.num - 1])
+            if id == ctx.author.id:embed.set_footer(text=ctx.author)
+            else:embed.set_footer(text=ctx.message.mentions[0])
+            await msg.edit(embed=embed, view=self)
+
+    if ctx.message.mentions != []:
+        id = ctx.message.mentions[0].id
+        try:save["users"][id]
+        except:
+            await ctx.reply('That person does not have a pocket')
+            return
+    else:
+        id = ctx.author.id
+        try:save["users"][id]
+        except:
+            await ctx.reply('You do not have a pocket')
+            return
+
+    reg1 = 0
+    inv = []
+    pageinv=[]
+    num = 1
+
+    if txt != 'all':
+        txt = txt.split(' ')
+
+        for x in txt:
+            if x[0:3] == "<@!" and x[-1] == ">":
+                txt.remove(x)
+
+        txt = ' '.join(txt)
+
+        try: 
+            embed=discord.Embed(title=txt, description="\n".join((x.capitalize() + ': ' + str(save["users"][id]['inv'][txt][x])) for x in save["users"][id]['inv'][txt]))
+            embed.set_author(name=" ")
+            embed.set_footer(text=" ")             
+            await ctx.reply(embed = embed)
+            return
+        except:
+            return
+
+    for i in sorted(list(client.commands), key=lambda item: item.name):             
+        if not i.help:continue
+        inv.append((f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '') + '\n' + i.help)
+        reg1 += 1
+        if reg1 == 10:
+            pageinv.append('\n'.join(inv))
+            inv = []
+            reg1 = 0
+
+    if reg1 != 10:
+        pageinv.append('\n'.join(inv))
+
+    embed=discord.Embed(title="Help(Page 1)", description=pageinv[0])
+    if id == ctx.author.id:embed.set_footer(text='command prefix is !')
+    else:embed.set_footer(text=ctx.message.mentions[0])
+    msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
 @client.command()
 async def temp(ctx):
