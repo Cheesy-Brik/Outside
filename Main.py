@@ -2192,12 +2192,12 @@ async def ehelp(ctx, *, txt = 'all'):
         if not i.help:continue
         inv.append((f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '') + '\n' + i.help)
         reg1 += 1
-        if reg1 == 30:
+        if reg1 == 10:
             pageinv.append('\n'.join(inv))
             inv = []
             reg1 = 0
 
-    if reg1 != 30:
+    if reg1 != 10:
         pageinv.append('\n'.join(inv))
 
     embed=discord.Embed(title="Inventory(Page 1)", description="\n".join(pageinv))
