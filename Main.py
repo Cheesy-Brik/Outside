@@ -2103,7 +2103,7 @@ async def help(ctx, x=0, y=0, zoom = 1000, size =10):
     except:
         print()
     
-    print(list(client.commands))
+    print(sorted(list(client.commands)))
     
     for i in client.commands:
 
