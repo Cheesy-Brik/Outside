@@ -1826,7 +1826,7 @@ async def disband(ctx, *, nation_name):
     channel = client.get_channel(946595503699820595)
     await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
-@client.command(aliases = ['p'])
+@client.command(aliases = ['pe'])
 async def permissions(ctx):
      id = ctx.author.id
      x=[]
