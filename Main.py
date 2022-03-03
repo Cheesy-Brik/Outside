@@ -2057,7 +2057,7 @@ async def chnage_nation_setting(ctx, setting, new_value):
 async def relations(ctx):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
-    relationships = save['terrain']['nations'][nation]['relations']
+    relationships = save['terrain']['nations'][nation]['relationships']
     x = []
     for i in relationships:
         if relationships[i]:
@@ -2065,7 +2065,7 @@ async def relations(ctx):
             for j in relationships[i]:
                 x.append(' -**' + i + '**')
     if not x:
-        await ctx.reply('Your nation has not relations')
+        await ctx.reply('Your nation has no relations')
         return
     await ctx.reply('\n'.join(x))
 @client.command()
