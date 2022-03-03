@@ -1970,6 +1970,10 @@ async def declare(ctx, stance='', *, nation_name):
         return
     if stance not in save['terrain']['nations'][nation]['relationships']:
         await ctx.reply('Not a valid stance you can take')
+        return
+    if nation_name == nation:
+        await ctx.reply('You cannot declare a stance to yourself, for it will cause a self-referential paradox')
+        return
     if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``managerelations`` permission to do that')
         return
