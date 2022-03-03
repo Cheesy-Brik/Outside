@@ -2040,6 +2040,7 @@ async def chnage_nation_setting(ctx, setting, new_value):
             await ctx.reply('You must sepcify which default permission you would like to change (EX. !change_nation_setting defaultpermissions-makeclaims True)')
             return
         setting = setting.split('-')
+        print(setting)
         if setting[1] not in save['terrain']['nations'][nation]['settings'][setting[0]]:
             await ctx.reply('Not a valid setting')
             return
