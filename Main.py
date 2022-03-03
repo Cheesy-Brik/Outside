@@ -2033,7 +2033,7 @@ async def chnage_nation_setting(ctx, setting, new_value):
     if not save['users'][id]['nation']['permissions']['owner'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``owner`` permission to do that')
         return
-    if setting not in settings and setting.split('-')[0] not in settings:
+    if setting.split('-')[0] not in settings:
         await ctx.send('Not a valid setting')
     if setting.split('-')[0] ==  'defaultpermissions':
         if len(setting.split('-')) == 1:
