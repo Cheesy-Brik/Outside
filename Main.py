@@ -2087,6 +2087,15 @@ async def relations(ctx):
         await ctx.reply('Your nation has no relations')
         return
     await ctx.reply('\n'.join(x))
+
+@client.command(aliases = ['nat'])
+async def nations(ctx):
+    id = ctx.author.id
+    x = []
+    for i in save['terrain']['nations']:
+        x.append(i)
+    await ctx.reply('\n'.join(x))
+    
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
