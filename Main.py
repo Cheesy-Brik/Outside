@@ -2129,7 +2129,8 @@ async def ehelp(ctx, *, txt = 'all'):
                 #button.disabled = False
                 self.num -= 1
             else:
-                button.disabled = True
+                pass
+                #button.disabled = True
             embed=discord.Embed(title=f"Help(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
@@ -2146,7 +2147,8 @@ async def ehelp(ctx, *, txt = 'all'):
                 #button.disabled = False
                 self.num += 1
             else:
-                button.disabled = True
+                pass
+                #button.disabled = True
             embed=discord.Embed(title=f"Help(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
