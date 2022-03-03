@@ -2186,20 +2186,11 @@ async def ehelp(ctx, *, txt = 'all'):
             await ctx.reply(embed = embed)
             return
         except:
-            if ctx.message.mentions != []:
-                id = ctx.message.mentions[0].id
-                try:save["users"][id]
-                except:
-                    await ctx.reply('That person does not have a pocket')
-                    return
-            else:
-                await ctx.reply("You don't have any of that item")
-                return
+            return
 
-    for i in sorted(sorted(list(save["users"][id]['inv'].keys())),key=lambda item:save["users"][id]['inv'][item]['amount'], reverse = True):             
-        if save["users"][id]['inv'][i]['amount'] > 0: 
-            inv.append(f'__**{i}**({ save["users"][id]["inv"][i]["amount"]})__')
-            reg1 += 1
+    for i in sorted(list(client.commands), key=lambda item: item.name):             
+        inv.append(f'-**{str(i.name)}**- ' + ('('+ ', '.join(aliase for aliase in i.aliases) +')') if i.aliases else '' + '\n' + i.help)
+        reg1 += 1
         if reg1 == 30:
             pageinv.append('\n'.join(inv))
             inv = []
