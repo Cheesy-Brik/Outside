@@ -2130,7 +2130,7 @@ async def ehelp(ctx, *, txt = 'all'):
                 self.num -= 1
             else:
                 button.disabled = True
-            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+            embed=discord.Embed(title=f"Help(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(embed=embed, view=self)
@@ -2147,7 +2147,7 @@ async def ehelp(ctx, *, txt = 'all'):
                 self.num += 1
             else:
                 button.disabled = True
-            embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
+            embed=discord.Embed(title=f"Help(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
             await msg.edit(embed=embed, view=self)
@@ -2200,8 +2200,8 @@ async def ehelp(ctx, *, txt = 'all'):
     if reg1 != 10:
         pageinv.append('\n'.join(inv))
 
-    embed=discord.Embed(title="Inventory(Page 1)", description=pageinv[0])
-    if id == ctx.author.id:embed.set_footer(text=ctx.author)
+    embed=discord.Embed(title="Help(Page 1)", description=pageinv[0])
+    if id == ctx.author.id:embed.set_footer(text='command prefix is ```!```')
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
