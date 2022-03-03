@@ -1721,7 +1721,8 @@ async def found(ctx, *, nation_name):
             'relationships':{
                 'allies' : [],
                 'war' : []
-            }
+            },
+            'invites' : []
         }
         save['users'][id]['nation'] = {
             'name' : nation_name,
@@ -1825,6 +1826,15 @@ async def disband(ctx, *, nation_name):
     channel = client.get_channel(946595503699820595)
     await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
+@client.command(aliases = ['p'])
+async def permissions(ctx):
+     id = ctx.author.id
+     x=[]
+     for i in save['users'][id]['nation']['permissions']:
+         value = save['users'][id]['nation']['permissions'][i]
+         if value:x.append(i)
+     await ctx.reply('\n'.join(x))
+     
 @client.command(aliases = ['gp'])
 async def giveperm(ctx, user, *, perm):
     id = ctx.author.id
@@ -1939,6 +1949,9 @@ async def declare(ctx, stance='', *, nation_name):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     stance =  stance.lower().strip().replace(' ', '')
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
     if not stance:
         await ctx.reply('You must specify what stance you would like to take')
         return
@@ -1966,6 +1979,9 @@ async def undeclare(ctx, stance='', *, nation_name):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     stance =  stance.lower().strip().replace(' ', '')
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
     if not stance:
         await ctx.reply('You must specify what stance you would like to take')
         return
@@ -1991,6 +2007,9 @@ async def nation_settings(ctx):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     x = []
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
     for i in save['terrain']['nations'][nation]['settings']:
         value = save['terrain']['nations'][nation]['settings'][i]
         if type(value) is dict:
@@ -2000,16 +2019,41 @@ async def nation_settings(ctx):
                 x.append(' -' + j + ' : '+ f'```py\n-{str(value2)}```')
         else:
             x.append(i + ' : '+ f'```py\n{str(value)}```')
-    await ctx.send('\n'.join(x))
+    await ctx.send('You\'re nations settings'+'\n'.join(x))
     
-@client.command(aliases = ['cns'])#Unifinished!!!!!!!!
-async def chnage_nation_setting(ctx, *, setting_path):
+@client.command(aliases = ['cns'])
+async def chnage_nation_setting(ctx, setting, new_value):
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     settings = save['terrain']['nations'][nation]['settings']
-    setting_path.split(' ')
-    if setting_path[0] not in settings:
-        await ctx.send('N')
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+    if not save['users'][id]['nation']['permissions']['owner'] and not save['users'][id]['nation']['permissions']['owner']:
+        await ctx.reply('You need the ``owner`` permission to do that')
+        return
+    if setting not in settings:
+        await ctx.send('Not a valid setting')
+    if setting ==  'defaultpermissions':
+        if len(setting.split('-')) == 1:
+            await ctx.reply('You must sepcify which default permission you would like to change (EX. !change_nation_setting defaultpermissions-makeclaims True)')
+            return
+        setting = setting.split('-')
+        if setting[1] not in save['terrain']['nations'][nation]['settings'][setting[0]]:
+            await ctx.reply('Not a valid setting')
+            return
+        if type(new_value) is not bool:
+            await ctx.reply('This setting value must be True or False (EX. !chnage_nation_setting <setting> True)')
+            return
+        save['terrain']['nations'][nation]['settings'][setting[0]][setting[1]] = new_value
+    if setting == 'inviteonly':
+        if type(new_value) is not bool:
+            await ctx.reply('This setting value must be True or False (EX. !chnage_nation_setting <setting> True)')
+            return
+        save['terrain']['nations'][nation]['settings'][setting] = new_value
+        
+
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
