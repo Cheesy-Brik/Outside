@@ -18,8 +18,7 @@
 #WARNING:
 #The below code was probably not optimized, you've been warned
 
-
-
+# Alpha was here 💀💀💀💀
 
 import asyncio
 import os
@@ -54,6 +53,9 @@ elif test:
     subprocess.run(["git", "commit", '-m', '"Automatic File Updates"'], stdout=subprocess.DEVNULL)
     subprocess.run(["git", "pull", 'origin', 'test'], stdout=subprocess.DEVNULL)
     subprocess.run(["git", "push", 'origin', 'test'], stdout=subprocess.DEVNULL)
+
+    # Notice to Cheesy: Was fixing the push in git, so pls fix. Thanks
+    
 task = {}
 global save
 save = eval(open("save.txt","r",encoding="utf8").read())
@@ -1610,7 +1612,7 @@ async def forcerespawn(ctx):
 async def on_message(txt):
     id=txt.author.id
     await user_check(id)
-    if id not in [807757190316163104, 943456334936936458]: #dis da bot id (including Outside Alpha)
+    if id not in [807757190316163104, 943456334936936458, 948533992817295400]: #dis da bot id (including Outside Alpha)
         if not txt.guild:
             await txt.reply('Hey! Outside is currently in beta and to make sure all bugs are squished and found playing outside in the dms is not allowed. Sorry! When the bot goes out of beta this will be allowed!\n if you are somehow playing this bot without being in the official outside server here is the invite link! https://discord.gg/CqdY897Qxm')
             return
@@ -1743,8 +1745,12 @@ async def found(ctx, *, nation_name):
     
     await ctx.reply(f'You founded {nation_name}!')
 
-    channel = client.get_channel(946595503699820595)
-    await channel.send(f'{ctx.author.mention} founded {nation_name}!')
+    try:
+        channel = client.get_channel(946595503699820595)
+        await channel.send(f'{ctx.author.mention} founded {nation_name}!')
+    except:
+        channel = client.get_channel(948536828586246184)
+        await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1823,8 +1829,12 @@ async def disband(ctx, *, nation_name):
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
 
-    channel = client.get_channel(946595503699820595)
-    await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+    try:
+        channel = client.get_channel(946595503699820595)
+        await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+    except:
+        channel = client.get_channel(948536828586246184)
+        await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
 @client.command(aliases = ['pe'])
 async def permissions(ctx):
@@ -1960,6 +1970,10 @@ async def declare(ctx, stance='', *, nation_name):
         return
     if stance not in save['terrain']['nations'][nation]['relationships']:
         await ctx.reply('Not a valid stance you can take')
+        return
+    if nation_name == nation:
+        await ctx.reply('You cannot declare a stance to yourself, for it will cause a self-referential paradox')
+        return
     if not save['users'][id]['nation']['permissions']['managerelations'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``managerelations`` permission to do that')
         return
@@ -2022,7 +2036,9 @@ async def nation_settings(ctx):
                 x.append(' -' + j + ' : '+ f'```py\n-{str(value2)}```')
         else:
             x.append(i + ' : '+ f'```py\n{str(value)}```')
-    await ctx.send('You\'re nations settings'+'\n'.join(x))
+    
+    embed = discord.Embed(title=f'{nation} settings', description='\n'.join(x), color=0x00ff00)
+    await ctx.send(embed=embed)
     
 @client.command(aliases = ['cns'])
 async def chnage_nation_setting(ctx, setting, new_value):
@@ -2071,6 +2087,16 @@ async def relations(ctx):
         await ctx.reply('Your nation has no relations')
         return
     await ctx.reply('\n'.join(x))
+
+@client.command(aliases = ['nat'])
+async def nations(ctx):
+    id = ctx.author.id
+    x = []
+    for i in save['terrain']['nations']:
+        x.append(i)
+    embed = discord.Embed(title='Nations', description='\n'.join(x), color=0x00ff00)
+    await ctx.send(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
