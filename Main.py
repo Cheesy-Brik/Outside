@@ -1630,7 +1630,7 @@ async def on_message(txt):
             await txt.reply(f"The nation level of {save['users'][id]['nation']['name']} increased")
     if id == 302050872383242240:
         if str(txt.embeds[0].color) == '#24b7b7':
-            if 'Bump done! :thumbsup:' in txt.embeds[0].description:
+            if 'Bump done!' in txt.embeds[0].description:
                 user_id = int(re.findall(r'(?<=<@)(.*?)(?=>)', txt.embeds[0].description)[0])
                 await txt.reply(f'Thank you <@{user_id}> for bumping the server!')
                 user =  discord.utils.get(client.get_all_members(), id=user_id)
