@@ -64,6 +64,7 @@ if 'start_time' not in save['terrain']:
 if 'nations' not in save['terrain']:
     save['terrain']['nations'] = {}
 
+#News channel ID
 news = int(open("news.txt","r",encoding="utf8").read())
 
 def write():
