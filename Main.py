@@ -2250,5 +2250,5 @@ async def temp(ctx):
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
     
-    await ctx.send(fetch_square(id, x, y)['nation'])
+    await ctx.send(str(fetch_square(id, x, y)['nation']))
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
