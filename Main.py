@@ -2245,6 +2245,9 @@ async def help(ctx, *, txt = 'all'):
 
 @client.command()
 async def temp(ctx):
-    await pickup(ctx)
-    await look(ctx)
+    id = ctx.author.id
+    
+    x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
+    
+    fetch_square(id, x, y)['nation']
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
