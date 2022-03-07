@@ -658,6 +658,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
                 print(claim_x, claim_y)
                 print(claim_x, pos[0], claim_y,pos[1])
                 print(claim_x-5/1000, pos[0], claim_y+5/1000,pos[1])
+                print(pos[0]<claim_x-5/1000 and pos[0]>=claim_x)
                 if (pos[0]<claim_x-5/1000 and pos[0]>=claim_x) and (pos[1]<claim_y+5/1000 and pos[1]>=claim_y):
                     nation = i
                     break
