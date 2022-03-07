@@ -64,6 +64,8 @@ if 'start_time' not in save['terrain']:
 if 'nations' not in save['terrain']:
     save['terrain']['nations'] = {}
 
+news = int(open("save.txt","r",encoding="utf8").read())
+
 def write():
     File = open("save.txt","w",encoding="utf8")
     File.write(str(save))
@@ -393,7 +395,7 @@ recipes = {
 async def user_check(id):
     for i in dict(save['terrain']['nations']):#Scuff * 100
         if i not in save['terrain']['nations']:continue
-        channel = client.get_channel(946595503699820595)
+        channel = client.get_channel(news)
         if not save['terrain']['nations'][i]['members']:
             try:    
                 save['terrain']['nations'].pop(i)
@@ -1770,12 +1772,8 @@ async def found(ctx, *, nation_name):
     
     await ctx.reply(f'You founded {nation_name}!')
 
-    try:
-        channel = client.get_channel(946595503699820595)
-        await channel.send(f'{ctx.author.mention} founded {nation_name}!')
-    except:
-        channel = client.get_channel(948536828586246184)
-        await channel.send(f'{ctx.author.mention} founded {nation_name}!')
+    channel = client.get_channel(news)
+    await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
     guild = ctx.guild
     await guild.create_role(name=nation_name)
@@ -1817,7 +1815,7 @@ async def join(ctx, *, nation_name):
             'permissions' : dict(save['terrain']['nations'][nation_name]['settings']['defaultpermissions'])
         }
     await ctx.reply(f'You joined {nation_name}!')
-    channel = client.get_channel(946595503699820595)
+    channel = client.get_channel(news)
     await channel.send(f'{ctx.author.mention} joined {nation_name}!')
     
     guild = ctx.guild
@@ -1841,7 +1839,7 @@ async def leave(ctx):
         nation = save['terrain']['nations'][nation_name]
         nation['members'].remove(id)
         save["users"][id]["nation"] = {}
-        channel = client.get_channel(946595503699820595)
+        channel = client.get_channel(news)
         await channel.send(f'{ctx.author.mention} left {nation_name}!')
 
         guild = ctx.guild
@@ -1878,13 +1876,9 @@ async def disband(ctx, *, nation_name):
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
-
-    try:
-        channel = client.get_channel(946595503699820595)
-        await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
-    except:
-        channel = client.get_channel(948536828586246184)
-        await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
+    
+    channel = client.get_channel(news)
+    await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
 @client.command(aliases = ['pe'])
 async def permissions(ctx):
@@ -2038,7 +2032,7 @@ async def declare(ctx, stance='', *, nation_name):
         await ctx.reply(f'You have already declared {stance} with {nation_name} ')
         return
     save['terrain']['nations'][nation]['relationships'][stance].append(nation_name)
-    channel = client.get_channel(946595503699820595)
+    channel = client.get_channel(news)
     await channel.send(f'{ctx.author.mention} declared {stance} with {nation_name}!')
     
 @client.command(aliases = ['ude'])
@@ -2066,7 +2060,7 @@ async def undeclare(ctx, stance='', *, nation_name):
     save['terrain']['nations'][nation]['relationships'][stance].remove(nation_name)
     await ctx.reply(f'You have undeclared {stance} with {nation_name}')
     
-    channel = client.get_channel(946595503699820595)
+    channel = client.get_channel(news)
     await channel.send(f'{ctx.author.mention} undeclared {stance} with {nation_name}!')
 
 @client.command(aliases = ['ns'])
