@@ -2122,6 +2122,18 @@ async def nations(ctx):
     embed = discord.Embed(title='Nations', description='\n'.join(x), color=0x00ff00)
     await ctx.send(embed=embed)
 
+@client.command(aliases= ['mem'])
+async def members(ctx, *, nation_name):
+    nation = save['terrain']['nations'][nation_name]
+    x = []
+
+    for i in nation['members']:
+        user = await client.fetch_user(i)
+        x.append(f"- {user.mention}")
+
+    embed = discord.Embed(title=f'{nation_name} members', description='\n'.join(x), color=0x00ff00)
+    await ctx.send(embed=embed)
+
 @client.command()
 @commands.has_role("Has touched grass")
 async def map(ctx, x=0, y=0, zoom = 1000, size =10): 
