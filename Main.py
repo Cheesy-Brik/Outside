@@ -1865,7 +1865,7 @@ async def disband(ctx, *, nation_name):
     for member in save['terrain']['nations'][nation_name]['members']:
         save['users'][member]['nation'] = {}
         guild = ctx.guild
-        user = await client.fetch_user(member)
+        user = guild.get_member(member)
 
         role = discord.utils.get(guild.roles, name=nation_name)
         await user.remove_roles(role)
