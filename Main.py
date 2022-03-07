@@ -1777,6 +1777,12 @@ async def found(ctx, *, nation_name):
         channel = client.get_channel(948536828586246184)
         await channel.send(f'{ctx.author.mention} founded {nation_name}!')
 
+    guild = ctx.guild
+    await guild.create_role(name=nation_name)
+
+    role = discord.utils.get(guild.roles, name=nation_name)
+    await client.add_roles(ctx.author, role)
+
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
     owner = await client.fetch_user(save['terrain']['nations'][nation_name]['owner'])
@@ -1811,6 +1817,10 @@ async def join(ctx, *, nation_name):
     await ctx.reply(f'You joined {nation_name}!')
     channel = client.get_channel(946595503699820595)
     await channel.send(f'{ctx.author.mention} joined {nation_name}!')
+    
+    guild = ctx.guild
+    role = discord.utils.get(guild.roles, name=nation_name)
+    await client.add_roles(ctx.author, role)
 
 @client.command(aliases = ['le'])
 async def leave(ctx):
@@ -1829,6 +1839,10 @@ async def leave(ctx):
         save["users"][id]["nation"] = {}
         channel = client.get_channel(946595503699820595)
         await channel.send(f'{ctx.author.mention} left {nation_name}!')
+
+        guild = ctx.guild
+        role = discord.utils.get(guild.roles, name=nation_name)
+        await client.remove_roles(ctx.author, role)
     else:
         await ctx.reply('You are not in a nation!')
     
@@ -1850,6 +1864,11 @@ async def disband(ctx, *, nation_name):
     
     for member in save['terrain']['nations'][nation_name]['members']:
         save['users'][member]['nation'] = {}
+        guild = ctx.guild
+        user = client.get_user(member)
+
+        role = discord.utils.get(guild.roles, name=nation_name)
+        await client.add_roles(user, role)
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
@@ -2081,7 +2100,7 @@ async def chnage_nation_setting(ctx, setting, new_value):
         await ctx.send('Not a valid setting')
     if setting.split('-')[0] ==  'defaultpermissions':
         if len(setting.split('-')) == 1:
-            await ctx.reply('You must sepcify which default permission you would like to change (EX. !change_nation_setting defaultpermissions-makeclaims True)')
+            await ctx.reply('You must specify which default permission you would like to change (EX. !change_nation_setting defaultpermissions-makeclaims True)')
             return
         setting = setting.split('-')
         if setting[1] not in save['terrain']['nations'][nation]['settings'][setting[0]]:
