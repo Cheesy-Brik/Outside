@@ -942,7 +942,9 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
                 break
             for j in fetch_square(id, x,y)['placements']:
                 if j in ['crude wooden wall']:
-                    if fetch_square(id, x,y)['nation'] == save['users'][id]['nation']['name']:continue
+                    
+                    if 'nation' in save['users'][id]:
+                        if fetch_square(id, x,y)['nation'] == save['users'][id]['nation']['name']:continue
                     break_out=True
                     await ctx.send('You have hit a wall that is not in the nation you are a part of')
 
