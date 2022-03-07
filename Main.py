@@ -928,16 +928,26 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
     #I don't even fucking know at this point
     else:    
         for i in range(min(abs(amount), 10)):  
+            break_out = False
             last = (x,y)
             if direction in lefts:y-=sign(amount)
             if direction in rights:y+=sign(amount)
             if direction in ups:x-=sign(amount)
             if direction in downs:x+=sign(amount)
+            total+=1
             if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
                 x, y = last
                 if has(id, 'boat'):pass
                 await ctx.reply('You have seem to hit water, you can use !swim but if you get to far away from the shore you\'ll take damage for every step you take')#Can't swim dipshit
                 break
+            for j in fetch_square(id, x,y)['placements']:
+                if j in ['crude wooden wall']:
+                    if fetch_square(id, x,y)['nation'] == save['users'][id]['nation']['name']:continue
+                    break_out=True
+                    await ctx.send('You have hit a wall that is not in the nation you are a part of')
+
+            if break_out:break
+
     
     save['users'][id]['pos'] = [y,-x]#WHYYYYYY
 
