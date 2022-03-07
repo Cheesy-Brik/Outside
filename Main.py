@@ -1868,7 +1868,7 @@ async def disband(ctx, *, nation_name):
         user = client.get_user(member)
 
         role = discord.utils.get(guild.roles, name=nation_name)
-        await client.add_roles(user, role)
+        await user.remove_roles(role)
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
