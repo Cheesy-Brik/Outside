@@ -934,7 +934,6 @@ async def walk(ctx, direction = random.choice(['up', 'down', 'left', 'right']), 
             if direction in rights:y+=sign(amount)
             if direction in ups:x-=sign(amount)
             if direction in downs:x+=sign(amount)
-            total+=1
             if fetch_square(id, x,y)['vis'] == '🟦' or fetch_square(id, x,y)['vis'] == '🟪':
                 x, y = last
                 if has(id, 'boat'):pass
