@@ -64,7 +64,7 @@ if 'start_time' not in save['terrain']:
 if 'nations' not in save['terrain']:
     save['terrain']['nations'] = {}
 
-news = int(open("save.txt","r",encoding="utf8").read())
+news = int(open("news.txt","r",encoding="utf8").read())
 
 def write():
     File = open("save.txt","w",encoding="utf8")
@@ -1876,7 +1876,7 @@ async def disband(ctx, *, nation_name):
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
-    
+
     channel = client.get_channel(news)
     await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
 
