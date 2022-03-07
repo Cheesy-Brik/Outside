@@ -653,6 +653,7 @@ def fetch_square(id = 0, x = 0, y = 0, zoom = 1000):#Extremely messy code ---V
     for i in save['terrain']['nations']:#Where nations is a dict
             for j in save['terrain']['nations'][i]['claims']:#Where j is a tuple
                 claim_x, claim_y = tuple(j);claim_x, claim_y = (claim_x/1000, claim_y/1000)#           :)
+                print(claim_x+6/1000, pos[0])
                 if (pos[0]<claim_x+6/1000 and pos[0]>=claim_x) and (pos[1]<claim_y+6/1000 and pos[1]>=claim_y):
                     nation = i
                     break
