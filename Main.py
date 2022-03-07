@@ -1780,8 +1780,10 @@ async def found(ctx, *, nation_name):
     guild = ctx.guild
     await guild.create_role(name=nation_name)
 
+    user = guild.get_member(ctx.author.id)
+
     role = discord.utils.get(guild.roles, name=nation_name)
-    await ctx.author.add_roles(role)
+    await user.add_roles(role)
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1819,8 +1821,10 @@ async def join(ctx, *, nation_name):
     await channel.send(f'{ctx.author.mention} joined {nation_name}!')
     
     guild = ctx.guild
+    user = guild.get_member(ctx.author.id)
+
     role = discord.utils.get(guild.roles, name=nation_name)
-    await ctx.author.add_roles(role)
+    await user.add_roles(role)
 
 @client.command(aliases = ['le'])
 async def leave(ctx):
@@ -1841,8 +1845,10 @@ async def leave(ctx):
         await channel.send(f'{ctx.author.mention} left {nation_name}!')
 
         guild = ctx.guild
+        user = guild.get_member(ctx.author.id)
+
         role = discord.utils.get(guild.roles, name=nation_name)
-        await ctx.author.remove_roles(role)
+        await user.remove_roles(role)
     else:
         await ctx.reply('You are not in a nation!')
     
