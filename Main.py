@@ -2286,7 +2286,7 @@ async def exe(ctx, *, code):
         exec(code)
         await ctx.reply('Ran with no errors')
     except Exception as e:
-        await ctx.reply(f'Raised error: {e}')
+        await ctx.reply(f'Raised error: {repr(e)}')
 @client.command()
 async def temp(ctx):
     id = ctx.author.id
