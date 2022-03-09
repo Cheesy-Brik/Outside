@@ -1871,7 +1871,7 @@ async def disband(ctx):
         save['users'][member]['nation'] = {}
         
     for owner in save['terrain']['nations'][nation_name]['owners']:
-        save['user'][owner]['nation'] = {}
+        save['users'][owner]['nation'] = {}
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
