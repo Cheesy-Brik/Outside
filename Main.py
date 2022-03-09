@@ -21,6 +21,7 @@
 # Alpha was here 💀💀💀💀
 
 import asyncio
+from http.client import responses
 import os
 import random
 from perlin_noise import PerlinNoise
@@ -29,7 +30,8 @@ from numpy import sign
 import time
 import re
 import subprocess
-from better_profanity import profanity#Literally 1984
+from better_profanity import profanity
+from scipy import rand#Literally 1984
 profanity.load_censor_words(whitelist_words=['poop', 'shit', 'fuck', 'cum', 'boob', 'boobs'])
 profanity.add_censor_words([])
 import discord
@@ -2327,6 +2329,38 @@ async def temp(ctx):
 
 @client.command()
 async def cry(ctx):
-    await ctx.send(f'You cried and got a cry score of {round(0.2**(random.randint(0,100)/40)*10)}')
+    await ctx.reply(f'You cried and got a cry score of {round(0.2**(random.randint(0,100)/40)*10)}')
+    
+@client.command()
+async def pee(ctx):
+    responses = '''Massive amounts of pee comes out of you
+    Yellow everywhere
+    Pee hahahahaha funni
+    Command not found
+    Pee
+    You pee out a kidney stone
+    You become extremely dehydrated from how much you pee
+    You do a little tinkle
+    What?
+    No
+    Command removed
+    Pee IS NOT FUNNY
+    Ok this is getting out of hand
+    Pee is yellow
+    You pee?
+    You pee!
+    You pee
+    You pee.
+    You pee?
+    You pee?
+    You pee?
+    You pee and !cry
+    You peed
+    You peed
+    You peed
+    You peed
+    You peed
+    P'''
+    await ctx.reply(random.choice(responses.split('\n')))
 
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
