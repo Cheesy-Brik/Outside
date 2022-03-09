@@ -1718,6 +1718,9 @@ async def found(ctx, *, nation_name):
     
     claim = (5*floor(y/5), 5*floor(-x/5))
 
+    if not has(id, 'Nation Banner'):
+        await ctx.reply('You must have a nation banner to found a nation!')
+    
     for nation in save['terrain']['nations']:
         if id in save['terrain']['nations'][nation]['owners']:
             await ctx.reply('You already own a nation!')
