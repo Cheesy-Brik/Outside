@@ -2364,10 +2364,6 @@ async def pee(ctx):
     await ctx.reply(random.choice(responses.split('\n')))
 
 @client.command()
-async def P(ctx):
-    await ctx.reply('P')
-
-@client.command()
 async def dig(ctx):
     await ctx.reply('THIS WILL NEVER EVER EVER EVER BE COMMAND, OK?????????')
 
