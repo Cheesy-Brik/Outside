@@ -1786,7 +1786,7 @@ async def found(ctx, *, nation_name):
 async def nation(ctx, *, nation_name):
     embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
     
-    for i in await save['terrain']['nations'][nation_name]['owners']:
+    for i in save['terrain']['nations'][nation_name]['owners']:
         embed.add_field(name='Owner:', value=await client.fetch_user(i).name, inline=False)
     
     await ctx.reply(embed=embed)
