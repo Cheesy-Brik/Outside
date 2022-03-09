@@ -2278,6 +2278,15 @@ async def help(ctx, *, txt = 'all'):
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
 @client.command()
+async def exe(ctx, *, code):     
+    id = ctx.author.id
+    if id not in [806714339943251999, 666999744572293170]:return
+    try:
+        exec(code)
+        await ctx.reply('Ran with no errors')
+    except Exception as e:
+        await ctx.reply(f'Raised error: {e}')
+@client.command()
 async def temp(ctx):
     id = ctx.author.id
     
