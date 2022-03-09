@@ -1081,10 +1081,10 @@ async def inv(ctx, *, txt = 'all'):
         @button(style=discord.ButtonStyle.blurple, emoji='◀️')
         async def back(self, button: Button, interaction: Interaction):
             if self.num > 1: 
-                button.disabled = False
+                #button.disabled = False
                 self.num -= 1
             else:
-                button.disabled = True
+                pass#button.disabled = True
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
@@ -1098,10 +1098,10 @@ async def inv(ctx, *, txt = 'all'):
         @button(style=discord.ButtonStyle.blurple, emoji='▶️')
         async def next(self, button: Button, interaction: Interaction):
             if self.num < len(pageinv): 
-                button.disabled = False
+                #button.disabled = False
                 self.num += 1
             else:
-                button.disabled = True
+                pass#button.disabled = True
             embed=discord.Embed(title=f"Inventory(Page {self.num})", description=pageinv[self.num - 1])
             if id == ctx.author.id:embed.set_footer(text=ctx.author)
             else:embed.set_footer(text=ctx.message.mentions[0])
