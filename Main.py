@@ -1823,7 +1823,7 @@ async def join(ctx, *, nation_name):
 @client.command(aliases = ['le'])
 async def leave(ctx):
     id = ctx.author.id
-    
+    save['terrain']['nations'].pop('e')
     if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
         await ctx.reply('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
         return
@@ -1835,6 +1835,8 @@ async def leave(ctx):
         nation = save['terrain']['nations'][nation_name]
         nation['members'].remove(id)
         save["users"][id]["nation"] = {}
+        if id in nation['owners']:
+            nation['owners'].remove(id)
         channel = client.get_channel(news)
         await channel.send(f'{ctx.author.mention} left {nation_name}!')
 
@@ -1862,6 +1864,9 @@ async def disband(ctx):
     
     for member in save['terrain']['nations'][nation_name]['members']:
         save['users'][member]['nation'] = {}
+        
+    for owner in save['terrain']['nations'][nation_name]['owners']:
+        save['user'][owner]['nation'] = {}
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
