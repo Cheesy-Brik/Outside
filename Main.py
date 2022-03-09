@@ -2363,4 +2363,12 @@ async def pee(ctx):
     P'''
     await ctx.reply(random.choice(responses.split('\n')))
 
+@client.command()
+async def p(ctx):
+    await ctx.reply('P')
+
+@client.command()
+async def dig(ctx):
+    await ctx.reply('THIS WILL NEVER EVER EVER EVER BE COMMAND, OK?????????')
+
 if __name__ == '__main__':client.run(open("bottoken.txt","r").read())#allow for importing without running the bot
