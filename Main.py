@@ -1793,6 +1793,8 @@ async def nation(ctx, *, nation_name):
 
 @client.command(aliases = ['j'])
 async def join(ctx, *, nation_name):
+    'Joins a nation'
+    
     id = ctx.author.id
 
     if nation_name not in save['terrain']['nations']:
@@ -1822,6 +1824,8 @@ async def join(ctx, *, nation_name):
 
 @client.command(aliases = ['le'])
 async def leave(ctx):
+    'Leaves a nation'
+    
     id = ctx.author.id
 
     if not save['users'][id]['nation']:
@@ -1853,6 +1857,8 @@ async def leave(ctx):
 
 @client.command(aliases = ['ds'])
 async def disband(ctx):
+    'Disbands a nation'
+    
     id = ctx.author.id
 
     if not save['users'][id]['nation']:
@@ -1881,6 +1887,8 @@ async def disband(ctx):
 
 @client.command(aliases = ['pe'])
 async def permissions(ctx):
+     'Allows you to see your permissions for a nation'
+     
      
      id = ctx.author.id
      x=[]
@@ -1894,6 +1902,8 @@ async def permissions(ctx):
      
 @client.command(aliases = ['gp'])
 async def giveperm(ctx, user, *, perm):
+    'Gives a perm to a user'
+    
     id = ctx.author.id
     perm = perm.strip().replace(' ', '').lower()
     if not save['users'][id]['nation']:
@@ -1925,6 +1935,8 @@ async def giveperm(ctx, user, *, perm):
 
 @client.command(aliases = ['tp'])
 async def takeperm(ctx, user, *, perm):
+    'Takes a perm away from a user'
+    
     id = ctx.author.id
     perm = perm.strip().replace(' ', '').lower().replace('delete', 'del')
     if not save['users'][id]['nation']:
@@ -1958,6 +1970,8 @@ async def takeperm(ctx, user, *, perm):
 
 @client.command(aliases = ['cl'])
 async def claim(ctx):
+    'Claims an area of land along a 5*5 global grid'
+    
     id = ctx.author.id
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -1981,6 +1995,8 @@ async def claim(ctx):
         
 @client.command(aliases = ['dcl'])
 async def deleteclaim(ctx):
+    'Deletes a claim of land'
+    
     id = ctx.author.id
     
     x, y = ( -(list(save['users'][id]['pos'])[1]) , (list(save['users'][id]['pos'])[0]) )
@@ -2003,6 +2019,8 @@ async def deleteclaim(ctx):
     
 @client.command(aliases = ['de'])
 async def declare(ctx, stance='', *, nation_name):
+    'Declares a relationship with another nation'
+    
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     stance =  stance.lower().strip().replace(' ', '')
@@ -2040,6 +2058,8 @@ async def declare(ctx, stance='', *, nation_name):
     
 @client.command(aliases = ['ude'])
 async def undeclare(ctx, stance='', *, nation_name):
+    'Revokes a set relationship with another nation'
+    
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     stance =  stance.lower().strip().replace(' ', '')
@@ -2068,6 +2088,8 @@ async def undeclare(ctx, stance='', *, nation_name):
 
 @client.command(aliases = ['ns'])
 async def nation_settings(ctx):
+    'Shows the settings of your nation'
+    
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     x = []
@@ -2089,6 +2111,8 @@ async def nation_settings(ctx):
     
 @client.command(aliases = ['cns'])
 async def chnage_nation_setting(ctx, setting, new_value):
+    'Allows the owner to change the settings a nation'
+    
     id = ctx.author.id
     new_value = eval(new_value)
     nation = save['users'][id]['nation']['name']
@@ -2121,6 +2145,7 @@ async def chnage_nation_setting(ctx, setting, new_value):
 
 @client.command(aliases = ['re'])
 async def relations(ctx):
+    'Shows the relationships a nation has'
     id = ctx.author.id
     nation = save['users'][id]['nation']['name']
     relationships = save['terrain']['nations'][nation]['relationships']
@@ -2146,6 +2171,7 @@ async def nations(ctx):
 
 @client.command(aliases= ['mem'])
 async def members(ctx, *, nation_name):
+    'Shows all members of a nation'
     nation = save['terrain']['nations'][nation_name]
     x = []
 
@@ -2182,7 +2208,7 @@ async def give(ctx, amount=1, *, item):
 
 @client.command(aliases = ['h'])
 async def help(ctx, *, txt = 'all'):
-    "Shows this command"
+    "Shows this"
 
     class ViewWithButton(View):
         def __init__(self):
@@ -2286,7 +2312,8 @@ async def exe(ctx, *, code):
         exec(code)
         await ctx.reply('Ran with no errors')
     except Exception as e:
-        await ctx.reply(f'Raised error: {repr(e)}')
+        await ctx.reply(f'Raised error: \n{repr(e)}')
+
 @client.command()
 async def temp(ctx):
     id = ctx.author.id
