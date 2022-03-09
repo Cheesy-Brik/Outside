@@ -1784,11 +1784,11 @@ async def found(ctx, *, nation_name):
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
-    owner = await client.fetch_user(save['terrain']['nations'][nation_name]['owner'])
     embed = discord.Embed(title=f'{nation_name}', description=f'A average "just-pretend" fictional nation microstate thing', color=0x00ff00)
     
-    embed.add_field(name='Owner', value=owner.name, inline=False)
-
+    for i in await save['terrain']['nations'][nation_name]['owners']:
+        embed.add_field(name='Owner:', value=await client.fetch_user(i).name, inline=False)
+    
     await ctx.reply(embed=embed)
 
 @client.command(aliases = ['j'])
@@ -1823,7 +1823,11 @@ async def join(ctx, *, nation_name):
 @client.command(aliases = ['le'])
 async def leave(ctx):
     id = ctx.author.id
-    save['terrain']['nations'].pop('e')
+
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
+
     if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
         await ctx.reply('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
         return
@@ -1854,6 +1858,7 @@ async def disband(ctx):
     if not save['users'][id]['nation']:
         await ctx.reply('You are not in a nation!')
         return
+    
     nation_name = save['users'][id]['nation']['name']
 
     for i in save['terrain']['nations'][nation_name]['owners']:
