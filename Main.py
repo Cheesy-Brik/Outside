@@ -1720,6 +1720,7 @@ async def found(ctx, *, nation_name):
 
     if not has(id, 'Nation Banner'):
         await ctx.reply('You must have a nation banner to found a nation!')
+        return
     
     for nation in save['terrain']['nations']:
         if id in save['terrain']['nations'][nation]['owners']:
