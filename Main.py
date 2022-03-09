@@ -1954,7 +1954,7 @@ async def claim(ctx):
     print(x, y)
     claim = (5*floor(y/5), 5*floor(-x/5))
     if not save['users'][id]['nation']:
-        await ctx.reply('You are not in a nation!, you can found one with !found')
+        await ctx.reply('You are not in a nation!, you can found one with !found <nation_name>')
         return
     if not save['users'][id]['nation']['permissions']['makeclaims'] and not save['users'][id]['nation']['permissions']['owner']:
         await ctx.reply('You need the ``makeclaims`` permission to do that')
