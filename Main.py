@@ -1780,9 +1780,7 @@ async def found(ctx, *, nation_name):
     await guild.create_role(name=nation_name)
 
     user = guild.get_member(ctx.author.id)
-
-    role = discord.utils.get(guild.roles, name=nation_name)
-    await user.add_roles(role)
+    
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1822,13 +1820,10 @@ async def join(ctx, *, nation_name):
     guild = ctx.guild
     user = guild.get_member(ctx.author.id)
 
-    role = discord.utils.get(guild.roles, name=nation_name)
-    await user.add_roles(role)
-
 @client.command(aliases = ['le'])
 async def leave(ctx):
     id = ctx.author.id
-
+    
     if save['users'][id]['nation']['permissions']['owner'] and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['members']) > 1 and len(save['terrain']['nations'][save['users'][id]['nation']['name']]['owners']) == 1:
         await ctx.reply('You cannot leave this nation as your people would be left without an owner!\n To elect new owners do !giveperm @someone owner\nOr you can disband your country with !disband')
         return
@@ -1845,21 +1840,19 @@ async def leave(ctx):
 
         guild = ctx.guild
         user = guild.get_member(ctx.author.id)
-
-        role = discord.utils.get(guild.roles, name=nation_name)
-        await user.remove_roles(role)
     else:
         await ctx.reply('You are not in a nation!')
     
     
 
 @client.command(aliases = ['ds'])
-async def disband(ctx, *, nation_name):
+async def disband(ctx):
     id = ctx.author.id
 
-    if nation_name not in save['terrain']['nations']:
-        await ctx.reply('That nation does not exist')
+    if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
         return
+    nation_name = save['users'][id]['nation']['name']
 
     for i in save['terrain']['nations'][nation_name]['owners']:
         if i == id:break
@@ -1869,11 +1862,6 @@ async def disband(ctx, *, nation_name):
     
     for member in save['terrain']['nations'][nation_name]['members']:
         save['users'][member]['nation'] = {}
-        guild = ctx.guild
-        user = guild.get_member(member)
-
-        role = discord.utils.get(guild.roles, name=nation_name)
-        await user.remove_roles(role)
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
@@ -1883,8 +1871,12 @@ async def disband(ctx, *, nation_name):
 
 @client.command(aliases = ['pe'])
 async def permissions(ctx):
+     
      id = ctx.author.id
      x=[]
+     if not save['users'][id]['nation']:
+        await ctx.reply('You are not in a nation!')
+        return
      for i in save['users'][id]['nation']['permissions']:
          value = save['users'][id]['nation']['permissions'][i]
          if value:x.append(i)
