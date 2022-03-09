@@ -2364,7 +2364,7 @@ async def pee(ctx):
     await ctx.reply(random.choice(responses.split('\n')))
 
 @client.command()
-async def p(ctx):
+async def P(ctx):
     await ctx.reply('P')
 
 @client.command()
