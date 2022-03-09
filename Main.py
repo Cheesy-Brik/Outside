@@ -2281,6 +2281,7 @@ async def help(ctx, *, txt = 'all'):
 async def exe(ctx, *, code):     
     id = ctx.author.id
     if id not in [806714339943251999, 666999744572293170]:return
+    code = code.replace('```', '')
     try:
         exec(code)
         await ctx.reply('Ran with no errors')
