@@ -1068,7 +1068,7 @@ async def pickup(ctx):
 @client.command(aliases = ['inventory', 'pocket', 'i', 'items'])
 async def inv(ctx, *, txt = 'all'):
     "Let's you see your items."
-
+    print('AAAAA')
     class ViewWithButton(View):
         def __init__(self):
             super().__init__(timeout=120)
