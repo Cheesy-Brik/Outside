@@ -2340,7 +2340,7 @@ async def help(ctx, *, txt = 'all'):
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
 @client.command()
-async def leaderboard(ctx, field):
+async def leaderboard(ctx, field='intelligence'):
     "Shows top 20 in field"
 
     match field:
