@@ -1377,6 +1377,8 @@ async def use(ctx, *, tool = ''):
         }
 
         for tree in tree_data:
+            print(tree)
+            
             if tree in placements:
                 placements.remove(tree)
                 items = []
