@@ -1709,7 +1709,7 @@ async def info(ctx, user:discord.Member=''):
         embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
     except:
         embed.add_field(name='Nation', value='None', inline=False)
-        
+
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
@@ -1787,7 +1787,7 @@ async def found(ctx, *, nation_name):
     await guild.create_role(name=nation_name)
 
     user = guild.get_member(ctx.author.id)
-    
+    user.add_roles(discord.utils.get(guild.roles, name=nation_name))
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1830,6 +1830,8 @@ async def join(ctx, *, nation_name):
     guild = ctx.guild
     user = guild.get_member(ctx.author.id)
 
+    user.add_roles(discord.utils.get(guild.roles, name=nation_name))
+
 @client.command(aliases = ['le'])
 async def leave(ctx):
     'Leaves a nation'
@@ -1858,6 +1860,16 @@ async def leave(ctx):
 
         guild = ctx.guild
         user = guild.get_member(ctx.author.id)
+
+        user.remove_roles(discord.utils.get(guild.roles, name=nation_name))
+
+        if len(nation['members']) == 0:
+            del save['terrain']['nations'][nation_name]
+            await ctx.reply(f'{nation_name} has been disbanded!')
+
+            role = discord.utils.get(guild.roles, name=nation_name)
+            await role.delete()
+            return
     else:
         await ctx.reply('You are not in a nation!')
     
@@ -1889,6 +1901,10 @@ async def disband(ctx):
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
+
+    guild = ctx.guild
+    role = discord.utils.get(guild.roles, name=nation_name)
+    await role.delete()
 
     channel = client.get_channel(news)
     await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
