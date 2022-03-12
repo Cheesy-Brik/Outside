@@ -2345,6 +2345,7 @@ async def leaderboard(ctx, field='intelligence'):
 
     match field:
         case 'intelligence':
+            print(type(save['users'].items()))
             players = sorted(save['users'].items(), key=lambda item: int(item['stats']['intelligence']), reverse=True)
 
             embed = discord.Embed(title='Top 20 Intelligence', description='\n'.join(f'{i+1}. {players[i][0]} - {players[i][1]["intelligence"]}' for i in range(20)))
