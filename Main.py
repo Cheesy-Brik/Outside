@@ -2354,7 +2354,7 @@ async def leaderboard(ctx, field='intelligence'):
 
             players = dict(sorted(list(players.items()), key=lambda item: item[1], reverse=True))
 
-            embed = discord.Embed(title='Top 20 Intelligence', description='\n'.join([f'{i+1}. **{list(players.keys())[i]}** - {players[list(players.keys())[i]]}' for i in range(20) if len(list(players.keys())) > i]))
+            embed = discord.Embed(title='Leaderboard of Intelligence', description='\n'.join([f'{i+1}. **{list(players.keys())[i]}** - {players[list(players.keys())[i]]}' for i in range(20) if len(list(players.keys())) > i]), color=0x00ff00)
             await ctx.reply(embed=embed)
         case _:
             await ctx.reply('Invalid field')
