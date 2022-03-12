@@ -30,8 +30,8 @@ from numpy import sign
 import time
 import re
 import subprocess
-from better_profanity import profanity
-from scipy import rand#Literally 1984
+from better_profanity import profanity#Literally 1984
+
 profanity.load_censor_words(whitelist_words=['poop', 'shit', 'fuck', 'cum', 'boob', 'boobs'])
 profanity.add_censor_words([])
 import discord
@@ -1371,19 +1371,31 @@ async def use(ctx, *, tool = ''):
             return
 
     if tool in ['crude axe', 'crude wooden axe']:#Axes
-        if 'oak tree' in placements:#Must find better way to do this
-            placements.remove('oak tree')
-            if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
-            else:save['users'][id]['inv']['oak log'] = {'amount' : 1}
-            await ctx.reply('You chopped down the oak tree and got an oak log')
-        elif 'pine tree' in placements:
-            placements.remove('pine tree')
-            if 'pine log' in save['users'][id]['inv']:save['users'][id]['inv']['pine log']['amount'] += 1
-            else:save['users'][id]['inv']['pine log'] = {'amount' : 1}
-            await ctx.reply('You chopped down the pine tree and got an pine log')
+        tree_data = {
+            "oak tree": ["oak log", "oak log", "oak log", "leaf"],
+            "pine tree": ["pine log", "pine log", "pine log", "leaf", "leaf", "leaf"],
+        }
+
+        for tree in tree_data:
+            print(tree)
+            print(placements)
+
+            if tree in placements:
+                placements.remove(tree)
+                items = []
+
+                for x in range(0, 2):
+                    items.append(random.choice(tree_data[tree]))
+                    
+                for i in items:
+                    if i in save['users'][id]['inv']:save['users'][id]['inv'][i]['amount'] += 1
+                    else:save['users'][id]['inv'][i] = {'amount' : 1}
+
+                await ctx.reply(f'You chopped down the {tree} and got {", ".join(tree_data[tree])}')
+                break
         else:
-            await ctx.reply('You must be standing on a tree to use this')
-            return
+            await ctx.reply('There is nothing to chop down here')
+        
     elif tool in ['crude pickaxe', 'crude wooden pickaxe']:#Pickaxes
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
@@ -1704,7 +1716,12 @@ async def info(ctx, user:discord.Member=''):
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
-    embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
+
+    try:
+        embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
+    except:
+        embed.add_field(name='Nation', value='None', inline=False)
+
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
@@ -1782,7 +1799,7 @@ async def found(ctx, *, nation_name):
     await guild.create_role(name=nation_name)
 
     user = guild.get_member(ctx.author.id)
-    
+    await user.add_roles(discord.utils.get(guild.roles, name=nation_name))
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1825,6 +1842,8 @@ async def join(ctx, *, nation_name):
     guild = ctx.guild
     user = guild.get_member(ctx.author.id)
 
+    await user.add_roles(discord.utils.get(guild.roles, name=nation_name))
+
 @client.command(aliases = ['le'])
 async def leave(ctx):
     'Leaves a nation'
@@ -1853,6 +1872,16 @@ async def leave(ctx):
 
         guild = ctx.guild
         user = guild.get_member(ctx.author.id)
+
+        await user.remove_roles(discord.utils.get(guild.roles, name=nation_name))
+
+        if len(nation['members']) == 0:
+            del save['terrain']['nations'][nation_name]
+            await ctx.reply(f'{nation_name} has been disbanded!')
+
+            role = discord.utils.get(guild.roles, name=nation_name)
+            await role.delete()
+            return
     else:
         await ctx.reply('You are not in a nation!')
     
@@ -1884,6 +1913,10 @@ async def disband(ctx):
 
     save['terrain']['nations'].pop(nation_name)
     await ctx.reply(f'You disbanded {nation_name}!')
+
+    guild = ctx.guild
+    role = discord.utils.get(guild.roles, name=nation_name)
+    await role.delete()
 
     channel = client.get_channel(news)
     await channel.send(f'{ctx.author.mention} disbanded {nation_name}!')
@@ -2305,6 +2338,24 @@ async def help(ctx, *, txt = 'all'):
     if id == ctx.author.id:embed.set_footer(text='command prefix is !')
     else:embed.set_footer(text=ctx.message.mentions[0])
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
+
+@client.command()
+async def leaderboard(ctx, field='intelligence'):
+    "Shows top 20 in field"
+
+    match field:
+        case 'intelligence':
+            players = {}
+
+            for player in save['users']:
+                players[player] = save['users'][player]['stats']['intelligence']
+
+            players = dict(sorted(list(players.items()), key=lambda item: item[1], reverse=True))
+
+            embed = discord.Embed(title='Leaderboard of Intelligence', description='\n'.join([f'{i+1}. **{list(players.keys())[i]}** - {players[list(players.keys())[i]]}' for i in range(20) if len(list(players.keys())) > i]), color=0x00ff00)
+            await ctx.reply(embed=embed)
+        case _:
+            await ctx.reply('Invalid field')
 
 @client.command()
 async def exe(ctx, *, code):     
