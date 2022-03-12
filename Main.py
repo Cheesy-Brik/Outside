@@ -1371,19 +1371,25 @@ async def use(ctx, *, tool = ''):
             return
 
     if tool in ['crude axe', 'crude wooden axe']:#Axes
-        if 'oak tree' in placements:#Must find better way to do this
-            placements.remove('oak tree')
-            if 'oak log' in save['users'][id]['inv']:save['users'][id]['inv']['oak log']['amount'] += 1
-            else:save['users'][id]['inv']['oak log'] = {'amount' : 1}
-            await ctx.reply('You chopped down the oak tree and got an oak log')
-        elif 'pine tree' in placements:
-            placements.remove('pine tree')
-            if 'pine log' in save['users'][id]['inv']:save['users'][id]['inv']['pine log']['amount'] += 1
-            else:save['users'][id]['inv']['pine log'] = {'amount' : 1}
-            await ctx.reply('You chopped down the pine tree and got an pine log')
-        else:
-            await ctx.reply('You must be standing on a tree to use this')
-            return
+        tree_data = {
+            "oak tree": ["oak log", "oak log", "oak log", "leaf"],
+            "pine tree": ["pine log", "pine log", "pine log", "leaf", "leaf", "leaf"],
+        }
+
+        for tree in tree_data:
+            if tree in placements:
+                placements.remove(tree)
+                items = []
+
+                for x in range(0, 2):
+                    items.append(random.choice(tree_data[tree]))
+                    
+                for i in items:
+                    if i in save['users'][id]['inv']:save['users'][id]['inv'][i]['amount'] += 1
+                    else:save['users'][id]['inv'][i] = {'amount' : 1}
+
+                await ctx.reply(f'You chopped down the {tree} and got {", ".join(tree_data[tree])}')
+                break
     elif tool in ['crude pickaxe', 'crude wooden pickaxe']:#Pickaxes
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
