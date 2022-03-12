@@ -1390,6 +1390,9 @@ async def use(ctx, *, tool = ''):
 
                 await ctx.reply(f'You chopped down the {tree} and got {", ".join(tree_data[tree])}')
                 break
+        else:
+            await ctx.reply('There is nothing to chop down here')
+        
     elif tool in ['crude pickaxe', 'crude wooden pickaxe']:#Pickaxes
         if minerals == []:
             await ctx.reply('There is nothing to mine here')
