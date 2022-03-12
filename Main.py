@@ -1391,7 +1391,7 @@ async def use(ctx, *, tool = ''):
                     if i in save['users'][id]['inv']:save['users'][id]['inv'][i]['amount'] += 1
                     else:save['users'][id]['inv'][i] = {'amount' : 1}
 
-                await ctx.reply(f'You chopped down the {tree} and got {", ".join(tree_data[tree])}')
+                await ctx.reply(f'You chopped down the {tree} and got {", ".join(items)}')
                 break
         else:
             await ctx.reply('There is nothing to chop down here')
