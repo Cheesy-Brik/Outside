@@ -32,6 +32,8 @@ import re
 import subprocess
 from better_profanity import profanity
 from scipy import rand#Literally 1984
+import operator
+
 profanity.load_censor_words(whitelist_words=['poop', 'shit', 'fuck', 'cum', 'boob', 'boobs'])
 profanity.add_censor_words([])
 import discord
@@ -2345,7 +2347,7 @@ async def leaderboard(ctx, field='intelligence'):
 
     match field:
         case 'intelligence':
-            players = sorted(list(save['users'].items()), key=lambda item: int(item['stats']['intelligence']), reverse=True)
+            players = sorted(list(save['users'].items()), key=lambda item: operator.itemgetter(0)['stats']['intelligence'], reverse=True)
 
             embed = discord.Embed(title='Top 20 Intelligence', description='\n'.join(f'{i+1}. {players[i][0]} - {players[i][1]["intelligence"]}' for i in range(20)))
             await ctx.reply(embed=embed)
