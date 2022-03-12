@@ -1704,7 +1704,12 @@ async def info(ctx, user:discord.Member=''):
     embed = discord.Embed(title=f'{user.name}', description=f'Average nature enthusist', color=0x00ff00)#Int level is an internal variable (it's the xp value for intelligence)
     embed.add_field(name='Intelligence', value=stats['intelligence'], inline=False)
     embed.add_field(name='Position', value=pos, inline=False)
-    embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
+
+    try:
+        embed.add_field(name='Nation', value=save['users'][id]['nation']['name'], inline=False)
+    except:
+        embed.add_field(name='Nation', value='None', inline=False)
+        
     embed.add_field(name='Health', value=hb, inline=False)
     
     await ctx.reply(embed=embed)
