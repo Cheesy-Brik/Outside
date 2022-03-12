@@ -1787,7 +1787,7 @@ async def found(ctx, *, nation_name):
     await guild.create_role(name=nation_name)
 
     user = guild.get_member(ctx.author.id)
-    user.add_roles(discord.utils.get(guild.roles, name=nation_name))
+    await user.add_roles(discord.utils.get(guild.roles, name=nation_name))
 
 @client.command(aliases = ['n'])
 async def nation(ctx, *, nation_name):
@@ -1830,7 +1830,7 @@ async def join(ctx, *, nation_name):
     guild = ctx.guild
     user = guild.get_member(ctx.author.id)
 
-    user.add_roles(discord.utils.get(guild.roles, name=nation_name))
+    await user.add_roles(discord.utils.get(guild.roles, name=nation_name))
 
 @client.command(aliases = ['le'])
 async def leave(ctx):
@@ -1861,7 +1861,7 @@ async def leave(ctx):
         guild = ctx.guild
         user = guild.get_member(ctx.author.id)
 
-        user.remove_roles(discord.utils.get(guild.roles, name=nation_name))
+        await user.remove_roles(discord.utils.get(guild.roles, name=nation_name))
 
         if len(nation['members']) == 0:
             del save['terrain']['nations'][nation_name]
