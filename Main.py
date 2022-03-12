@@ -1661,6 +1661,7 @@ async def on_message(txt):
         elif str(txt.guild) != 'Outside':print('-------------',txt.guild )
         if txt.channel.id in task:task[txt.channel.id] += 1
         else:task[txt.channel.id] = 1
+    print('FUCK') 
     await client.process_commands(txt)
     for i in client.commands:
         if txt.content.lower() == f'!{i.name}':
