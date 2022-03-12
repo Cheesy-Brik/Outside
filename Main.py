@@ -2340,6 +2340,19 @@ async def help(ctx, *, txt = 'all'):
     msg = await ctx.reply(embed=embed, view=ViewWithButton())
 
 @client.command()
+async def leaderboard(ctx, field):
+    "Shows top 20 in field"
+
+    match field:
+        case 'intelligence':
+            players = sorted(save['users'].items(), key=lambda item: item[1]['intelligence'], reverse=True)
+
+            embed = discord.Embed(title='Top 20 Intelligence', description='\n'.join(f'{i+1}. {players[i][0]} - {players[i][1]["intelligence"]}' for i in range(20)))
+            await ctx.reply(embed=embed)
+        case _:
+            await ctx.reply('Invalid field')
+
+@client.command()
 async def exe(ctx, *, code):     
     id = ctx.author.id
     if id not in [806714339943251999, 666999744572293170]:return
